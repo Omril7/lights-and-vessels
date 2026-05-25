@@ -1,0 +1,50 @@
+# dependencies
+node_modules
+.pnp
+.pnp.js
+
+# next.js
+.next
+out
+build
+next-env.d.ts
+
+# production / deploy
+.vercel
+
+# typescript
+*.tsbuildinfo
+
+# testing
+coverage
+
+# env
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# database
+prisma/dev.db
+prisma/dev.db-journal
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# uploads
+uploads/
+
+# local meeting / artist notes
+meeting-checklist.html
+meeting-notes-*.json
+message-to-artist.txt
+
+# os / editor
+.DS_Store
+Thumbs.db
+.idea
+.vscode

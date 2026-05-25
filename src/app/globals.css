@@ -1,0 +1,347 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Warm, earthy palette */
+  --cream: #f7f1e6;
+  --linen: #efe6d6;
+  --sand: #e3d4bd;
+  --clay: #c9a98a;
+  --terracotta: #b5704e;
+  --olive: #6b6a4b;
+  --charcoal: #3b352d;
+  --ink: #2a251f;
+  --gold: #b08a4b;
+  --copper: #a86b3c;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+}
+
+html,
+body {
+  background-color: var(--cream);
+  color: var(--ink);
+}
+
+body {
+  font-feature-settings: "kern", "liga";
+}
+
+/* Subtle paper-grain texture overlay */
+.paper-grain {
+  background-image: radial-gradient(
+    rgba(60, 47, 35, 0.045) 1px,
+    transparent 1px
+  );
+  background-size: 4px 4px;
+}
+
+/* Watercolor-style soft wash */
+.wash {
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(181, 112, 78, 0.12), transparent 55%),
+    radial-gradient(ellipse at 85% 30%, rgba(107, 106, 75, 0.1), transparent 50%);
+}
+
+::selection {
+  background: var(--clay);
+  color: var(--ink);
+}
+
+/* Thin, elegant scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--linen);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--clay);
+  border-radius: 999px;
+  border: 2px solid var(--linen);
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Rendered markdown / rich text */
+.prose-art p {
+  margin-bottom: 1rem;
+  line-height: 1.8;
+}
+.prose-art h2,
+.prose-art h3 {
+  font-family: var(--font-frank), serif;
+  margin: 1.75rem 0 0.75rem;
+}
+.prose-art h2 {
+  font-size: 1.6rem;
+}
+.prose-art h3 {
+  font-size: 1.25rem;
+}
+.prose-art ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin-bottom: 1rem;
+}
+.prose-art ul li {
+  margin-bottom: 0.35rem;
+}
+.prose-art strong {
+  font-weight: 600;
+}
+.prose-art em {
+  font-style: italic;
+}
+.prose-art a {
+  color: var(--copper);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Keyboard key — small typographic chip used in instructions */
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  padding: 0.1rem 0.5rem;
+  margin: 0 0.15rem;
+  font-family: var(--font-assistant), ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.78em;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ink);
+  background: linear-gradient(to bottom, var(--cream), var(--linen));
+  border: 1px solid rgba(60, 47, 35, 0.22);
+  border-bottom-width: 2px;
+  border-radius: 0.4rem;
+  box-shadow:
+    inset 0 -1px 0 rgba(255, 255, 255, 0.6),
+    0 1px 0 rgba(60, 47, 35, 0.08);
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   Accessibility widget — applied as classes on <html>.
+   Contrast & grayscale override theme CSS variables (never an
+   ancestor `filter`, which would break position:fixed).
+   ============================================================ */
+
+/* Font scaling — everything is rem-based, so root scaling lifts all */
+html.a11y-font-1 {
+  font-size: 112.5%;
+}
+html.a11y-font-2 {
+  font-size: 125%;
+}
+html.a11y-font-3 {
+  font-size: 140%;
+}
+
+/* High contrast — black background, white text, yellow accents */
+html.a11y-contrast {
+  --cream: #000000;
+  --linen: #0a0a0a;
+  --sand: #1c1c1c;
+  --clay: #ffd400;
+  --terracotta: #ffd400;
+  --olive: #ffd400;
+  --charcoal: #ffffff;
+  --ink: #ffffff;
+  --gold: #ffd400;
+  --copper: #ffd400;
+}
+html.a11y-contrast img {
+  filter: contrast(1.15);
+}
+
+/* Grayscale — desaturated palette + desaturated images */
+html.a11y-grayscale {
+  --cream: #f4f4f4;
+  --linen: #ececec;
+  --sand: #dadada;
+  --clay: #b0b0b0;
+  --terracotta: #7a7a7a;
+  --olive: #737373;
+  --charcoal: #3a3a3a;
+  --ink: #232323;
+  --gold: #8a8a8a;
+  --copper: #6f6f6f;
+}
+html.a11y-grayscale img {
+  filter: grayscale(100%);
+}
+
+/* Highlight links */
+html.a11y-links a {
+  text-decoration: underline !important;
+  text-underline-offset: 3px;
+  outline: 2px dashed currentColor;
+  outline-offset: 2px;
+}
+
+/* Readable font — drop the display serif for a plain sans */
+html.a11y-readable,
+html.a11y-readable * {
+  font-family: var(--font-assistant), system-ui, sans-serif !important;
+  letter-spacing: normal !important;
+}
+
+/* Large cursor */
+html.a11y-cursor,
+html.a11y-cursor * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M5 3l0 30 8-8 5 11 5-2-5-11 12 0z' fill='%23000' stroke='%23fff' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E")
+      4 3,
+    auto !important;
+}
+
+/* Reduce motion */
+html.a11y-no-motion *,
+html.a11y-no-motion *::before,
+html.a11y-no-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Dark mode — softer than high-contrast, warmer dark palette */
+html.a11y-dark {
+  --cream: #1a1714;
+  --linen: #221d18;
+  --sand: #2b2520;
+  --clay: #6b5a48;
+  --terracotta: #d18a64;
+  --olive: #9a9a73;
+  --charcoal: #ece4d4;
+  --ink: #f3ecdc;
+  --gold: #d4ad6e;
+  --copper: #d18a64;
+}
+html.a11y-dark img {
+  filter: brightness(0.92);
+}
+/* a11y-contrast wins over a11y-dark when both are on (source order) */
+
+/* Increased line spacing */
+html.a11y-line-spacing,
+html.a11y-line-spacing * {
+  line-height: 1.95 !important;
+}
+
+/* Increased letter spacing */
+html.a11y-letter-spacing,
+html.a11y-letter-spacing * {
+  letter-spacing: 0.08em !important;
+  word-spacing: 0.12em !important;
+}
+
+/* Hide images — keep layout, show subtle placeholder */
+html.a11y-hide-images img,
+html.a11y-hide-images video,
+html.a11y-hide-images picture {
+  visibility: hidden !important;
+}
+html.a11y-hide-images [style*="background-image"] {
+  background-image: none !important;
+}
+
+/* Underline headings — helps scanning for some readers */
+html.a11y-underline-headings :is(h1, h2, h3, h4, h5, h6) {
+  text-decoration: underline !important;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+/* Pause GIFs / images — emulate by removing transforms/transitions on img */
+html.a11y-pause-media img,
+html.a11y-pause-media video {
+  animation-play-state: paused !important;
+}
+html.a11y-pause-media video {
+  /* JS pauses the actual playback; this is a visual safety net */
+}
+
+/* Bold text — bump weight site-wide */
+html.a11y-bold,
+html.a11y-bold * {
+  font-weight: 700 !important;
+}
+
+/* Strong focus ring — never lose where keyboard focus is */
+html.a11y-focus *:focus,
+html.a11y-focus *:focus-visible {
+  outline: 3px solid #ffd400 !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(255, 212, 0, 0.35) !important;
+}
+
+/* Sepia / warm tone — eases eye strain */
+html.a11y-sepia {
+  --cream: #f5ecd9;
+  --linen: #ede1c8;
+  --sand: #e3cfa9;
+  --clay: #b78a5f;
+  --terracotta: #9a5b3b;
+  --olive: #807454;
+  --charcoal: #4a3a26;
+  --ink: #2f2515;
+  --gold: #9a7536;
+  --copper: #9a5b3b;
+}
+html.a11y-sepia img {
+  filter: sepia(0.35) saturate(0.85);
+}
+
+/* Reading guide — horizontal ruler element is positioned via JS */
+.a11y-reading-guide {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 44px;
+  background: rgba(58, 47, 31, 0.45);
+  pointer-events: none;
+  z-index: 80;
+  transform: translateY(-50%);
+  /* A transparent strip in the middle exposes one line of text */
+  mask: linear-gradient(
+    to bottom,
+    #000 0,
+    #000 16px,
+    transparent 16px,
+    transparent 28px,
+    #000 28px,
+    #000 100%
+  );
+  -webkit-mask: linear-gradient(
+    to bottom,
+    #000 0,
+    #000 16px,
+    transparent 16px,
+    transparent 28px,
+    #000 28px,
+    #000 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
