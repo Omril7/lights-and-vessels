@@ -31,9 +31,18 @@ MORNING_PLUGIN_ID=""                 # if Morning requires a plugin id for hoste
 MORNING_DEFAULT_DOC_TYPE="400"       # 400 = קבלה (artist is עוסק פטור). 320 only if moving to עוסק מורשה.
 MORNING_WEBHOOK_SECRET="..."         # shared secret used to sign IPN requests
 
-# Resend (branded order-confirmation email — required)
+# Email — order confirmation. Choose ONE provider via EMAIL_PROVIDER. See API.md "Email confirmation".
+EMAIL_PROVIDER="resend"                     # "resend" (default) or "gmail"
+
+# Resend (recommended once a real domain exists — proper DKIM/SPF, professional From address)
 RESEND_API_KEY="..."
 RESEND_FROM_EMAIL="onboarding@resend.dev"   # dev — switch to hello@<artist-domain> once domain is bought
+RESEND_FROM_NAME="אורות וכלים"
+
+# Gmail SMTP fallback (no domain needed; From shows as personal Gmail; ~500/day limit).
+# Requires 2FA enabled on the Google account + an App Password from https://myaccount.google.com/apppasswords.
+GMAIL_USER=""                # e.g. you@gmail.com
+GMAIL_APP_PASSWORD=""        # 16-char App Password — NOT the Google account password
 
 # Supabase Storage (product images — see IMAGE_STORAGE.md)
 NEXT_PUBLIC_SUPABASE_URL="https://<project-ref>.supabase.co"

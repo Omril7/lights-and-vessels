@@ -75,6 +75,15 @@ Charts use a small dep (e.g. `recharts`) — confirm before adding.
 
 **Expenses, clients list.** Out of scope for Phase 3. Possibly Phase 6.
 
-**Email confirmation.** Morning emails the receipt PDF directly to the customer (`sendByEmail: true` on document creation). **In addition**, this app sends its own branded order-confirmation email via **Resend** — the artist confirmed he wants both. The branded email is in Hebrew, uses the studio's name and palette, links to the order/PDF, and is sent from a sender on the artist's domain (configure once the domain is bought; dev uses `onboarding@resend.dev`). Resend is a Phase 3 requirement, not optional. **The branded email is sent for both shipping methods** — for `shippingMethod: "post"` it shows the shipping address + ETA; for `"pickup"` it shows the pickup address + hours from `SiteContent` (`shipping_pickup_address`, `shipping_pickup_hours`) instead.
+**Email confirmation.** Morning emails the receipt PDF directly to the customer (`sendByEmail: true` on document creation). **In addition**, this app sends its own branded order-confirmation email — the artist confirmed he wants both. The branded email is in Hebrew, uses the studio's name and palette, links to the order/PDF, and is sent from a sender configured per provider. **The branded email is sent for both shipping methods** — for `shippingMethod: "post"` it shows the shipping address + ETA; for `"pickup"` it shows the pickup address + hours from `SiteContent` (`shipping_pickup_address`, `shipping_pickup_hours`) instead.
+
+**Provider switch (`EMAIL_PROVIDER` env var):** the send function in `src/lib/email.ts` picks one of two backends at runtime:
+
+| Provider | When to use | Tradeoffs |
+|---|---|---|
+| `resend` (default) | Anytime the artist has (or will have) a custom domain. | Free 3000/mo. Proper DKIM/SPF once the domain is verified in Resend. Professional `From: hello@<artist-domain>`. While on `onboarding@resend.dev` (no domain yet): works, but limited to 100/day and the artist's own inbox. |
+| `gmail` | No-domain fallback / quick MVP. Uses nodemailer + Gmail SMTP via an App Password. | Free. ~500 sends/day (personal Gmail) or 2000/day (Workspace). `From: <artist-gmail>@gmail.com` looks personal/amateur and triggers spam filters more often (especially Outlook). Requires 2FA + an App Password from <https://myaccount.google.com/apppasswords>. Set `GMAIL_USER` + `GMAIL_APP_PASSWORD` in `.env`. |
+
+When the chosen provider's credentials are missing, the send is skipped with a `console.warn` (it never throws and never blocks order creation). Decision is reversible by flipping `EMAIL_PROVIDER` — no code change.
 
 **Environment & credentials.** See [ENV.md](ENV.md). Test against Morning's **sandbox** (`https://sandbox.d.greeninvoice.co.il/api/v1/`) until the client confirms go-live.

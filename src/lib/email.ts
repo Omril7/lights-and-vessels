@@ -1,43 +1,72 @@
 import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import { formatPrice } from "@/lib/utils";
 import type { Order, OrderItem, Product } from "@prisma/client";
 
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
 const FROM_NAME = process.env.RESEND_FROM_NAME || "אורות וכלים";
 const STUDIO_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
-
-function client(): Resend | null {
-  const key = process.env.RESEND_API_KEY;
-  if (!key || key === "..." || key === "") return null;
-  return new Resend(key);
-}
+const PROVIDER = (process.env.EMAIL_PROVIDER || "resend").toLowerCase();
 
 type OrderWithItems = Order & {
   items: (OrderItem & { product: Pick<Product, "name" | "slug"> })[];
 };
 
+type SendArgs = { to: string; subject: string; html: string };
+
+async function sendViaResend(args: SendArgs): Promise<boolean> {
+  const key = process.env.RESEND_API_KEY;
+  if (!key || key === "..." || key === "") {
+    console.warn("[email] RESEND_API_KEY missing; skipping send");
+    return false;
+  }
+  const from = `${FROM_NAME} <${process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev"}>`;
+  try {
+    await new Resend(key).emails.send({ from, to: [args.to], subject: args.subject, html: args.html });
+    return true;
+  } catch (err) {
+    console.error("[email] Resend send failed:", err);
+    return false;
+  }
+}
+
+async function sendViaGmail(args: SendArgs): Promise<boolean> {
+  const user = process.env.GMAIL_USER;
+  const pass = process.env.GMAIL_APP_PASSWORD;
+  if (!user || !pass) {
+    console.warn("[email] GMAIL_USER / GMAIL_APP_PASSWORD missing; skipping send");
+    return false;
+  }
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: { user, pass },
+  });
+  try {
+    await transporter.sendMail({
+      from: `${FROM_NAME} <${user}>`,
+      to: args.to,
+      subject: args.subject,
+      html: args.html,
+    });
+    return true;
+  } catch (err) {
+    console.error("[email] Gmail SMTP send failed:", err);
+    return false;
+  }
+}
+
 export async function sendOrderConfirmationEmail(
   order: OrderWithItems,
   ctx: { pickupAddress?: string; pickupHours?: string; shippingEta?: string },
 ): Promise<void> {
-  const resend = client();
-  if (!resend) {
-    console.warn("[email] RESEND_API_KEY missing; skipping confirmation email for", order.orderNumber);
-    return;
-  }
-
-  const html = renderConfirmationHtml(order, ctx);
-  const subject = `הזמנה ${order.orderNumber} התקבלה — אורות וכלים`;
-
-  try {
-    await resend.emails.send({
-      from: `${FROM_NAME} <${FROM_EMAIL}>`,
-      to: [order.customerEmail],
-      subject,
-      html,
-    });
-  } catch (err) {
-    console.error("[email] Resend send failed:", err);
+  const args: SendArgs = {
+    to: order.customerEmail,
+    subject: `הזמנה ${order.orderNumber} התקבלה — אורות וכלים`,
+    html: renderConfirmationHtml(order, ctx),
+  };
+  const sent =
+    PROVIDER === "gmail" ? await sendViaGmail(args) : await sendViaResend(args);
+  if (!sent) {
+    console.warn(`[email] confirmation skipped for order ${order.orderNumber} (provider=${PROVIDER})`);
   }
 }
 
