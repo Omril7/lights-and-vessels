@@ -31,7 +31,7 @@ export function FeaturedProducts({
       <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-5 md:grid-cols-3 lg:grid-cols-4">
         {products.slice(0, 8).map((p, i) => (
           <FadeIn key={p.id} delay={i * 0.06}>
-            <ProductCard product={p} />
+            <ProductCard product={p} priority={i < 4} />
           </FadeIn>
         ))}
       </div>

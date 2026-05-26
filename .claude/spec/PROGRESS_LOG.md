@@ -163,8 +163,13 @@ External setup that must be in place before a real end-to-end smoke test:
 - `global-error.tsx` — last-resort boundary with inline styles (replaces `<html>`).
 - All log to console via `useEffect`. Toasts (`react-hot-toast`) already wired in root layout and used across all mutating actions.
 
+**Image optimization** ✅
+- Audit confirmed: zero raw `<img>` tags — everything uses `next/image`.
+- `priority` on above-the-fold images: `HeroBanner` (homepage hero), `ProductGallery` main image (product page), `About` portrait, `ShopGrid` first 4 cards. Added: `FeaturedProducts` now passes `priority={i < 4}` to the first row.
+- `sizes` configured on all responsive images (cards: `(max-width: 768px) 50vw, 25vw`; hero: `100vw`; thumbs: fixed px). Quality stays at the Next.js default 75.
+- Supabase Storage bucket host whitelisted in `next.config.js` so uploaded images get the Next image optimizer (AVIF/WebP variants, srcset).
+
 **Still pending**
-- Image optimization audit (we already use `next/image` everywhere; verify on prod).
 - Accessibility pass (keyboard nav, ARIA, contrast) — accessibility widget already shipped in Phase 1.
 - Lighthouse audit.
 - Apple touch icon at proper 180×180 + `manifest.json` (favicon already set).
