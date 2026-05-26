@@ -61,7 +61,7 @@ A running record of what has been built, phase by phase. Update this as work pro
 - Delete flow with confirm.
 
 **Image storage**
-- Supabase Storage `products` bucket (public). `/api/upload` writes via service-role key to `<year>/<uuid>.<ext>`, returns the public CDN URL stored in `ProductImage.url`. `next.config.js` whitelists the bucket host for `next/image`.
+- Supabase Storage `site-images` bucket (public). `/api/upload` writes via service-role key to `<folder>/<year>/<uuid>.<ext>` where `folder` is either `products` (gallery) or `content` (hero/story/about), returns the public CDN URL stored in `ProductImage.url` or `SiteContent.value`. `next.config.js` whitelists the bucket host for `next/image`.
 
 **Site content** (`/admin/site-content`)
 - Grouped editor — Banner (toggle switch + text + URL), Hero, Story, About (Markdown), Contact, Footer.

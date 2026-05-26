@@ -365,6 +365,7 @@ function ImageField({
     setUploading(true);
     try {
       const fd = new FormData();
+      fd.append("folder", "content");
       fd.append("files", file);
       const res = await fetch("/api/upload", { method: "POST", body: fd });
       const body = await res.json().catch(() => null);

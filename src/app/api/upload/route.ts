@@ -33,6 +33,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No files" }, { status: 400 });
   }
 
+  const folderRaw = String(form.get("folder") ?? "products");
+  const folder = folderRaw === "content" ? "content" : "products";
   const bucket = process.env.SUPABASE_STORAGE_BUCKET!;
   const uploaded: { url: string; name: string; size: number }[] = [];
 
@@ -52,7 +54,7 @@ export async function POST(req: Request) {
     }
 
     const ext = EXT_BY_MIME[f.type] ?? "bin";
-    const path = `${new Date().getFullYear()}/${randomUUID()}.${ext}`;
+    const path = `${folder}/${new Date().getFullYear()}/${randomUUID()}.${ext}`;
 
     const { error } = await supabaseAdmin.storage
       .from(bucket)

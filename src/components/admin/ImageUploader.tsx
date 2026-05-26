@@ -30,6 +30,7 @@ export function ImageUploader({
       setUploading(true);
       try {
         const fd = new FormData();
+        fd.append("folder", "products");
         for (const f of files) fd.append("files", f);
         const res = await fetch("/api/upload", { method: "POST", body: fd });
         if (!res.ok) {

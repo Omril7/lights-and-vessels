@@ -34,14 +34,20 @@ Trade-off vs alternatives:
 ### 1. Create the bucket in Supabase
 
 1. Supabase dashboard → **Storage** → **New bucket**.
-2. Name: `products`.
+2. Name: `site-images`.
 3. **Public bucket: ON**. (Anyone can read; only the service-role key can write.)
 4. File size limit: `10 MB` (matches the 8 MB cap on the API, leaves a margin).
-5. Allowed MIME types: `image/jpeg, image/png, image/webp, image/avif`.
+5. Allowed MIME types: `image/jpeg, image/png, image/webp, image/avif, image/gif`.
+
+A single bucket holds two namespaces, separated by top-level folders:
+- `products/<year>/<uuid>.<ext>` — product gallery images (from `ImageUploader`).
+- `content/<year>/<uuid>.<ext>` — site-content images (hero, story, about portrait — from `SiteContentEditor`).
+
+The folder is selected by the caller via a `folder` form field on `POST /api/upload` (`products` or `content`, default `products`).
 
 Bucket URLs will look like:
 ```
-https://<project-ref>.supabase.co/storage/v1/object/public/products/<path>
+https://<project-ref>.supabase.co/storage/v1/object/public/site-images/<folder>/<year>/<uuid>.<ext>
 ```
 
 ### 2. Add env vars
@@ -52,7 +58,7 @@ In `.env.local` and prod (Vercel):
 NEXT_PUBLIC_SUPABASE_URL="https://<project-ref>.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="<anon-key>"           # safe to expose; client-side reads only
 SUPABASE_SERVICE_ROLE_KEY="<service-role-key>"       # SERVER ONLY — never import into client code
-SUPABASE_STORAGE_BUCKET="products"
+SUPABASE_STORAGE_BUCKET="site-images"
 ```
 
 Document these in `ENV.md` (dev) and `PRE_DEPLOY.md` (prod). The service-role key bypasses Row Level Security — treat it like a database password.
@@ -127,7 +133,7 @@ module.exports = {
       {
         protocol: "https",
         hostname: "<project-ref>.supabase.co",
-        pathname: "/storage/v1/object/public/products/**",
+        pathname: "/storage/v1/object/public/site-images/**",
       },
     ],
   },
@@ -141,7 +147,7 @@ Without this, `<Image src={publicUrl} />` will throw at runtime.
 When the admin deletes a `ProductImage`, also delete the underlying object so the bucket doesn't fill up with orphans:
 
 ```ts
-const path = url.split("/public/products/")[1];
+const path = url.split(`/public/${process.env.SUPABASE_STORAGE_BUCKET}/`)[1];
 await supabaseAdmin.storage
   .from(process.env.SUPABASE_STORAGE_BUCKET!)
   .remove([path]);

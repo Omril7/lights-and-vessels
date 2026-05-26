@@ -39,7 +39,7 @@ RESEND_FROM_EMAIL="onboarding@resend.dev"   # dev — switch to hello@<artist-do
 NEXT_PUBLIC_SUPABASE_URL="https://<project-ref>.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="..."          # safe to expose client-side
 SUPABASE_SERVICE_ROLE_KEY="..."              # SERVER ONLY — bypasses RLS, treat like a DB password
-SUPABASE_STORAGE_BUCKET="products"           # public bucket name
+SUPABASE_STORAGE_BUCKET="site-images"        # public bucket name; uploads written under products/<year>/ or content/<year>/
 ```
 
 ## Production
