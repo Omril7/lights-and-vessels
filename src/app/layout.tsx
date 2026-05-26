@@ -72,8 +72,9 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: "/logo-2169x1282-black.png",
-    apple: "/logo-2169x1282-black.png",
+    apple: { url: "/logo-2169x1282-black.png", sizes: "180x180" },
   },
+  manifest: "/manifest.webmanifest",
   robots: {
     index: true,
     follow: true,
