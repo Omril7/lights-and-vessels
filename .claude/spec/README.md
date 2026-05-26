@@ -16,6 +16,7 @@ Split from the original `artist-ecommerce-spec.md`. Open the file that matches w
 | [PHASES.md](PHASES.md) | Implementation phases 1–4 (the plan) |
 | [PRE_DEPLOY.md](PRE_DEPLOY.md) | Phase 5 — launch-day handoff, account ownership, prod env vars, hardening |
 | [DEPENDENCIES.md](DEPENDENCIES.md) | npm dependencies + cross-cutting important notes |
+| [LEGAL.md](LEGAL.md) | Must-have Israeli legal pages (terms, privacy, returns, shipping, accessibility) — status, scope, drafting plan |
 | [PROGRESS_LOG.md](PROGRESS_LOG.md) | Running record of what's been built (the part that grows) |
 
 ---
