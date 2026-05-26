@@ -152,9 +152,18 @@ External setup that must be in place before a real end-to-end smoke test:
 - `src/app/sitemap.ts` — static routes (`/`, `/shop`, `/about`, `/accessibility-statement`) + every published product (by `updatedAt`).
 - Site URL driven by `NEXT_PUBLIC_SITE_URL` (falls back to the prod Vercel domain).
 
+**Loading states** ✅
+- `Skeleton` component (`src/components/ui/Skeleton.tsx`) — sand background + cream shimmer (`shimmer` keyframe in `tailwind.config.ts`).
+- `loading.tsx` for storefront root, `/shop`, `/shop/[slug]`, and admin (`/admin`, `/admin/products`, `/admin/orders`) — skeletons mirror each page's real layout.
+- Storefront layout refactored to be synchronous; `getSiteContent()` moved into Suspense-wrapped slot components (`BannerSlot`, `FooterSlot`, `WhatsAppSlot`) so the shell renders instantly and child `loading.tsx` appears during navigation.
+
+**Error boundaries** ✅
+- `(storefront)/error.tsx` — Hebrew "משהו השתבש" with reset + back-to-home buttons.
+- `admin/error.tsx` — admin-flavored card showing raw `error.message` for diagnostics.
+- `global-error.tsx` — last-resort boundary with inline styles (replaces `<html>`).
+- All log to console via `useEffect`. Toasts (`react-hot-toast`) already wired in root layout and used across all mutating actions.
+
 **Still pending**
-- Loading states + skeletons.
-- Error boundaries.
 - Image optimization audit (we already use `next/image` everywhere; verify on prod).
 - Accessibility pass (keyboard nav, ARIA, contrast) — accessibility widget already shipped in Phase 1.
 - Lighthouse audit.
