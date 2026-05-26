@@ -1,8 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useDropzone } from "react-dropzone";
 import {
   MegaphoneIcon,
   SparklesIcon,
@@ -10,6 +12,8 @@ import {
   UserIcon,
   ChatBubbleLeftRightIcon,
   Square3Stack3DIcon,
+  ArrowUpTrayIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -66,7 +70,7 @@ export const SECTIONS: Section[] = [
       { key: "hero_title", label: "כותרת ראשית", kind: "text" },
       { key: "hero_cta", label: "טקסט כפתור", kind: "text" },
       { key: "hero_subtitle", label: "כותרת משנה", kind: "textarea", wide: true },
-      { key: "hero_image", label: "תמונת רקע (URL)", kind: "image", wide: true },
+      { key: "hero_image", label: "תמונת רקע", kind: "image", wide: true },
     ],
   },
   {
@@ -76,7 +80,7 @@ export const SECTIONS: Section[] = [
     icon: PaintBrushIcon,
     fields: [
       { key: "story_teaser", label: "תקציר", kind: "textarea", wide: true },
-      { key: "story_image", label: "תמונה (URL)", kind: "image", wide: true },
+      { key: "story_image", label: "תמונה", kind: "image", wide: true },
     ],
   },
   {
@@ -86,7 +90,7 @@ export const SECTIONS: Section[] = [
     icon: UserIcon,
     fields: [
       { key: "about_text", label: "תוכן מלא", kind: "richtext", wide: true },
-      { key: "about_portrait", label: "פורטרט (URL)", kind: "image", wide: true },
+      { key: "about_portrait", label: "פורטרט", kind: "image", wide: true },
     ],
   },
   {
@@ -256,31 +260,61 @@ function ContentField({
   if (field.kind === "toggle") {
     const on = value === "true";
     return (
-      <div className="flex items-center justify-between rounded-xl border border-charcoal/10 bg-linen/40 px-4 py-3">
-        <div>
-          <p className="text-sm font-medium text-charcoal">{field.label}</p>
-          {field.help && (
-            <p className="text-xs text-charcoal/50">{field.help}</p>
-          )}
+      <button
+        type="button"
+        onClick={() => onChange(on ? "false" : "true")}
+        aria-pressed={on}
+        className={cn(
+          "group flex w-full items-center justify-between gap-4 rounded-2xl border px-5 py-4 text-start transition-all",
+          on
+            ? "border-olive/40 bg-olive/10 shadow-soft"
+            : "border-charcoal/15 bg-linen/40 hover:border-charcoal/30"
+        )}
+      >
+        <div className="flex items-center gap-3">
+          <span
+            className={cn(
+              "flex h-9 w-9 items-center justify-center rounded-xl transition-colors",
+              on ? "bg-olive text-cream" : "bg-charcoal/10 text-charcoal/60"
+            )}
+            aria-hidden
+          >
+            <MegaphoneIcon className="h-5 w-5" />
+          </span>
+          <div>
+            <p className="text-sm font-medium text-charcoal">{field.label}</p>
+            <p
+              className={cn(
+                "text-xs transition-colors",
+                on ? "text-olive" : "text-charcoal/50"
+              )}
+            >
+              {on ? "פעיל — מוצג למבקרים" : "כבוי — אינו מוצג"}
+            </p>
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={() => onChange(on ? "false" : "true")}
-          aria-pressed={on}
+
+        <span
           className={cn(
-            "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors",
-            on ? "bg-charcoal" : "bg-charcoal/20"
+            "relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors",
+            on ? "bg-olive" : "bg-charcoal/25"
           )}
         >
           <span
             className={cn(
-              "inline-block h-5 w-5 transform rounded-full bg-cream shadow transition-transform",
-              on ? "translate-x-1" : "translate-x-5"
+              "inline-block h-6 w-6 transform rounded-full bg-cream shadow transition-transform duration-200",
+              on
+                ? "translate-x-0.5 rtl:-translate-x-0.5"
+                : "translate-x-[1.375rem] rtl:-translate-x-[1.375rem]"
             )}
           />
-        </button>
-      </div>
+        </span>
+      </button>
     );
+  }
+
+  if (field.kind === "image") {
+    return <ImageField value={value} label={field.label} help={field.help} onChange={onChange} />;
   }
 
   const inputBase =
@@ -303,9 +337,7 @@ function ContentField({
           type={field.kind === "url" ? "url" : "text"}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          dir={
-            field.kind === "url" || field.kind === "image" ? "ltr" : undefined
-          }
+          dir={field.kind === "url" ? "ltr" : undefined}
           className={inputBase}
         />
       )}
@@ -313,5 +345,124 @@ function ContentField({
         <span className="block text-xs text-charcoal/50">{field.help}</span>
       )}
     </label>
+  );
+}
+
+function ImageField({
+  value,
+  label,
+  help,
+  onChange,
+}: {
+  value: string;
+  label: string;
+  help?: string;
+  onChange: (v: string) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+
+  async function upload(file: File) {
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("files", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const body = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(body?.error || "שגיאה בהעלאה");
+      const url = body?.files?.[0]?.url;
+      if (!url) throw new Error("שגיאה בהעלאה");
+      onChange(url);
+      toast.success("התמונה הועלתה");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "שגיאה");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: {
+      "image/jpeg": [],
+      "image/png": [],
+      "image/webp": [],
+      "image/avif": [],
+    },
+    maxFiles: 1,
+    multiple: false,
+    disabled: uploading,
+    onDrop: (files) => files[0] && upload(files[0]),
+  });
+
+  return (
+    <div className="space-y-1.5">
+      <span className="block text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
+        {label}
+      </span>
+
+      {value ? (
+        <div className="flex items-center gap-4 rounded-xl border border-charcoal/10 bg-linen/40 p-3">
+          <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-sand">
+            <Image
+              src={value}
+              alt={label}
+              fill
+              sizes="96px"
+              className="object-cover"
+            />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs text-charcoal/60" dir="ltr">
+              {value}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <div {...getRootProps()}>
+                <input {...getInputProps()} />
+                <button
+                  type="button"
+                  disabled={uploading}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-charcoal/20 px-3 py-1.5 text-xs text-charcoal transition-colors hover:bg-charcoal/[0.06] disabled:opacity-50"
+                >
+                  <ArrowUpTrayIcon className="h-3.5 w-3.5" />
+                  {uploading ? "מעלה…" : "החלפת תמונה"}
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => onChange("")}
+                disabled={uploading}
+                className="inline-flex items-center gap-1.5 rounded-full border border-terracotta/40 px-3 py-1.5 text-xs text-terracotta transition-colors hover:bg-terracotta/10 disabled:opacity-50"
+              >
+                <TrashIcon className="h-3.5 w-3.5" />
+                הסרה
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div
+          {...getRootProps()}
+          className={cn(
+            "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-8 text-center transition-colors",
+            isDragActive
+              ? "border-charcoal/50 bg-linen"
+              : "border-charcoal/20 bg-linen/40 hover:border-charcoal/40",
+            uploading && "pointer-events-none opacity-60"
+          )}
+        >
+          <input {...getInputProps()} />
+          <ArrowUpTrayIcon className="h-6 w-6 text-charcoal/50" aria-hidden />
+          <p className="text-sm text-charcoal/70">
+            {uploading
+              ? "מעלה תמונה…"
+              : isDragActive
+              ? "שחררו את הקובץ"
+              : "גררו תמונה לכאן או לחצו לבחירה"}
+          </p>
+          <p className="text-xs text-charcoal/40">JPG · PNG · WebP · AVIF · עד 8MB</p>
+        </div>
+      )}
+
+      {help && <span className="block text-xs text-charcoal/50">{help}</span>}
+    </div>
   );
 }
