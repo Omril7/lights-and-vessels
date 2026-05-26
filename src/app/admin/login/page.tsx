@@ -1,9 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
+import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
 function LoginPanel() {
   const params = useSearchParams();
@@ -64,6 +66,14 @@ function LoginPanel() {
       <p className="text-center text-xs text-charcoal/50">
         רק חשבונות Google מאושרים יכולים להיכנס. אם מגיע לך גישה ועדיין נחסמת — פנה אליי.
       </p>
+
+      <Link
+        href="/"
+        className="mx-auto flex items-center gap-1.5 text-sm text-charcoal/60 transition-colors hover:text-charcoal"
+      >
+        <ArrowRightIcon className="h-4 w-4" />
+        חזרה לאתר
+      </Link>
     </div>
   );
 }
