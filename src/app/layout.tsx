@@ -22,13 +22,67 @@ const assistant = Assistant({
   display: "swap",
 });
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://lights-and-vessels.vercel.app";
+const SITE_NAME = "אורות וכלים";
+const SITE_DESCRIPTION =
+  "אוסף סטודיו קטן של תכשיטים וחפצים לבית, נוצרים לאט ובעבודת יד.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "סטודיו — תכשיטים ואורות וכלים",
-    template: "%s · סטודיו",
+    default: `${SITE_NAME} — תכשיטים וחפצים בעבודת יד`,
+    template: `%s · ${SITE_NAME}`,
   },
-  description:
-    "אוסף סטודיו קטן של תכשיטים וחפצים לבית, נוצרים לאט ובעבודת יד.",
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "תכשיטים בעבודת יד",
+    "סטודיו תכשיטים",
+    "כלי בית",
+    "אומנות ישראלית",
+    "מתנות",
+    "אורות וכלים",
+  ],
+  applicationName: SITE_NAME,
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "he_IL",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} — תכשיטים וחפצים בעבודת יד`,
+    description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: "/logo-2169x1282-black.png",
+        width: 2169,
+        height: 1282,
+        alt: SITE_NAME,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} — תכשיטים וחפצים בעבודת יד`,
+    description: SITE_DESCRIPTION,
+    images: ["/logo-2169x1282-black.png"],
+  },
+  icons: {
+    icon: "/logo-2169x1282-black.png",
+    apple: "/logo-2169x1282-black.png",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+    },
+  },
 };
 
 export default function RootLayout({

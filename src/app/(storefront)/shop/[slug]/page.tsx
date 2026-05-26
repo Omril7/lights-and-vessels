@@ -27,9 +27,25 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const product = await getProduct(params.slug);
   if (!product) return { title: "פריט לא נמצא" };
+  const description = product.description.replace(/[#*\n]/g, " ").slice(0, 150);
+  const firstImage = product.images[0]?.url;
   return {
     title: product.name,
-    description: product.description.replace(/[#*\n]/g, " ").slice(0, 150),
+    description,
+    alternates: { canonical: `/shop/${product.slug}` },
+    openGraph: {
+      type: "website",
+      title: product.name,
+      description,
+      url: `/shop/${product.slug}`,
+      images: firstImage ? [{ url: firstImage, alt: product.name }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description,
+      images: firstImage ? [firstImage] : undefined,
+    },
   };
 }
 
@@ -59,8 +75,30 @@ export default async function ProductPage({
     ? product.tags.split(",").map((t) => t.trim()).filter(Boolean)
     : [];
 
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description.replace(/[#*\n]/g, " ").slice(0, 300),
+    image: product.images.map((i) => i.url),
+    sku: product.id,
+    offers: {
+      "@type": "Offer",
+      price: product.price,
+      priceCurrency: "ILS",
+      availability: soldOut
+        ? "https://schema.org/OutOfStock"
+        : "https://schema.org/InStock",
+      url: `/shop/${product.slug}`,
+    },
+  };
+
   return (
     <div className="mx-auto max-w-editorial px-5 pb-10 pt-28 md:px-8 md:pt-32">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       {/* Breadcrumb */}
       <nav className="mb-8 flex items-center gap-2 text-xs text-charcoal/50">
         <Link href="/" className="hover:text-charcoal">

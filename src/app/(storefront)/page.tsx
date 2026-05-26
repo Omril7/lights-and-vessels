@@ -26,8 +26,22 @@ export default async function HomePage() {
       where: { published: true, category: { not: null } },
     })) > 0;
 
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://lights-and-vessels.vercel.app";
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "אורות וכלים",
+    url: siteUrl,
+    logo: `${siteUrl}/logo-2169x1282-black.png`,
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+      />
       <HeroBanner
         title={content.hero_title}
         subtitle={content.hero_subtitle}
