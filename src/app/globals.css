@@ -20,6 +20,30 @@
   -webkit-font-smoothing: antialiased;
 }
 
+/* Baseline focus ring for keyboard users — visible without the a11y widget. */
+:focus-visible {
+  outline: 2px solid var(--copper);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skip-to-content link — visible only when focused. */
+.skip-link {
+  position: absolute;
+  inset-inline-start: 1rem;
+  top: -3rem;
+  z-index: 100;
+  padding: 0.6rem 1.2rem;
+  background: var(--charcoal);
+  color: var(--cream);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  transition: top 0.2s ease;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
 html,
 body {
   background-color: var(--cream);

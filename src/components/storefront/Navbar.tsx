@@ -60,6 +60,7 @@ export function Navbar() {
             <li key={l.href}>
               <Link
                 href={l.href}
+                aria-current={pathname === l.href ? "page" : undefined}
                 className={cn(
                   "relative text-sm tracking-wide transition-colors hover:text-ink",
                   pathname === l.href

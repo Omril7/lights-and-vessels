@@ -169,8 +169,16 @@ External setup that must be in place before a real end-to-end smoke test:
 - `sizes` configured on all responsive images (cards: `(max-width: 768px) 50vw, 25vw`; hero: `100vw`; thumbs: fixed px). Quality stays at the Next.js default 75.
 - Supabase Storage bucket host whitelisted in `next.config.js` so uploaded images get the Next image optimizer (AVIF/WebP variants, srcset).
 
+**Accessibility pass** ✅
+- Default `:focus-visible` ring globally (copper, 2px outline + offset) in `globals.css`. Keyboard users see focus without enabling the a11y widget.
+- Skip-to-content link in storefront layout — hidden until focused, jumps to `<main id="main-content" tabIndex={-1}>`.
+- `aria-current="page"` on active links in `Navbar`, admin `Sidebar` (desktop + mobile bottom-nav).
+- Audit confirmed: no raw `<img>` tags (covered in image opt); icon-only buttons (cart open/close, qty +/-, drawer close, hamburger, trash) already have `aria-label`s; admin sidebar Icons marked `aria-hidden`.
+- Phase 1 a11y widget (font scaling, contrast, motion, etc.) remains untouched.
+
+**Known contrast tradeoffs (design call — not changed):** `text-charcoal/40` and `/50` opacities used for placeholders, breadcrumbs, and meta text fail WCAG AA 4.5:1 against cream. Users who need stronger contrast can flip the widget's contrast/dark modes; baseline visual hierarchy preserved otherwise.
+
 **Still pending**
-- Accessibility pass (keyboard nav, ARIA, contrast) — accessibility widget already shipped in Phase 1.
 - Lighthouse audit.
 - Apple touch icon at proper 180×180 + `manifest.json` (favicon already set).
 
