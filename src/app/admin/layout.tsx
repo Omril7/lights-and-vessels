@@ -8,6 +8,7 @@ import {
 
 export const metadata = {
   title: "ניהול",
+  manifest: "/manifest.webmanifest",
 };
 
 export default async function AdminLayout({

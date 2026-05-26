@@ -179,8 +179,9 @@ External setup that must be in place before a real end-to-end smoke test:
 **Known contrast tradeoffs (design call — not changed):** `text-charcoal/40` and `/50` opacities used for placeholders, breadcrumbs, and meta text fail WCAG AA 4.5:1 against cream. Users who need stronger contrast can flip the widget's contrast/dark modes; baseline visual hierarchy preserved otherwise.
 
 **Apple touch icon + PWA manifest** ✅
-- `src/app/manifest.ts` (served at `/manifest.webmanifest`) — name, short_name, Hebrew description, `start_url: "/"`, `display: standalone`, `background_color: #f7f1e6` (cream), `theme_color: #3b352d` (charcoal), `lang: he`, `dir: rtl`, icon entry.
-- `metadata.manifest` wired in root `layout.tsx`; apple-icon now declares `sizes: "180x180"`.
+- `src/app/manifest.ts` (served at `/manifest.webmanifest`) — **admin-only PWA**: name "ניהול אורות וכלים", `start_url: /admin`, `scope: /admin`, `display: standalone`, Hebrew RTL. Manifest is linked **only** from admin pages (via `metadata.manifest` in `src/app/admin/layout.tsx`); the storefront does not advertise an installable app.
+- Apple-icon declares `sizes: "180x180"` in root `layout.tsx`.
+- `/manifest.webmanifest` itself is gated by `middleware.ts` (added to the NextAuth matcher) — only authenticated admins can fetch it directly.
 - **Asset caveat**: both favicon and apple-touch reuse the wide `logo-2169x1282-black.png`. On iOS home screen and Android install banner this gets letterboxed (the logo is 1.7:1, not square). For a polished install experience, drop a square 180×180 (or 512×512 maskable) PNG at `public/apple-icon.png` and point the metadata + manifest at it — non-blocking but a nice-to-have.
 
 **Still pending**
