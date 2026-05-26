@@ -12,6 +12,10 @@ DIRECT_URL="postgresql://postgres.<ref>:<password>@aws-1-<region>.pooler.supabas
 NEXTAUTH_SECRET="generate-a-random-secret"
 NEXTAUTH_URL="http://localhost:3000"
 
+# Public site URL — used by SEO metadata (canonical, OG), sitemap.xml, robots.txt, JSON-LD.
+# Must be the full origin without trailing slash. In Vercel set to the production domain.
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+
 # Admin allowlist — Google OAuth emails permitted into /admin (comma-separated, lowercase).
 ADMIN_EMAILS="artist@example.com,omri@example.com"
 

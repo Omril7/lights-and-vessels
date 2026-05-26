@@ -142,4 +142,21 @@ External setup that must be in place before a real end-to-end smoke test:
 5. **First live IPN payload-shape check** — the webhook handler reads `id`/`formId`/`paymentFormId`, `documentId`/`document.id`, multiple `status` shapes, and either `x-morning-signature` or `x-signature` headers. Morning's actual field names and signature header may differ; log the raw body on first ping and tighten the parser accordingly.
 6. **`vatType: 2` confirmation** — the value used for עוסק פטור line items is the documented "Exempt (VAT free)" enum on `income[].vatType`. Verify Morning accepts it on the first sandbox transaction.
 
-## Phase 4 — Polish — ⏳ Not started
+## Phase 4 — Polish — 🚧 In progress
+
+**SEO** ✅
+- Root metadata in `src/app/layout.tsx` — title template, description, keywords, `metadataBase`, OG (he_IL + black logo), Twitter card, icons (favicon + apple-touch from `/public/logo-2169x1282-black.png`), robots directives.
+- `/shop/[slug]` — `generateMetadata` adds canonical, per-product OG image (first product image), Twitter card.
+- JSON-LD — `Organization` on homepage, `Product` (price/availability/SKU) on product pages.
+- `src/app/robots.ts` — allows storefront, disallows `/admin`, `/api`, `/cart`, `/checkout`.
+- `src/app/sitemap.ts` — static routes (`/`, `/shop`, `/about`, `/accessibility-statement`) + every published product (by `updatedAt`).
+- Site URL driven by `NEXT_PUBLIC_SITE_URL` (falls back to the prod Vercel domain).
+
+**Still pending**
+- Loading states + skeletons.
+- Error boundaries.
+- Image optimization audit (we already use `next/image` everywhere; verify on prod).
+- Accessibility pass (keyboard nav, ARIA, contrast) — accessibility widget already shipped in Phase 1.
+- Lighthouse audit.
+- Apple touch icon at proper 180×180 + `manifest.json` (favicon already set).
+
