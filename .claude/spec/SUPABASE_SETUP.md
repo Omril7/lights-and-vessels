@@ -1,6 +1,12 @@
-# Switching from SQLite to Supabase Postgres
+# Supabase Setup (Postgres + Storage)
 
-Step-by-step checklist to move the app off the local `prisma/dev.db` file onto a Supabase Postgres database.
+Step-by-step checklist to move the app off the local `prisma/dev.db` file onto a Supabase Postgres database, and to host product images in the same project's Storage bucket.
+
+Supabase is used for two things in this project:
+- **Postgres database** (this doc) — primary data store via Prisma.
+- **Storage `products` bucket** — product images uploaded by the admin. Setup details in [IMAGE_STORAGE.md](IMAGE_STORAGE.md); env vars in [ENV.md](ENV.md).
+
+Both live in the same Supabase project (one project for dev and prod — see §6).
 
 ---
 
@@ -86,7 +92,7 @@ npm run dev                # app should boot, sign-in should work
 ```
 
 Smoke-test:
-- Admin login (NextAuth → User table).
+- Admin login (Google OAuth — email must be in `ADMIN_EMAILS`).
 - Create a product in the admin → appears in `Product` + `ProductImage`.
 - Place a test order → row in `Order` + `OrderItem`, Morning webhook updates `MorningDocument`.
 
@@ -94,11 +100,18 @@ Smoke-test:
 
 ## 6. Production cutover
 
-1. Create a **separate** Supabase project for prod (do not share with dev).
-2. Set `DATABASE_URL` and `DIRECT_URL` in the hosting provider (Vercel → Project Settings → Environment Variables) for the **Production** environment only.
-3. Run `npx prisma migrate deploy` against the prod DB (either from CI or locally with prod `DIRECT_URL` exported).
-4. Seed admin user (`User` row with `role = "admin"`) via a one-off script — do **not** rely on dev seed data.
-5. Enable **Point-in-Time Recovery** in Supabase (paid tier) before launch.
+Plan: **reuse the dev Supabase project** for prod (single-project setup). Before launch, reset and re-seed with prod data.
+
+1. Set `DATABASE_URL` and `DIRECT_URL` in Vercel → Project Settings → Environment Variables (same values as dev; both pooler URLs).
+2. Pre-launch reset (run locally against the project once content is finalized):
+   - `npx prisma migrate reset` — drops all tables, re-applies migrations, runs seed.
+   - Then re-create/import the artist's real products via the admin UI.
+3. Enable **Point-in-Time Recovery** in Supabase (paid tier) before launch.
+
+> Tradeoff vs. two-project setup: no isolated staging, no fallback if cutover breaks, dev/prod credentials are shared. Acceptable given there are no customer accounts and the artist will populate prod data manually.
+
+### Direct connection note
+Do **not** use `db.<ref>.supabase.co:5432` for `DIRECT_URL` — that host is IPv6-only on Supabase's free tier and unreachable from most ISPs/Windows machines. Use the **Session pooler** (`aws-1-<region>.pooler.supabase.com:5432`) instead.
 
 ---
 

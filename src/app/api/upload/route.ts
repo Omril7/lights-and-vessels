@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { randomBytes } from "crypto";
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
+import { randomUUID } from "crypto";
 import { requireAdmin } from "@/lib/admin";
+import { supabaseAdmin } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -34,9 +33,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No files" }, { status: 400 });
   }
 
-  const uploadDir = path.join(process.cwd(), "uploads");
-  await mkdir(uploadDir, { recursive: true });
-
+  const bucket = process.env.SUPABASE_STORAGE_BUCKET!;
   const uploaded: { url: string; name: string; size: number }[] = [];
 
   for (const f of files) {
@@ -55,16 +52,23 @@ export async function POST(req: Request) {
     }
 
     const ext = EXT_BY_MIME[f.type] ?? "bin";
-    const id = randomBytes(8).toString("hex");
-    const filename = `${Date.now()}-${id}.${ext}`;
-    const buffer = Buffer.from(await f.arrayBuffer());
-    await writeFile(path.join(uploadDir, filename), buffer);
+    const path = `${new Date().getFullYear()}/${randomUUID()}.${ext}`;
 
-    uploaded.push({
-      url: `/api/uploads/${filename}`,
-      name: f.name,
-      size: f.size,
-    });
+    const { error } = await supabaseAdmin.storage
+      .from(bucket)
+      .upload(path, f, {
+        contentType: f.type,
+        cacheControl: "31536000, immutable",
+        upsert: false,
+      });
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    const { data } = supabaseAdmin.storage.from(bucket).getPublicUrl(path);
+
+    uploaded.push({ url: data.publicUrl, name: f.name, size: f.size });
   }
 
   return NextResponse.json({ files: uploaded });

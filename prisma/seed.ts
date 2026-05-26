@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -212,16 +211,6 @@ const siteContent: { key: string; value: string; type: string }[] = [
 
 async function main() {
   console.log("Seeding database…");
-
-  const email = process.env.ADMIN_EMAIL || "artist@example.com";
-  const password = process.env.ADMIN_PASSWORD || "change-this-password";
-  const passwordHash = await bcrypt.hash(password, 10);
-  await prisma.user.upsert({
-    where: { email },
-    update: {},
-    create: { email, passwordHash, name: "אמן הסטודיו", role: "admin" },
-  });
-  console.log(`  ✓ admin user (${email})`);
 
   await prisma.productImage.deleteMany();
   await prisma.product.deleteMany();

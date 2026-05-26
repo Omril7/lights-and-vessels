@@ -42,7 +42,7 @@ A running record of what has been built, phase by phase. Update this as work pro
 ## Phase 2 — Admin Panel — ✅ Complete
 
 **Auth**
-- NextAuth (credentials provider, JWT session) in `lib/auth.ts`; `/api/auth/[...nextauth]`; bcrypt against seeded admin user.
+- NextAuth (Google OAuth, JWT session) in `lib/auth.ts`; `/api/auth/[...nextauth]`; access gated by `ADMIN_EMAILS` allowlist (no `User` table).
 - `middleware.ts` protects `/admin/*` except `/admin/login`; admin layout doubly checks server-side session.
 - Hebrew/RTL login page at `/admin/login`.
 - Session role typing via `src/types/next-auth.d.ts`; `requireAdmin()` helper in `lib/admin.ts` for API gating.
@@ -61,7 +61,7 @@ A running record of what has been built, phase by phase. Update this as work pro
 - Delete flow with confirm.
 
 **Image storage**
-- Files written to project-root `uploads/` (gitignored), served via `/api/uploads/[file]` with content-type + immutable cache headers and filename validation.
+- Supabase Storage `products` bucket (public). `/api/upload` writes via service-role key to `<year>/<uuid>.<ext>`, returns the public CDN URL stored in `ProductImage.url`. `next.config.js` whitelists the bucket host for `next/image`.
 
 **Site content** (`/admin/site-content`)
 - Grouped editor — Banner (toggle switch + text + URL), Hero, Story, About (Markdown), Contact, Footer.
@@ -76,7 +76,7 @@ A running record of what has been built, phase by phase. Update this as work pro
 - `/api/products` (GET, POST), `/api/products/[id]` (PUT, DELETE) — Zod validated, admin gated, slug uniqueness checked, images replaced atomically on edit.
 - `/api/orders` (GET), `/api/orders/[id]` (GET, PUT).
 - `/api/site-content` (GET, PUT).
-- `/api/upload` (POST, multipart, 8MB cap, mime allowlist) + `/api/uploads/[file]` (GET).
+- `/api/upload` (POST, multipart, 8MB cap, mime allowlist) — pushes to Supabase Storage `products` bucket.
 
 
 ## Phase 3 — Payments, Documents & Reports — ✅ Code complete (pending live sandbox test)
@@ -125,20 +125,20 @@ A running record of what has been built, phase by phase. Update this as work pro
 
 **Verification**
 - `npx tsc --noEmit` passes.
-- End-to-end happy path not yet tested live — requires sandbox keys + public tunnel (see below).
+- End-to-end happy path not yet tested live — requires sandbox keys + Vercel deploy (see below).
 
 ### Still needed before live testing
 
 External setup that must be in place before a real end-to-end smoke test:
 
 1. **`MORNING_API_KEY_ID` + `MORNING_API_SECRET`** — generated from the artist's Morning **sandbox** account at <https://app.greeninvoice.co.il/settings/developers/api>, dropped into `.env`.
-2. **`MORNING_WEBHOOK_SECRET`** — the shared signing secret configured on Morning's sandbox merchant for the IPN (same page: <https://app.greeninvoice.co.il/settings/developers/api>), matched in `.env`. (When unset or `"..."`, the webhook route skips signature verification with a console warning — fine for very first ping, not for any real test.)
+2. **`MORNING_WEBHOOK_SECRET`** — generated on Morning's developers page (<https://app.greeninvoice.co.il/settings/developers/api>) against the Vercel deploy URL as the hosting/notify URL. Set it as a Vercel env var (and locally in `.env` if you want to test against the same secret). (When unset or `"..."`, the webhook route skips signature verification with a console warning — fine for very first ping, not for any real test.)
 3. ~~**`RESEND_API_KEY`** — free Resend account; with `RESEND_FROM_EMAIL=onboarding@resend.dev` no domain verification is needed yet. Without the key the branded confirmation silently no-ops (logs a warn).~~
-4. **Public tunnel** (ngrok or cloudflared) → Morning's IPN must reach `http://localhost:3000/api/webhooks/morning`. Steps:
-   - `next dev` on port 3000.
-   - `ngrok http 3000` (or `cloudflared tunnel --url http://localhost:3000`) — copy the printed HTTPS URL.
-   - In Morning sandbox merchant settings, register `<tunnel>/api/webhooks/morning` as the notify URL.
-   - Set `NEXTAUTH_URL=<tunnel>` in `.env` so the `successUrl` / `failureUrl` we send Morning also point at the tunnel.
+4. **Vercel deploy** → Morning's IPN must reach a public HTTPS URL. Steps:
+   - Deploy the project to Vercel; note the assigned `*.vercel.app` URL (a custom domain is not required — the default Vercel domain works).
+   - In Morning sandbox merchant settings, register `<vercel-url>/api/webhooks/morning` as the notify URL.
+   - Set `NEXTAUTH_URL=<vercel-url>` in Vercel env vars so the `successUrl` / `failureUrl` we send Morning also point at the deploy.
+   - Re-deploy after env var changes so they take effect.
 5. **First live IPN payload-shape check** — the webhook handler reads `id`/`formId`/`paymentFormId`, `documentId`/`document.id`, multiple `status` shapes, and either `x-morning-signature` or `x-signature` headers. Morning's actual field names and signature header may differ; log the raw body on first ping and tighten the parser accordingly.
 6. **`vatType: 2` confirmation** — the value used for עוסק פטור line items is the documented "Exempt (VAT free)" enum on `income[].vatType`. Verify Morning accepts it on the first sandbox transaction.
 

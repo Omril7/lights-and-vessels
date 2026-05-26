@@ -27,9 +27,9 @@ Per [PROGRESS_LOG.md](PROGRESS_LOG.md), Phases 1–3 are **code-complete**. The 
 **To execute the next step:**
 
 1. Read the "Still needed before live testing" section at the bottom of [PROGRESS_LOG.md](PROGRESS_LOG.md) — it lists the exact external setup required (sandbox API keys, webhook secret, ngrok/cloudflared tunnel, etc.).
-2. Get sandbox credentials from the artist's Morning account and put them in `.env`.
-3. Start `next dev`, open a tunnel, register the notify URL in Morning sandbox.
-4. Run a sandbox transaction end-to-end (checkout → IPN → document issued → branded Resend email → admin refund via credit note).
+2. Get sandbox credentials from the artist's Morning account and put them in `.env` (locally) and Vercel env vars.
+3. Deploy to Vercel to get a public `*.vercel.app` URL, then register `<vercel-url>/api/webhooks/morning` as the notify URL in Morning sandbox and generate `MORNING_WEBHOOK_SECRET` against that URL.
+4. Run a sandbox transaction end-to-end on the Vercel deploy (checkout → IPN → document issued → branded Resend email → admin refund via credit note).
 5. Log the raw IPN body on the first ping and tighten `/api/webhooks/morning`'s payload parser to match Morning's actual field names + signature header.
 6. Once the sandbox flow is green, mark Phase 3 fully complete in `PROGRESS_LOG.md` and begin **Phase 4 — Polish** ([PHASES.md](PHASES.md)).
 

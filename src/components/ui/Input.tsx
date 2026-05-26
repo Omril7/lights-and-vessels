@@ -23,28 +23,3 @@ export function Input({
     </div>
   );
 }
-
-export function Select({
-  label,
-  className,
-  id,
-  children,
-  ...props
-}: React.SelectHTMLAttributes<HTMLSelectElement> & { label?: string }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      {label && (
-        <label htmlFor={id} className={labelBase}>
-          {label}
-        </label>
-      )}
-      <select
-        id={id}
-        className={cn(fieldBase, "cursor-pointer", className)}
-        {...props}
-      >
-        {children}
-      </select>
-    </div>
-  );
-}

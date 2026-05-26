@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { makeSlug } from "@/lib/utils";
+import { supabaseAdmin } from "@/lib/supabase-server";
 
 const updateSchema = z.object({
   name: z.string().min(1),
@@ -10,7 +11,7 @@ const updateSchema = z.object({
   description: z.string().default(""),
   price: z.number().nonnegative(),
   comparePrice: z.number().nonnegative().nullable().optional(),
-  category: z.string().min(1),
+  category: z.string().min(1).nullable().optional(),
   tags: z.string().nullable().optional(),
   stockCount: z.number().int().nonnegative().default(0),
   inStock: z.boolean().default(true),
@@ -76,7 +77,7 @@ export async function PUT(
         description: data.description,
         price: data.price,
         comparePrice: data.comparePrice ?? null,
-        category: data.category,
+        category: data.category ?? null,
         tags: data.tags ?? null,
         stockCount: data.stockCount,
         inStock: data.inStock,
@@ -106,9 +107,35 @@ export async function DELETE(
 
   const existing = await prisma.product.findUnique({
     where: { id: params.id },
+    include: { images: true, _count: { select: { orderItems: true } } },
   });
   if (!existing) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  if (existing._count.orderItems > 0) {
+    return NextResponse.json(
+      {
+        error:
+          "המוצר משויך להזמנות קיימות ולא ניתן למחוק אותו. ניתן להסתיר אותו במקום (ביטול פרסום).",
+      },
+      { status: 409 }
+    );
+  }
+
+  const bucket = process.env.SUPABASE_STORAGE_BUCKET;
+  if (bucket && existing.images.length) {
+    const marker = `/storage/v1/object/public/${bucket}/`;
+    const paths = existing.images
+      .map((img) => {
+        const i = img.url.indexOf(marker);
+        return i >= 0 ? img.url.slice(i + marker.length) : null;
+      })
+      .filter((p): p is string => !!p);
+    if (paths.length) {
+      const { error } = await supabaseAdmin.storage.from(bucket).remove(paths);
+      if (error) console.warn("storage cleanup failed:", error.message);
+    }
   }
 
   await prisma.product.delete({ where: { id: params.id } });

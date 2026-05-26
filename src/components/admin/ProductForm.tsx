@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/Button";
-import { Input, Select } from "@/components/ui/Input";
+import { Input } from "@/components/ui/Input";
+import { Dropdown } from "@/components/ui/Dropdown";
 import { ImageUploader, type UploadedImage } from "@/components/admin/ImageUploader";
 import { CATEGORIES } from "@/types";
 import { renderMarkdown, makeSlug, cn } from "@/lib/utils";
@@ -16,7 +17,7 @@ export type ProductFormValues = {
   description: string;
   price: number;
   comparePrice: number | null;
-  category: string;
+  category: string | null;
   tags: string;
   stockCount: number;
   inStock: boolean;
@@ -31,7 +32,7 @@ const EMPTY: ProductFormValues = {
   description: "",
   price: 0,
   comparePrice: null,
-  category: CATEGORIES[0]?.slug ?? "rings",
+  category: null,
   tags: "",
   stockCount: 0,
   inStock: true,
@@ -91,7 +92,7 @@ export function ProductForm({
         values.comparePrice == null || Number.isNaN(values.comparePrice)
           ? null
           : Number(values.comparePrice),
-      category: values.category,
+      category: values.category || null,
       tags: values.tags || null,
       stockCount: Number(values.stockCount) | 0,
       inStock: values.inStock,
@@ -132,7 +133,10 @@ export function ProductForm({
       const res = await fetch(`/api/products/${initial.id}`, {
         method: "DELETE",
       });
-      if (!res.ok) throw new Error("שגיאה במחיקה");
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error || "שגיאה במחיקה");
+      }
       toast.success("המוצר נמחק");
       router.push("/admin/products");
       router.refresh();
@@ -280,18 +284,26 @@ export function ProductForm({
 
           <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-4 shadow-soft">
             <h2 className="font-serif text-lg text-charcoal">סיווג</h2>
-            <Select
-              id="category"
-              label="קטגוריה"
-              value={values.category}
-              onChange={(e) => set("category", e.target.value)}
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c.slug} value={c.slug}>
-                  {c.label}
-                </option>
-              ))}
-            </Select>
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="category"
+                className="text-xs uppercase tracking-wider2 text-charcoal/70 font-medium"
+              >
+                קטגוריה (אופציונלי)
+              </label>
+              <Dropdown
+                id="category"
+                ariaLabel="קטגוריה"
+                variant="field"
+                placeholder="ללא קטגוריה"
+                value={values.category ?? ""}
+                options={[
+                  { value: "", label: "ללא קטגוריה" },
+                  ...CATEGORIES.map((c) => ({ value: c.slug, label: c.label })),
+                ]}
+                onChange={(v) => set("category", v || null)}
+              />
+            </div>
             <Input
               id="tags"
               label="תגיות (מופרדות בפסיק)"

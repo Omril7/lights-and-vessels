@@ -3,15 +3,21 @@
 ## Development (`.env.local`)
 
 ```env
-DATABASE_URL="file:./dev.db"
-# DIRECT_URL is only required when DATABASE_URL points at Supabase (pgBouncer pooler).
-# Leave unset while on SQLite. See SUPABASE_SETUP.md for the cutover.
-# DIRECT_URL="postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres"
+# Supabase — transaction pooler (port 6543) for runtime
+DATABASE_URL="postgresql://postgres.<ref>:<password>@aws-1-<region>.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
+# Supabase — session pooler (port 5432) for `prisma migrate`. Do NOT use db.<ref>.supabase.co directly
+# (IPv6-only on free tier; unreachable from most ISPs/Windows). Session pooler is IPv4-compatible.
+DIRECT_URL="postgresql://postgres.<ref>:<password>@aws-1-<region>.pooler.supabase.com:5432/postgres"
 
 NEXTAUTH_SECRET="generate-a-random-secret"
 NEXTAUTH_URL="http://localhost:3000"
-ADMIN_EMAIL="artist@example.com"
-ADMIN_PASSWORD="change-this-password"
+
+# Admin allowlist — Google OAuth emails permitted into /admin (comma-separated, lowercase).
+ADMIN_EMAILS="artist@example.com,omri@example.com"
+
+# Google OAuth (NextAuth provider)
+GOOGLE_CLIENT_ID="..."
+GOOGLE_CLIENT_SECRET="..."
 
 # Morning (Green Invoice)
 MORNING_API_BASE="https://sandbox.d.greeninvoice.co.il/api/v1"  # prod: https://api.greeninvoice.co.il/api/v1
