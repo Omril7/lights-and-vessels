@@ -1,11 +1,24 @@
 import { Resend } from "resend";
 import nodemailer from "nodemailer";
 import { formatPrice } from "@/lib/utils";
+import { getSiteContent } from "@/lib/content";
 import type { Order, OrderItem, Product } from "@prisma/client";
 
 const FROM_NAME = process.env.RESEND_FROM_NAME || "אורות וכלים";
 const STUDIO_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
-const PROVIDER = (process.env.EMAIL_PROVIDER || "resend").toLowerCase();
+
+async function resolveProvider(): Promise<"resend" | "gmail"> {
+  try {
+    const content = await getSiteContent();
+    if (content.email_use_gmail === "true") return "gmail";
+    return "resend";
+  } catch {
+    // DB unreachable — fall back to env, then resend.
+    return (process.env.EMAIL_PROVIDER || "resend").toLowerCase() === "gmail"
+      ? "gmail"
+      : "resend";
+  }
+}
 
 type OrderWithItems = Order & {
   items: (OrderItem & { product: Pick<Product, "name" | "slug"> })[];
@@ -63,10 +76,11 @@ export async function sendOrderConfirmationEmail(
     subject: `הזמנה ${order.orderNumber} התקבלה — אורות וכלים`,
     html: renderConfirmationHtml(order, ctx),
   };
+  const provider = await resolveProvider();
   const sent =
-    PROVIDER === "gmail" ? await sendViaGmail(args) : await sendViaResend(args);
+    provider === "gmail" ? await sendViaGmail(args) : await sendViaResend(args);
   if (!sent) {
-    console.warn(`[email] confirmation skipped for order ${order.orderNumber} (provider=${PROVIDER})`);
+    console.warn(`[email] confirmation skipped for order ${order.orderNumber} (provider=${provider})`);
   }
 }
 

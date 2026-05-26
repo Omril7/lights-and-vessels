@@ -14,6 +14,7 @@ import {
   Square3Stack3DIcon,
   ArrowUpTrayIcon,
   TrashIcon,
+  EnvelopeIcon,
 } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -27,6 +28,10 @@ type Field = {
   kind: FieldKind;
   /** When true, field takes a full row in the 2-col grid. */
   wide?: boolean;
+  /** Toggle-only: custom icon + on/off status text. Defaults to Megaphone + פעיל/כבוי. */
+  icon?: React.ComponentType<{ className?: string }>;
+  onLabel?: string;
+  offLabel?: string;
 };
 
 type Section = {
@@ -116,6 +121,25 @@ export const SECTIONS: Section[] = [
     heading: "פוטר",
     icon: Square3Stack3DIcon,
     fields: [{ key: "footer_text", label: "טקסט הפוטר", kind: "text", wide: true }],
+  },
+  {
+    id: "email",
+    heading: "התראות אימייל",
+    description:
+      "ספק שליחת האימיילים האוטומטיים ללקוחות (אישור הזמנה). פרטי החיבור עצמם נשמרים ב‑.env.",
+    icon: EnvelopeIcon,
+    fields: [
+      {
+        key: "email_use_gmail",
+        label: "שליחה דרך Gmail",
+        kind: "toggle",
+        wide: true,
+        icon: EnvelopeIcon,
+        onLabel: "Gmail SMTP — נשלח מחשבון Gmail אישי",
+        offLabel: "Resend — נשלח מהדומיין של הסטודיו",
+        help: "כבוי = Resend (מומלץ ברגע שיש דומיין). דלוק = Gmail (חינמי, ללא דומיין, אך נראה פחות מקצועי).",
+      },
+    ],
   },
 ];
 
@@ -259,7 +283,11 @@ function ContentField({
 }) {
   if (field.kind === "toggle") {
     const on = value === "true";
+    const Icon = field.icon ?? MegaphoneIcon;
+    const onText = field.onLabel ?? "פעיל — מוצג למבקרים";
+    const offText = field.offLabel ?? "כבוי — אינו מוצג";
     return (
+      <div className="space-y-1.5">
       <button
         type="button"
         onClick={() => onChange(on ? "false" : "true")}
@@ -279,7 +307,7 @@ function ContentField({
             )}
             aria-hidden
           >
-            <MegaphoneIcon className="h-5 w-5" />
+            <Icon className="h-5 w-5" />
           </span>
           <div>
             <p className="text-sm font-medium text-charcoal">{field.label}</p>
@@ -289,7 +317,7 @@ function ContentField({
                 on ? "text-olive" : "text-charcoal/50"
               )}
             >
-              {on ? "פעיל — מוצג למבקרים" : "כבוי — אינו מוצג"}
+              {on ? onText : offText}
             </p>
           </div>
         </div>
@@ -310,6 +338,10 @@ function ContentField({
           />
         </span>
       </button>
+        {field.help && (
+          <p className="px-1 text-xs text-charcoal/50">{field.help}</p>
+        )}
+      </div>
     );
   }
 

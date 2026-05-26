@@ -31,8 +31,9 @@ MORNING_PLUGIN_ID=""                 # if Morning requires a plugin id for hoste
 MORNING_DEFAULT_DOC_TYPE="400"       # 400 = קבלה (artist is עוסק פטור). 320 only if moving to עוסק מורשה.
 MORNING_WEBHOOK_SECRET="..."         # shared secret used to sign IPN requests
 
-# Email — order confirmation. Choose ONE provider via EMAIL_PROVIDER. See API.md "Email confirmation".
-EMAIL_PROVIDER="resend"                     # "resend" (default) or "gmail"
+# Email — order confirmation. Provider is chosen from the admin UI (SiteContent.email_use_gmail).
+# EMAIL_PROVIDER is a fallback used only if the DB is unreachable. See API.md "Email confirmation".
+EMAIL_PROVIDER="resend"                     # fallback: "resend" or "gmail"
 
 # Resend (recommended once a real domain exists — proper DKIM/SPF, professional From address)
 RESEND_API_KEY="..."

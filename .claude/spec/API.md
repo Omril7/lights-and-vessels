@@ -77,7 +77,9 @@ Charts use a small dep (e.g. `recharts`) — confirm before adding.
 
 **Email confirmation.** Morning emails the receipt PDF directly to the customer (`sendByEmail: true` on document creation). **In addition**, this app sends its own branded order-confirmation email — the artist confirmed he wants both. The branded email is in Hebrew, uses the studio's name and palette, links to the order/PDF, and is sent from a sender configured per provider. **The branded email is sent for both shipping methods** — for `shippingMethod: "post"` it shows the shipping address + ETA; for `"pickup"` it shows the pickup address + hours from `SiteContent` (`shipping_pickup_address`, `shipping_pickup_hours`) instead.
 
-**Provider switch (`EMAIL_PROVIDER` env var):** the send function in `src/lib/email.ts` picks one of two backends at runtime:
+**Provider switch (admin toggle).** The choice between providers lives in `SiteContent.email_use_gmail` (`"true"` = Gmail, anything else = Resend). The artist flips it from `/admin/site-content` under "התראות אימייל" — no redeploy. `EMAIL_PROVIDER` env var still exists as a fallback if the DB is unreachable. Credentials for both providers continue to live in env vars (DB never stores secrets).
+
+The send function in `src/lib/email.ts` reads the toggle and picks one of two backends per send:
 
 | Provider | When to use | Tradeoffs |
 |---|---|---|

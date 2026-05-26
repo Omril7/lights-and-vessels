@@ -27,6 +27,8 @@ const FALLBACKS: Record<string, string> = {
   shipping_pickup_address: "",
   shipping_pickup_hours: "",
   shipping_processing_days: "1-3",
+  // Email
+  email_use_gmail: "false", // false = Resend (default), true = Gmail SMTP
 };
 
 export type SiteContentMap = Record<string, string>;
