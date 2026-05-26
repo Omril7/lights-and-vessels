@@ -64,7 +64,12 @@ A running record of what has been built, phase by phase. Update this as work pro
 - Supabase Storage `site-images` bucket (public). `/api/upload` writes via service-role key to `<folder>/<year>/<uuid>.<ext>` where `folder` is either `products` (gallery) or `content` (hero/story/about), returns the public CDN URL stored in `ProductImage.url` or `SiteContent.value`. `next.config.js` whitelists the bucket host for `next/image`.
 
 **Site content** (`/admin/site-content`)
-- Grouped editor — Banner (toggle switch + text + URL), Hero, Story, About (Markdown), Contact, Footer.
+- Grouped editor — Banner (toggle switch + text + URL), Hero, Story, About (Markdown), Process gallery, Category images, Testimonials, Contact, Footer, Email provider (toggle).
+- Image fields upload to Supabase Storage (`folder=content`) and persist the public URL into the `SiteContent` row.
+- Composite fields stored as JSON strings inside `SiteContent.value`:
+  - `process_gallery` — `[{url, alt}]` (homepage hidden if empty; admin: add / reorder / alt-text / delete).
+  - `category_images` — `{<slug>: <url>}` (CategoryStrip filters to slugs with images; admin renders one slot per `CATEGORIES` entry, so new categories auto-appear).
+  - `testimonials` — `[{quote, name, detail, image}]` (Testimonials section hidden if empty; admin: add / edit / reorder / delete; avatar falls back to name initials).
 - Single "save all" — `/api/site-content` PUT upserts every key in a transaction.
 
 **Orders**

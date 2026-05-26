@@ -2,16 +2,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { CATEGORIES } from "@/types";
 import { FadeIn } from "@/components/ui/FadeIn";
+import { getSiteContent, parseCategoryImages } from "@/lib/content";
 
-const categoryImage: Record<string, string> = {
-  rings: "https://picsum.photos/seed/cat-rings/600/700",
-  necklaces: "https://picsum.photos/seed/cat-necklaces/600/700",
-  bracelets: "https://picsum.photos/seed/cat-bracelets/600/700",
-  earrings: "https://picsum.photos/seed/cat-earrings/600/700",
-  "home-decor": "https://picsum.photos/seed/cat-home/600/700",
-};
+export async function CategoryStrip() {
+  const content = await getSiteContent();
+  const images = parseCategoryImages(content.category_images);
+  const items = CATEGORIES.filter((c) => images[c.slug]);
 
-export function CategoryStrip() {
+  if (!items.length) return null;
+
   return (
     <section className="wash border-y border-charcoal/10 py-20 md:py-28">
       <div className="mx-auto max-w-editorial px-5 md:px-8">
@@ -25,7 +24,7 @@ export function CategoryStrip() {
         </FadeIn>
 
         <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-          {CATEGORIES.map((c, i) => (
+          {items.map((c, i) => (
             <FadeIn key={c.slug} delay={i * 0.07}>
               <Link
                 href={`/shop?category=${c.slug}`}
@@ -33,7 +32,7 @@ export function CategoryStrip() {
               >
                 <div className="relative aspect-[5/6] overflow-hidden rounded-xl bg-sand">
                   <Image
-                    src={categoryImage[c.slug]}
+                    src={images[c.slug]}
                     alt={c.label}
                     fill
                     sizes="(max-width: 768px) 50vw, 20vw"

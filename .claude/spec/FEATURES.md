@@ -74,8 +74,8 @@ The artist is a one-person studio — direct contact matters.
 - **Hero section**: Full-width image/video with overlaid text (title + subtitle from SiteContent). CTA button → Shop page.
 - **Featured products**: Horizontal scroll or asymmetric grid of products where `featured = true`. Each card shows image, name, price with hover effect.
 - **Artist story teaser**: Short paragraph from SiteContent + a "Read more" link to About page. Include a lifestyle/studio photo.
-- **Categories strip**: Visual category cards (Rings, Necklaces, etc.) linking to filtered shop view.
-- **Instagram/social proof section** (optional): Grid of lifestyle images or testimonials.
+- **Categories strip**: Visual category cards (Rings, Necklaces, etc.) linking to filtered shop view. Each card's image is artist-managed (`SiteContent.category_images` — JSON map keyed by category slug). Categories without an assigned image are hidden from the strip; the whole strip hides if all are empty (and is already gated behind "any product has a category" — see Shop Page below).
+- **Testimonials**: Artist-managed list (`SiteContent.testimonials` — JSON array of `{quote, name, detail, image?}`). Add / edit / reorder / delete from `/admin/site-content`. Avatar falls back to name initials if no image. Section hides if list is empty.
 
 ### Shop Page
 - **Gallery grid**: Responsive masonry or CSS grid. Products show main image, name, price. Hover reveals second image (if available) + quick "Add to Cart."
@@ -92,7 +92,7 @@ The artist is a one-person studio — direct contact matters.
 ### About Page
 - **Rich text content** from SiteContent. Support images inline.
 - **Artist portrait**.
-- **Process/workshop photos** (optional gallery).
+- **Process/workshop photos**: Artist-managed gallery (`SiteContent.process_gallery` — JSON array of `{url, alt}`). Add / reorder / delete / alt-text from `/admin/site-content`. Section hides on the About page if the list is empty.
 
 ### Cart Page
 - List of cart items with image thumbnail, name, price, quantity adjuster, remove button.

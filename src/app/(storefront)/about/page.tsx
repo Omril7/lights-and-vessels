@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { getSiteContent } from "@/lib/content";
+import { getSiteContent, parseGallery } from "@/lib/content";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { ContactSection } from "@/components/storefront/ContactSection";
 import { renderMarkdown } from "@/lib/utils";
@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 
 export default async function AboutPage() {
   const content = await getSiteContent();
+  const gallery = parseGallery(content.process_gallery);
 
   return (
     <div className="pt-28 md:pt-32">
@@ -61,31 +62,30 @@ export default async function AboutPage() {
       </section>
 
       {/* Process gallery */}
-      <section className="mx-auto max-w-editorial px-5 py-20 md:px-8 md:py-24">
-        <FadeIn className="mb-8 text-center">
-          <h2 className="font-serif text-3xl text-ink md:text-4xl">
-            מתוך הסטודיו
-          </h2>
-        </FadeIn>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-          {["process-1", "process-2", "process-3", "process-4", "process-5", "process-6"].map(
-            (seed, i) => (
-              <FadeIn key={seed} delay={(i % 3) * 0.07}>
+      {gallery.length > 0 && (
+        <section className="mx-auto max-w-editorial px-5 py-20 md:px-8 md:py-24">
+          <FadeIn className="mb-8 text-center">
+            <h2 className="font-serif text-3xl text-ink md:text-4xl">
+              מתוך הסטודיו
+            </h2>
+          </FadeIn>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            {gallery.map((img, i) => (
+              <FadeIn key={`${img.url}-${i}`} delay={(i % 3) * 0.07}>
                 <div className="relative aspect-square overflow-hidden rounded-xl bg-sand">
                   <Image
-                    src={`https://picsum.photos/seed/${seed}/600/600`}
-                    alt="רגע מהסטודיו"
+                    src={img.url}
+                    alt={img.alt || "רגע מהסטודיו"}
                     fill
                     sizes="(max-width: 768px) 50vw, 33vw"
                     className="object-cover transition-transform duration-700 ease-grace hover:scale-105"
                   />
                 </div>
               </FadeIn>
-            )
-          )}
-        </div>
-
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
 
       <ContactSection
         heading={content.contact_heading}

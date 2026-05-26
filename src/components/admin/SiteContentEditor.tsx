@@ -15,11 +15,25 @@ import {
   ArrowUpTrayIcon,
   TrashIcon,
   EnvelopeIcon,
+  PhotoIcon,
+  PlusIcon,
+  RectangleGroupIcon,
+  ChatBubbleBottomCenterTextIcon,
 } from "@heroicons/react/24/outline";
+import { CATEGORIES } from "@/types";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
-type FieldKind = "text" | "textarea" | "richtext" | "url" | "image" | "toggle";
+type FieldKind =
+  | "text"
+  | "textarea"
+  | "richtext"
+  | "url"
+  | "image"
+  | "image-list"
+  | "category-images"
+  | "testimonials"
+  | "toggle";
 
 type Field = {
   key: string;
@@ -96,6 +110,53 @@ export const SECTIONS: Section[] = [
     fields: [
       { key: "about_text", label: "תוכן מלא", kind: "richtext", wide: true },
       { key: "about_portrait", label: "פורטרט", kind: "image", wide: true },
+    ],
+  },
+  {
+    id: "process_gallery",
+    heading: "גלריית הסטודיו (דף 'אודות')",
+    description: "תמונות מתוך תהליך העבודה. אם ריק, הגלריה מוסתרת בדף האתר.",
+    icon: PhotoIcon,
+    fields: [
+      {
+        key: "process_gallery",
+        label: "תמונות",
+        kind: "image-list",
+        wide: true,
+        help: "הוספה, הסרה ושינוי טקסט חלופי לכל תמונה. תמונות בגודל ריבועי מומלצות.",
+      },
+    ],
+  },
+  {
+    id: "category_images",
+    heading: "תמונות קטגוריות (דף הבית)",
+    description:
+      "תמונה לכל קטגוריה ברצועת הקטגוריות בדף הבית. קטגוריה ללא תמונה — לא תוצג.",
+    icon: RectangleGroupIcon,
+    fields: [
+      {
+        key: "category_images",
+        label: "קטגוריות",
+        kind: "category-images",
+        wide: true,
+        help: "התמונות נשמרות ב‑Supabase Storage תחת תיקיית content/.",
+      },
+    ],
+  },
+  {
+    id: "testimonials",
+    heading: "המלצות לקוחות (דף הבית)",
+    description:
+      "המלצות שמופיעות בעמוד הבית. אם הרשימה ריקה, הסקציה מוסתרת.",
+    icon: ChatBubbleBottomCenterTextIcon,
+    fields: [
+      {
+        key: "testimonials",
+        label: "המלצות",
+        kind: "testimonials",
+        wide: true,
+        help: "ציטוט (חובה), שם, פירוט (אופציונלי), ותמונה (אופציונלי).",
+      },
     ],
   },
   {
@@ -349,6 +410,18 @@ function ContentField({
     return <ImageField value={value} label={field.label} help={field.help} onChange={onChange} />;
   }
 
+  if (field.kind === "image-list") {
+    return <ImageListField value={value} label={field.label} help={field.help} onChange={onChange} />;
+  }
+
+  if (field.kind === "category-images") {
+    return <CategoryImagesField value={value} label={field.label} help={field.help} onChange={onChange} />;
+  }
+
+  if (field.kind === "testimonials") {
+    return <TestimonialsField value={value} label={field.label} help={field.help} onChange={onChange} />;
+  }
+
   const inputBase =
     "w-full rounded-xl border border-charcoal/15 bg-cream px-3 py-2.5 text-sm text-ink placeholder:text-charcoal/30 focus:outline-none focus:border-charcoal/50 focus:ring-2 focus:ring-gold/30 transition-colors";
 
@@ -496,6 +569,384 @@ function ImageField({
       )}
 
       {help && <span className="block text-xs text-charcoal/50">{help}</span>}
+    </div>
+  );
+}
+
+type GalleryItem = { url: string; alt: string };
+
+function parseList(value: string): GalleryItem[] {
+  if (!value) return [];
+  try {
+    const arr = JSON.parse(value);
+    if (!Array.isArray(arr)) return [];
+    return arr
+      .filter((x) => x && typeof x.url === "string" && x.url.trim())
+      .map((x) => ({ url: String(x.url), alt: typeof x.alt === "string" ? x.alt : "" }));
+  } catch {
+    return [];
+  }
+}
+
+function ImageListField({
+  value,
+  label,
+  help,
+  onChange,
+}: {
+  value: string;
+  label: string;
+  help?: string;
+  onChange: (v: string) => void;
+}) {
+  const items = parseList(value);
+  const [uploading, setUploading] = useState(false);
+
+  const persist = (next: GalleryItem[]) => onChange(JSON.stringify(next));
+
+  async function uploadFiles(files: File[]) {
+    if (!files.length) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("folder", "content");
+      for (const f of files) fd.append("files", f);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const body = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(body?.error || "שגיאה בהעלאה");
+      const added: GalleryItem[] = (body?.files || []).map((f: { url: string }) => ({
+        url: f.url,
+        alt: "",
+      }));
+      persist([...items, ...added]);
+      toast.success(`${added.length} תמונות נוספו`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "שגיאה");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: {
+      "image/jpeg": [],
+      "image/png": [],
+      "image/webp": [],
+      "image/avif": [],
+    },
+    multiple: true,
+    disabled: uploading,
+    onDrop: (files) => uploadFiles(files),
+  });
+
+  function move(i: number, dir: -1 | 1) {
+    const j = i + dir;
+    if (j < 0 || j >= items.length) return;
+    const next = [...items];
+    [next[i], next[j]] = [next[j], next[i]];
+    persist(next);
+  }
+
+  function remove(i: number) {
+    persist(items.filter((_, idx) => idx !== i));
+  }
+
+  function setAlt(i: number, alt: string) {
+    persist(items.map((it, idx) => (idx === i ? { ...it, alt } : it)));
+  }
+
+  return (
+    <div className="space-y-3">
+      <span className="block text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
+        {label}
+      </span>
+
+      {items.length > 0 && (
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {items.map((item, i) => (
+            <li
+              key={`${item.url}-${i}`}
+              className="overflow-hidden rounded-xl border border-charcoal/10 bg-linen/40"
+            >
+              <div className="relative aspect-square bg-sand">
+                <Image
+                  src={item.url}
+                  alt={item.alt || `תמונה ${i + 1}`}
+                  fill
+                  sizes="200px"
+                  className="object-cover"
+                />
+              </div>
+              <div className="space-y-2 p-2">
+                <input
+                  type="text"
+                  value={item.alt}
+                  onChange={(e) => setAlt(i, e.target.value)}
+                  placeholder="טקסט חלופי (alt)"
+                  className="w-full rounded-md border border-charcoal/15 bg-cream px-2 py-1 text-xs text-charcoal focus:border-charcoal/50 focus:outline-none"
+                />
+                <div className="flex items-center justify-between gap-1">
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => move(i, -1)}
+                      disabled={i === 0}
+                      aria-label="הזזה אחורה"
+                      className="rounded-md p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
+                    >
+                      ‹
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => move(i, 1)}
+                      disabled={i === items.length - 1}
+                      aria-label="הזזה קדימה"
+                      className="rounded-md p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
+                    >
+                      ›
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => remove(i)}
+                    aria-label="הסרה"
+                    className="rounded-md p-1 text-terracotta/80 transition-colors hover:bg-terracotta/10"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div
+        {...getRootProps()}
+        className={cn(
+          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-6 text-center transition-colors",
+          isDragActive
+            ? "border-charcoal/50 bg-linen"
+            : "border-charcoal/20 bg-linen/40 hover:border-charcoal/40",
+          uploading && "pointer-events-none opacity-60"
+        )}
+      >
+        <input {...getInputProps()} />
+        <PlusIcon className="h-6 w-6 text-charcoal/50" aria-hidden />
+        <p className="text-sm text-charcoal/70">
+          {uploading
+            ? "מעלה תמונות…"
+            : isDragActive
+            ? "שחררו את הקבצים"
+            : "הוספת תמונות — גררו לכאן או לחצו לבחירה"}
+        </p>
+        <p className="text-xs text-charcoal/40">ניתן להעלות מספר תמונות בבת אחת</p>
+      </div>
+
+      {help && <p className="text-xs text-charcoal/50">{help}</p>}
+    </div>
+  );
+}
+
+function parseMap(value: string): Record<string, string> {
+  if (!value) return {};
+  try {
+    const obj = JSON.parse(value);
+    if (!obj || typeof obj !== "object" || Array.isArray(obj)) return {};
+    const out: Record<string, string> = {};
+    for (const [k, v] of Object.entries(obj)) {
+      if (typeof v === "string") out[k] = v;
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+function CategoryImagesField({
+  value,
+  label,
+  help,
+  onChange,
+}: {
+  value: string;
+  label: string;
+  help?: string;
+  onChange: (v: string) => void;
+}) {
+  const map = parseMap(value);
+
+  const setOne = (slug: string, url: string) => {
+    const next = { ...map };
+    if (url) next[slug] = url;
+    else delete next[slug];
+    onChange(JSON.stringify(next));
+  };
+
+  return (
+    <div className="space-y-3">
+      <span className="block text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
+        {label}
+      </span>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {CATEGORIES.map((c) => (
+          <ImageField
+            key={c.slug}
+            value={map[c.slug] ?? ""}
+            label={c.label}
+            onChange={(url) => setOne(c.slug, url)}
+          />
+        ))}
+      </div>
+      {help && <p className="text-xs text-charcoal/50">{help}</p>}
+    </div>
+  );
+}
+
+type TestimonialItem = { quote: string; name: string; detail: string; image: string };
+
+function parseTestimonialList(value: string): TestimonialItem[] {
+  if (!value) return [];
+  try {
+    const arr = JSON.parse(value);
+    if (!Array.isArray(arr)) return [];
+    return arr.map((x) => ({
+      quote: typeof x?.quote === "string" ? x.quote : "",
+      name: typeof x?.name === "string" ? x.name : "",
+      detail: typeof x?.detail === "string" ? x.detail : "",
+      image: typeof x?.image === "string" ? x.image : "",
+    }));
+  } catch {
+    return [];
+  }
+}
+
+function TestimonialsField({
+  value,
+  label,
+  help,
+  onChange,
+}: {
+  value: string;
+  label: string;
+  help?: string;
+  onChange: (v: string) => void;
+}) {
+  const items = parseTestimonialList(value);
+
+  const persist = (next: TestimonialItem[]) => onChange(JSON.stringify(next));
+
+  const update = (i: number, patch: Partial<TestimonialItem>) =>
+    persist(items.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
+
+  const remove = (i: number) => persist(items.filter((_, idx) => idx !== i));
+
+  const move = (i: number, dir: -1 | 1) => {
+    const j = i + dir;
+    if (j < 0 || j >= items.length) return;
+    const next = [...items];
+    [next[i], next[j]] = [next[j], next[i]];
+    persist(next);
+  };
+
+  const add = () =>
+    persist([...items, { quote: "", name: "", detail: "", image: "" }]);
+
+  const inputBase =
+    "w-full rounded-md border border-charcoal/15 bg-cream px-2.5 py-2 text-sm text-ink placeholder:text-charcoal/35 focus:border-charcoal/50 focus:outline-none focus:ring-2 focus:ring-gold/30";
+
+  return (
+    <div className="space-y-3">
+      <span className="block text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
+        {label}
+      </span>
+
+      {items.length > 0 && (
+        <ul className="space-y-3">
+          {items.map((item, i) => (
+            <li
+              key={i}
+              className="rounded-xl border border-charcoal/10 bg-linen/40 p-4"
+            >
+              <div className="grid gap-3 sm:grid-cols-[7rem_minmax(0,1fr)]">
+                <div className="flex flex-col items-stretch gap-2">
+                  <ImageField
+                    value={item.image}
+                    label="תמונה"
+                    onChange={(url) => update(i, { image: url })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <textarea
+                    value={item.quote}
+                    onChange={(e) => update(i, { quote: e.target.value })}
+                    placeholder="ציטוט"
+                    rows={3}
+                    className={inputBase}
+                  />
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    <input
+                      type="text"
+                      value={item.name}
+                      onChange={(e) => update(i, { name: e.target.value })}
+                      placeholder="שם"
+                      className={inputBase}
+                    />
+                    <input
+                      type="text"
+                      value={item.detail}
+                      onChange={(e) => update(i, { detail: e.target.value })}
+                      placeholder="פירוט (עיר / לקוח חוזר וכו')"
+                      className={inputBase}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between gap-2 pt-1">
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => move(i, -1)}
+                        disabled={i === 0}
+                        aria-label="הזזה אחורה"
+                        className="rounded-md p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
+                      >
+                        ‹
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => move(i, 1)}
+                        disabled={i === items.length - 1}
+                        aria-label="הזזה קדימה"
+                        className="rounded-md p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
+                      >
+                        ›
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => remove(i)}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-terracotta/40 px-3 py-1 text-xs text-terracotta transition-colors hover:bg-terracotta/10"
+                    >
+                      <TrashIcon className="h-3.5 w-3.5" />
+                      הסרה
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <button
+        type="button"
+        onClick={add}
+        className="inline-flex items-center gap-1.5 rounded-full border border-charcoal/20 px-4 py-2 text-sm text-charcoal transition-colors hover:bg-charcoal/[0.06]"
+      >
+        <PlusIcon className="h-4 w-4" />
+        הוספת המלצה
+      </button>
+
+      {help && <p className="text-xs text-charcoal/50">{help}</p>}
     </div>
   );
 }

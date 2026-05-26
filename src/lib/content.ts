@@ -29,7 +29,72 @@ const FALLBACKS: Record<string, string> = {
   shipping_processing_days: "1-3",
   // Email
   email_use_gmail: "false", // false = Resend (default), true = Gmail SMTP
+  // About → process gallery. JSON array of { url, alt }.
+  process_gallery: "[]",
+  // Homepage CategoryStrip — JSON map { "<slug>": "<image-url>" }. Missing/empty = category hidden.
+  category_images: "{}",
+  // Homepage testimonials — JSON array of { quote, name, detail, image? }.
+  testimonials: "[]",
 };
+
+export type GalleryItem = { url: string; alt: string };
+
+export function parseCategoryImages(
+  value: string | undefined | null
+): Record<string, string> {
+  if (!value) return {};
+  try {
+    const obj = JSON.parse(value);
+    if (!obj || typeof obj !== "object" || Array.isArray(obj)) return {};
+    const out: Record<string, string> = {};
+    for (const [k, v] of Object.entries(obj)) {
+      if (typeof v === "string" && v.trim()) out[k] = v;
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+export type Testimonial = {
+  quote: string;
+  name: string;
+  detail: string;
+  image: string;
+};
+
+export function parseTestimonials(
+  value: string | undefined | null
+): Testimonial[] {
+  if (!value) return [];
+  try {
+    const arr = JSON.parse(value);
+    if (!Array.isArray(arr)) return [];
+    return arr
+      .filter((x) => x && typeof x.quote === "string" && x.quote.trim())
+      .map((x) => ({
+        quote: String(x.quote),
+        name: typeof x.name === "string" ? x.name : "",
+        detail: typeof x.detail === "string" ? x.detail : "",
+        image: typeof x.image === "string" ? x.image : "",
+      }));
+  } catch {
+    return [];
+  }
+}
+
+export function parseGallery(value: string | undefined | null): GalleryItem[] {
+  if (!value) return [];
+  try {
+    const arr = JSON.parse(value);
+    if (!Array.isArray(arr)) return [];
+    return arr
+      .filter((x) => x && typeof x.url === "string" && x.url.trim())
+      .map((x) => ({ url: String(x.url), alt: typeof x.alt === "string" ? x.alt : "" }));
+  } catch {
+    return [];
+  }
+}
 
 export type SiteContentMap = Record<string, string>;
 
