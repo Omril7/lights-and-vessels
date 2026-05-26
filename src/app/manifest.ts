@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "ניהול אורות וכלים",
-    short_name: "ניהול",
+    short_name: "אורות וכלים",
     description: "פאנל הניהול של סטודיו אורות וכלים.",
     start_url: "/admin",
     scope: "/admin",
