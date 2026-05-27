@@ -52,6 +52,7 @@ See also: [ENV.md](ENV.md) for dev env vars.
 
 ## Morning
 - In the artist's Morning account, register the prod notify URL (`/api/webhooks/morning`) for hosted payment forms and capture its signing secret into `MORNING_WEBHOOK_SECRET`.
+- **If the webhook was first registered against the `vercel.app` default domain**, edit the webhook in Morning at cutover to use the custom domain (e.g. `https://www.lights-and-vessels.com/api/webhooks/morning`). The `vercel.app` URL keeps working post-cutover, but the registered URL should match the production domain so webhooks don't silently break if the Vercel alias is ever disabled.
 - Confirm business profile, VAT status, default doc series, email-sender identity, and accepted payment methods (card / Bit / Google Pay) inside Morning.
 - Smoke-test a 1 ₪ live transaction end-to-end (checkout → IPN → document issued → email received → refund via credit note) before announcing launch.
 
