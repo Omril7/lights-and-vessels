@@ -4,7 +4,7 @@ import { formatPrice } from "@/lib/utils";
 import { getSiteContent } from "@/lib/content";
 import type { Order, OrderItem, Product } from "@prisma/client";
 
-const FROM_NAME = process.env.RESEND_FROM_NAME || "אורות וכלים";
+const FROM_NAME = process.env.EMAIL_FROM_NAME || "אורות וכלים";
 const STUDIO_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
 async function resolveProvider(): Promise<"resend" | "gmail"> {

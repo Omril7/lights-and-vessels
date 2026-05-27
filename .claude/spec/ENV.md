@@ -34,11 +34,11 @@ MORNING_WEBHOOK_SECRET="..."         # shared secret used to sign IPN requests
 # Email — order confirmation. Provider is chosen from the admin UI (SiteContent.email_use_gmail).
 # EMAIL_PROVIDER is a fallback used only if the DB is unreachable. See API.md "Email confirmation".
 EMAIL_PROVIDER="resend"                     # fallback: "resend" or "gmail"
+EMAIL_FROM_NAME="אורות וכלים"
 
 # Resend (recommended once a real domain exists — proper DKIM/SPF, professional From address)
 RESEND_API_KEY="..."
 RESEND_FROM_EMAIL="onboarding@resend.dev"   # dev — switch to hello@<artist-domain> once domain is bought
-RESEND_FROM_NAME="אורות וכלים"
 
 # Gmail SMTP fallback (no domain needed; From shows as personal Gmail; ~500/day limit).
 # Requires 2FA enabled on the Google account + an App Password from https://myaccount.google.com/apppasswords.
