@@ -23,16 +23,38 @@ Split from the original `artist-ecommerce-spec.md`. Open the file that matches w
 
 ## What to do next (current status)
 
-Per [PROGRESS_LOG.md](PROGRESS_LOG.md), Phases 1–3 are **code-complete**. The next step is **live sandbox testing of Phase 3 (Morning payments)** before starting Phase 4.
+**Where we are** (per [PROGRESS_LOG.md](PROGRESS_LOG.md)):
+- Phase 1 — Storefront ✅
+- Phase 2 — Admin Panel ✅
+- Phase 3 — Morning Payments ✅ *code-complete; not yet live-tested; admin "new order" notification email (PHASES.md #12) still to implement*
+- Phase 4 — Polish 🚧 *only Lighthouse audit left*
+- Phase 5 — Pre-deploy ❌ *not started*
+- Legal pages ([LEGAL.md](LEGAL.md)) ❌ *4 of 5 missing; hard launch blocker*
 
-**To execute the next step:**
+### Ordered path to production
 
-1. Read the "Still needed before live testing" section at the bottom of [PROGRESS_LOG.md](PROGRESS_LOG.md) — it lists the exact external setup required (sandbox API keys, webhook secret, ngrok/cloudflared tunnel, etc.).
-2. Get sandbox credentials from the artist's Morning account and put them in `.env` (locally) and Vercel env vars.
-3. Deploy to Vercel to get a public `*.vercel.app` URL, then register `<vercel-url>/api/webhooks/morning` as the notify URL in Morning sandbox and generate `MORNING_WEBHOOK_SECRET` against that URL.
-4. Run a sandbox transaction end-to-end on the Vercel deploy (checkout → IPN → document issued → branded Resend email → admin refund via credit note).
-5. Log the raw IPN body on the first ping and tighten `/api/webhooks/morning`'s payload parser to match Morning's actual field names + signature header.
-6. Once the sandbox flow is green, mark Phase 3 fully complete in `PROGRESS_LOG.md` and begin **Phase 4 — Polish** ([PHASES.md](PHASES.md)).
+Do these in order. Each step is a gate on the next.
+
+1. **Finish Phase 4 — Lighthouse audit** (the one open item in [PROGRESS_LOG.md](PROGRESS_LOG.md) §Phase 4). Fix any P0/P1 findings (performance, a11y, best-practices, SEO).
+2. **Implement admin "new order" email** ([PHASES.md](PHASES.md) #12 + [API.md](API.md) → *Admin notification*) — quick win, lives in the same IPN handler as the existing customer confirmation.
+3. **Legal pages scaffold** ([LEGAL.md](LEGAL.md) §Implementation plan) — add `/legal/[slug]` route, admin editor fields for `legal_terms` / `legal_privacy` / `legal_returns` / `legal_shipping`, footer links, sitemap. Code-only step; copy lands in step 4.
+4. **Artist drafts legal copy** — terms, privacy, returns, shipping. Resolve [LEGAL.md](LEGAL.md) §"Open questions for the artist" first (refund policy, restocking fee, accessibility coordinator, etc.). This is the slow step — kick it off in parallel with step 5.
+5. **Phase 3 live sandbox test** — see [PROGRESS_LOG.md](PROGRESS_LOG.md) §"Still needed before live testing":
+   - Generate Morning sandbox API key + webhook secret.
+   - Deploy to Vercel; register `<vercel-url>/api/webhooks/morning` as the notify URL.
+   - Run end-to-end: checkout → IPN → document issued → customer email → admin email (step 2) → refund via credit note.
+   - Log the first raw IPN body and tighten the payload parser to match Morning's actual field names + signature header.
+6. **Phase 5 — Pre-deploy handoff** ([PRE_DEPLOY.md](PRE_DEPLOY.md)):
+   - Artist sets up Supabase org, GCP project + prod OAuth client, Morning **production** API key.
+   - Shared Vercel account; shared Bitwarden vault for secrets.
+   - Replace all dev env vars with prod values (`NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `DATABASE_URL` pooler, `DIRECT_URL`, Morning prod creds, prod Supabase keys).
+   - `prisma migrate deploy` against prod DB; seed only `SiteContent` defaults.
+   - Domain (if any) → DNS → Vercel.
+   - Security headers in `next.config.js`.
+7. **Production smoke test** — 1 ₪ live transaction end-to-end on the prod URL with prod Morning creds. Verify customer email, admin email, document PDF, refund.
+8. **Launch.**
+
+**Parallelizable:** steps 1, 2, 3 can be done in any order before step 5. Step 4 (artist copywriting) should start as early as possible since it has no engineering blocker.
 
 ---
 

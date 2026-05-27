@@ -41,6 +41,7 @@ For what has been *built* so far, see [PROGRESS_LOG.md](PROGRESS_LOG.md). This f
 9. `/admin/reports` — revenue charts from Morning's reporting endpoints.
 10. Dashboard tweaks: revenue card pulls from Morning reports (not just summed DB orders) so it matches the artist's books.
 11. **Required:** Branded order-confirmation email via Resend (Hebrew, RTL, studio palette + logo, links to order + PDF), in addition to Morning's document email. Triggered from the IPN handler after the order is finalized.
+12. **Required:** Admin "new order" notification email to every address in `ADMIN_EMAILS`, sent right after the customer confirmation in the same IPN handler. Same provider, same failure semantics. See [API.md](API.md) → *Admin notification*.
 
 **Out of scope for Phase 3** (candidates for a future phase): expenses, Morning clients list, manual expense entry.
 

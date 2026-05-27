@@ -15,7 +15,7 @@ All third-party accounts must end up under the artist's ownership so that if Omr
 | **Domain registrar** (when bought) | Artist's account | Optional contact | DNS records pointed at Vercel. |
 | **GitHub repo** | Either; transfer to artist's GitHub before handoff or keep on Omri's | Both have push access | Connected to Vercel for auto-deploy. |
 | **Email / transactional** (Resend or similar, if added in Phase 3) | Artist's account | Invited member | Sender identity should be the artist's domain. |
-| **Password manager** (1Password / Bitwarden shared vault) | Shared | Shared | Single source of truth for the Vercel login + all API keys. Create this on day 1 of the handoff. |
+| **Password manager** (Bitwarden (free) shared vault) | Shared | Shared | Single source of truth for the Vercel login + all API keys. Create this on day 1 of the handoff. |
 
 ## Handoff checklist (the day the site goes live)
 1. Artist creates Supabase org → invites Omri.
