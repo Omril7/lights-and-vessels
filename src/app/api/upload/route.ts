@@ -34,7 +34,10 @@ export async function POST(req: Request) {
   }
 
   const folderRaw = String(form.get("folder") ?? "products");
-  const folder = folderRaw === "content" ? "content" : "products";
+  const folder =
+    folderRaw === "content" || folderRaw === "blog"
+      ? folderRaw
+      : "products";
   const bucket = process.env.SUPABASE_STORAGE_BUCKET!;
   const uploaded: { url: string; name: string; size: number }[] = [];
 

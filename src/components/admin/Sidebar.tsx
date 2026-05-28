@@ -10,6 +10,7 @@ import {
   ClipboardDocumentListIcon,
   DocumentTextIcon,
   DocumentDuplicateIcon,
+  NewspaperIcon,
   ChartBarIcon,
   ArrowRightOnRectangleIcon,
   ArrowUturnRightIcon,
@@ -21,6 +22,7 @@ const nav = [
   { href: "/admin/orders", label: "הזמנות", icon: ClipboardDocumentListIcon },
   { href: "/admin/documents", label: "מסמכים", icon: DocumentDuplicateIcon },
   { href: "/admin/reports", label: "דוחות", icon: ChartBarIcon },
+  { href: "/admin/blog", label: "בלוג", icon: NewspaperIcon },
   { href: "/admin/site-content", label: "תוכן האתר", icon: DocumentTextIcon },
 ];
 
@@ -104,7 +106,7 @@ export function MobileTopbar() {
 export function MobileBottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="md:hidden fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-charcoal/10 bg-cream/95 backdrop-blur">
+    <nav className="md:hidden fixed inset-x-0 bottom-0 z-30 grid grid-cols-7 border-t border-charcoal/10 bg-cream/95 backdrop-blur">
       {nav.map((item) => {
         const active = item.exact
           ? pathname === item.href

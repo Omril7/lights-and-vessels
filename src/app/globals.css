@@ -133,6 +133,80 @@ body {
   text-underline-offset: 3px;
 }
 
+/* Blog post body */
+.blog-prose {
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--ink);
+}
+.blog-prose p {
+  margin-bottom: 1.1rem;
+}
+.blog-prose h1,
+.blog-prose h2,
+.blog-prose h3,
+.blog-prose h4 {
+  font-family: var(--font-frank), serif;
+  color: var(--charcoal);
+  margin: 2rem 0 0.85rem;
+  line-height: 1.3;
+}
+.blog-prose h1 { font-size: 2rem; }
+.blog-prose h2 { font-size: 1.6rem; }
+.blog-prose h3 { font-size: 1.3rem; }
+.blog-prose h4 { font-size: 1.1rem; }
+.blog-prose ul,
+.blog-prose ol {
+  padding-inline-start: 1.4rem;
+  margin-bottom: 1.1rem;
+}
+.blog-prose ul { list-style: disc; }
+.blog-prose ol { list-style: decimal; }
+.blog-prose li { margin-bottom: 0.35rem; }
+.blog-prose strong { font-weight: 600; }
+.blog-prose em { font-style: italic; }
+.blog-prose a {
+  color: var(--copper);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.blog-prose img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.5rem auto;
+  border-radius: 0.75rem;
+}
+.blog-prose blockquote {
+  margin: 1.4rem 0;
+  padding-inline-start: 1rem;
+  border-inline-start: 3px solid var(--clay);
+  color: var(--charcoal);
+  font-style: italic;
+}
+.blog-prose code {
+  background: var(--linen);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.3rem;
+  font-size: 0.9em;
+}
+.blog-prose pre {
+  background: var(--linen);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+  margin-bottom: 1.1rem;
+}
+.blog-prose pre code {
+  background: transparent;
+  padding: 0;
+}
+.blog-prose hr {
+  margin: 2rem 0;
+  border: 0;
+  border-top: 1px solid rgba(60, 47, 35, 0.15);
+}
+
 /* Keyboard key — small typographic chip used in instructions */
 kbd {
   display: inline-flex;

@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 const links = [
   { href: "/", label: "בית" },
   { href: "/shop", label: "החנות" },
+  { href: "/blog", label: "בלוג" },
   { href: "/about", label: "הסיפור" },
 ];
 
