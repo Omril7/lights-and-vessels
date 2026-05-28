@@ -22,6 +22,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { CATEGORIES } from "@/types";
 import { Button } from "@/components/ui/Button";
+import { Dropdown } from "@/components/ui/Dropdown";
 import { cn } from "@/lib/utils";
 import { SOCIAL_PLATFORMS } from "@/lib/social";
 
@@ -1030,17 +1031,13 @@ function SocialLinksField({
               className="rounded-xl border border-charcoal/10 bg-linen/40 p-3"
             >
               <div className="grid gap-2 sm:grid-cols-[10rem_minmax(0,1fr)_auto]">
-                <select
+                <Dropdown
+                  ariaLabel="רשת חברתית"
+                  variant="field"
                   value={item.platform}
-                  onChange={(e) => update(i, { platform: e.target.value })}
-                  className={inputBase}
-                >
-                  {SOCIAL_PLATFORMS.map((p) => (
-                    <option key={p.slug} value={p.slug}>
-                      {p.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(v) => update(i, { platform: v })}
+                  options={SOCIAL_PLATFORMS.map((p) => ({ value: p.slug, label: p.label }))}
+                />
                 <input
                   type="url"
                   value={item.url}
