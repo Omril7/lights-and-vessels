@@ -97,21 +97,29 @@ model SiteContent {
 }
 
 model BlogPost {
-  id          String        @id @default(cuid())
+  id          String          @id @default(cuid())
   title       String
-  slug        String        @unique
+  slug        String          @unique
   excerpt     String
   body        String
-  coverImage  String
-  coverAlt    String?
-  author      String        @default("אלון בראל")
-  status      String        @default("draft")
+  author      String          @default("אלון בראל")
+  status      String          @default("draft")
   publishedAt DateTime?
+  images      BlogPostImage[]
   tags        BlogPostTag[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   @@index([status, publishedAt])
+}
+
+model BlogPostImage {
+  id     String   @id @default(cuid())
+  url    String
+  alt    String?
+  order  Int      @default(0)
+  post   BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
 }
 
 model BlogTag {

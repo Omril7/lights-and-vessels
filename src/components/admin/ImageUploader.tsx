@@ -17,9 +17,11 @@ export type UploadedImage = { url: string; alt?: string | null };
 export function ImageUploader({
   images,
   onChange,
+  folder = "products",
 }: {
   images: UploadedImage[];
   onChange: (next: UploadedImage[]) => void;
+  folder?: "products" | "blog" | "content";
 }) {
   const [uploading, setUploading] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -30,7 +32,7 @@ export function ImageUploader({
       setUploading(true);
       try {
         const fd = new FormData();
-        fd.append("folder", "products");
+        fd.append("folder", folder);
         for (const f of files) fd.append("files", f);
         const res = await fetch("/api/upload", { method: "POST", body: fd });
         if (!res.ok) {
@@ -51,7 +53,7 @@ export function ImageUploader({
         setUploading(false);
       }
     },
-    [images, onChange]
+    [images, onChange, folder]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

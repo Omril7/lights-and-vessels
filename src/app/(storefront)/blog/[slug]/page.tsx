@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Markdown } from "@/components/ui/Markdown";
+import { BlogGallery } from "@/components/storefront/BlogGallery";
 import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +11,10 @@ export const dynamic = "force-dynamic";
 async function getPost(slug: string) {
   const post = await prisma.blogPost.findUnique({
     where: { slug },
-    include: { tags: { include: { tag: true } } },
+    include: {
+      tags: { include: { tag: true } },
+      images: { orderBy: { order: "asc" } },
+    },
   });
   if (
     !post ||
@@ -38,7 +41,7 @@ export async function generateMetadata({
       title: post.title,
       description: post.excerpt || undefined,
       type: "article",
-      images: post.coverImage ? [{ url: post.coverImage }] : undefined,
+      images: post.images[0] ? [{ url: post.images[0].url }] : undefined,
       publishedTime: post.publishedAt?.toISOString(),
       authors: [post.author],
     },
@@ -91,14 +94,10 @@ export default async function BlogPostPage({
         )}
       </header>
 
-      <div className="relative my-8 aspect-[16/9] overflow-hidden rounded-2xl bg-linen md:my-12">
-        <Image
-          src={post.coverImage}
-          alt={post.coverAlt || post.title}
-          fill
-          priority
-          className="object-cover"
-          sizes="(max-width:768px) 100vw, 800px"
+      <div className="my-8 md:my-12">
+        <BlogGallery
+          images={post.images.map((i) => ({ url: i.url, alt: i.alt }))}
+          title={post.title}
         />
       </div>
 

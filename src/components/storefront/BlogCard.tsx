@@ -6,8 +6,7 @@ export type BlogCardData = {
   slug: string;
   title: string;
   excerpt: string;
-  coverImage: string;
-  coverAlt: string | null;
+  image: { url: string; alt: string | null } | null;
   author: string;
   publishedAt: Date | null;
   tags: { name: string; slug: string }[];
@@ -18,13 +17,15 @@ export function BlogCard({ post }: { post: BlogCardData }) {
     <article className="group overflow-hidden rounded-2xl border border-charcoal/10 bg-cream shadow-soft transition hover:shadow-lift">
       <Link href={`/blog/${post.slug}`} className="block">
         <div className="relative aspect-[16/9] bg-linen">
-          <Image
-            src={post.coverImage}
-            alt={post.coverAlt || post.title}
-            fill
-            className="object-cover transition-transform duration-700 ease-grace group-hover:scale-[1.03]"
-            sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 700px"
-          />
+          {post.image && (
+            <Image
+              src={post.image.url}
+              alt={post.image.alt || post.title}
+              fill
+              className="object-cover transition-transform duration-700 ease-grace group-hover:scale-[1.03]"
+              sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 700px"
+            />
+          )}
         </div>
       </Link>
       <div className="p-6 md:p-8 space-y-3">

@@ -5,13 +5,14 @@ import { makeSlug } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
+type ImageInput = { url: string; alt?: string | null };
+
 type Payload = {
   title?: string;
   slug?: string;
   excerpt?: string;
   body?: string;
-  coverImage?: string;
-  coverAlt?: string | null;
+  images?: ImageInput[];
   author?: string;
   status?: string;
   publishedAt?: string | null;
@@ -22,7 +23,6 @@ function normalize(payload: Payload) {
   const title = (payload.title ?? "").trim();
   const excerpt = (payload.excerpt ?? "").trim();
   const body = payload.body ?? "";
-  const coverImage = (payload.coverImage ?? "").trim();
   const author = (payload.author ?? "").trim() || "אלון בראל";
   const status = payload.status === "published" ? "published" : "draft";
   const slug = (payload.slug?.trim() || makeSlug(title)) || `post-${Date.now()}`;
@@ -31,16 +31,24 @@ function normalize(payload: Payload) {
     : status === "published"
     ? new Date()
     : null;
+  const images = Array.isArray(payload.images)
+    ? payload.images
+        .filter((i) => i && typeof i.url === "string" && i.url.trim())
+        .map((i, idx) => ({
+          url: i.url.trim(),
+          alt: i.alt?.toString().trim() || null,
+          order: idx,
+        }))
+    : [];
   return {
     title,
     excerpt,
     body,
-    coverImage,
-    coverAlt: payload.coverAlt?.trim() || null,
     author,
     status,
     slug,
     publishedAt,
+    images,
     tagIds: Array.isArray(payload.tagIds) ? payload.tagIds : [],
   };
 }
@@ -53,8 +61,11 @@ export async function POST(req: Request) {
   if (!data.title) {
     return NextResponse.json({ error: "כותרת חובה" }, { status: 400 });
   }
-  if (!data.coverImage) {
-    return NextResponse.json({ error: "תמונת כותרת חובה" }, { status: 400 });
+  if (data.images.length === 0) {
+    return NextResponse.json(
+      { error: "צריך לפחות תמונה אחת" },
+      { status: 400 }
+    );
   }
 
   try {
@@ -64,14 +75,11 @@ export async function POST(req: Request) {
         slug: data.slug,
         excerpt: data.excerpt,
         body: data.body,
-        coverImage: data.coverImage,
-        coverAlt: data.coverAlt,
         author: data.author,
         status: data.status,
         publishedAt: data.publishedAt,
-        tags: {
-          create: data.tagIds.map((tagId) => ({ tagId })),
-        },
+        images: { create: data.images },
+        tags: { create: data.tagIds.map((tagId) => ({ tagId })) },
       },
     });
     return NextResponse.json({ post });

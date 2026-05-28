@@ -29,7 +29,10 @@ export default async function BlogIndexPage({
           ? { tags: { some: { tag: { slug: activeTag } } } }
           : {}),
       },
-      include: { tags: { include: { tag: true } } },
+      include: {
+        tags: { include: { tag: true } },
+        images: { orderBy: { order: "asc" }, take: 1 },
+      },
       orderBy: { publishedAt: "desc" },
     }),
   ]);
@@ -68,8 +71,9 @@ export default async function BlogIndexPage({
                 slug: p.slug,
                 title: p.title,
                 excerpt: p.excerpt,
-                coverImage: p.coverImage,
-                coverAlt: p.coverAlt,
+                image: p.images[0]
+                  ? { url: p.images[0].url, alt: p.images[0].alt }
+                  : null,
                 author: p.author,
                 publishedAt: p.publishedAt,
                 tags: p.tags.map((t) => ({

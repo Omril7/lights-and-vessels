@@ -5,13 +5,14 @@ import { makeSlug } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
+type ImageInput = { url: string; alt?: string | null };
+
 type Payload = {
   title?: string;
   slug?: string;
   excerpt?: string;
   body?: string;
-  coverImage?: string;
-  coverAlt?: string | null;
+  images?: ImageInput[];
   author?: string;
   status?: string;
   publishedAt?: string | null;
@@ -54,8 +55,6 @@ export async function PATCH(
     slug: body.slug?.trim() || existing.slug || makeSlug(title),
     excerpt: body.excerpt ?? existing.excerpt,
     body: body.body ?? existing.body,
-    coverImage: body.coverImage ?? existing.coverImage,
-    coverAlt: body.coverAlt === undefined ? existing.coverAlt : body.coverAlt?.trim() || null,
     author: (body.author ?? existing.author).trim() || "אלון בראל",
     status,
     publishedAt,
@@ -73,6 +72,20 @@ export async function PATCH(
           await tx.blogPostTag.createMany({
             data: body.tagIds.map((tagId) => ({ postId: params.id, tagId })),
           });
+        }
+      }
+      if (Array.isArray(body.images)) {
+        await tx.blogPostImage.deleteMany({ where: { postId: params.id } });
+        const cleaned = body.images
+          .filter((i) => i && typeof i.url === "string" && i.url.trim())
+          .map((i, idx) => ({
+            url: i.url.trim(),
+            alt: i.alt?.toString().trim() || null,
+            order: idx,
+            postId: params.id,
+          }));
+        if (cleaned.length) {
+          await tx.blogPostImage.createMany({ data: cleaned });
         }
       }
       return updated;

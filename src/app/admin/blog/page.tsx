@@ -12,7 +12,10 @@ export const metadata = { title: "בלוג" };
 export default async function AdminBlogPage() {
   const posts = await prisma.blogPost.findMany({
     orderBy: { createdAt: "desc" },
-    include: { tags: { include: { tag: true } } },
+    include: {
+      tags: { include: { tag: true } },
+      images: { orderBy: { order: "asc" }, take: 1 },
+    },
   });
 
   return (
@@ -51,9 +54,9 @@ export default async function AdminBlogPage() {
             {posts.map((p) => (
               <li key={p.id} className="flex items-center gap-4 px-5 py-3">
                 <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-md bg-linen">
-                  {p.coverImage && (
+                  {p.images[0]?.url && (
                     <Image
-                      src={p.coverImage}
+                      src={p.images[0].url}
                       alt={p.title}
                       fill
                       className="object-cover"

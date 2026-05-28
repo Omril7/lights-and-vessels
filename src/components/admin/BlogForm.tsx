@@ -1,16 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
-import Image from "next/image";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Dropdown } from "@/components/ui/Dropdown";
 import { DateTimePicker } from "@/components/ui/DateTimePicker";
 import { makeSlug, cn } from "@/lib/utils";
 import { Markdown, MarkdownCheatSheet } from "@/components/ui/Markdown";
+import {
+  ImageUploader,
+  type UploadedImage,
+} from "@/components/admin/ImageUploader";
 
 export type BlogFormValues = {
   id?: string;
@@ -18,8 +20,7 @@ export type BlogFormValues = {
   slug: string;
   excerpt: string;
   body: string;
-  coverImage: string;
-  coverAlt: string;
+  images: UploadedImage[];
   author: string;
   status: "draft" | "published";
   publishedAt: string;
@@ -31,8 +32,7 @@ const EMPTY: BlogFormValues = {
   slug: "",
   excerpt: "",
   body: "",
-  coverImage: "",
-  coverAlt: "",
+  images: [],
   author: "אלון בראל",
   status: "draft",
   publishedAt: "",
@@ -55,7 +55,6 @@ export function BlogForm({
   const [showBodyHelp, setShowBodyHelp] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [uploadingCover, setUploadingCover] = useState(false);
 
   const set = <K extends keyof BlogFormValues>(k: K, v: BlogFormValues[K]) =>
     setValues((prev) => ({ ...prev, [k]: v }));
@@ -66,36 +65,6 @@ export function BlogForm({
       title,
       slug: slugTouched ? p.slug : makeSlug(title),
     }));
-
-  const uploadCover = useCallback(async (files: File[]) => {
-    if (!files.length) return;
-    setUploadingCover(true);
-    try {
-      const fd = new FormData();
-      fd.append("folder", "blog");
-      fd.append("files", files[0]);
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "שגיאה בהעלאה");
-      setValues((p) => ({ ...p, coverImage: data.files[0].url }));
-      toast.success("התמונה הועלתה");
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "שגיאה");
-    } finally {
-      setUploadingCover(false);
-    }
-  }, []);
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop: uploadCover,
-    accept: {
-      "image/jpeg": [".jpg", ".jpeg"],
-      "image/png": [".png"],
-      "image/webp": [".webp"],
-      "image/avif": [".avif"],
-    },
-    multiple: false,
-  });
 
   function toggleTag(id: string) {
     set(
@@ -112,8 +81,8 @@ export function BlogForm({
       toast.error("כותרת חובה");
       return;
     }
-    if (!values.coverImage) {
-      toast.error("תמונת כותרת חובה");
+    if (values.images.length === 0) {
+      toast.error("צריך לפחות תמונה אחת");
       return;
     }
     setSaving(true);
@@ -122,8 +91,7 @@ export function BlogForm({
       slug: values.slug.trim() || makeSlug(values.title),
       excerpt: values.excerpt.trim(),
       body: values.body,
-      coverImage: values.coverImage,
-      coverAlt: values.coverAlt.trim() || null,
+      images: values.images,
       author: values.author.trim() || "אלון בראל",
       status: values.status,
       publishedAt: values.publishedAt
@@ -279,44 +247,15 @@ export function BlogForm({
           </div>
 
           <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-4 shadow-soft">
-            <h2 className="font-serif text-lg text-charcoal">תמונת כותרת</h2>
-            <div
-              {...getRootProps()}
-              className={cn(
-                "flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-6 text-center cursor-pointer transition-colors",
-                isDragActive
-                  ? "border-copper bg-gold/10"
-                  : "border-charcoal/20 hover:border-charcoal/40",
-                uploadingCover && "opacity-60 pointer-events-none"
-              )}
-            >
-              <input {...getInputProps()} />
-              <p className="text-sm text-charcoal">
-                {isDragActive
-                  ? "שחררו כאן"
-                  : "גררו תמונה לכאן או לחצו לבחירה"}
-              </p>
-              {uploadingCover && <p className="text-xs text-copper">מעלה…</p>}
-            </div>
-            {values.coverImage && (
-              <div className="space-y-2">
-                <div className="relative aspect-[16/9] overflow-hidden rounded-xl bg-linen">
-                  <Image
-                    src={values.coverImage}
-                    alt={values.coverAlt || values.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width:768px) 100vw, 600px"
-                  />
-                </div>
-                <Input
-                  id="coverAlt"
-                  label="תיאור התמונה (alt)"
-                  value={values.coverAlt}
-                  onChange={(e) => set("coverAlt", e.target.value)}
-                />
-              </div>
-            )}
+            <h2 className="font-serif text-lg text-charcoal">תמונות</h2>
+            <p className="text-xs text-charcoal/60">
+              התמונה הראשונה תשמש ככריכה. ניתן לסדר מחדש בגרירה.
+            </p>
+            <ImageUploader
+              folder="blog"
+              images={values.images}
+              onChange={(imgs) => set("images", imgs)}
+            />
           </div>
         </section>
 

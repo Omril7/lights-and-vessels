@@ -19,7 +19,10 @@ export default async function EditBlogPostPage({
   const [post, tags] = await Promise.all([
     prisma.blogPost.findUnique({
       where: { id: params.id },
-      include: { tags: true },
+      include: {
+        tags: true,
+        images: { orderBy: { order: "asc" } },
+      },
     }),
     prisma.blogTag.findMany({
       orderBy: [{ order: "asc" }, { createdAt: "asc" }],
@@ -43,8 +46,7 @@ export default async function EditBlogPostPage({
           slug: post.slug,
           excerpt: post.excerpt,
           body: post.body,
-          coverImage: post.coverImage,
-          coverAlt: post.coverAlt ?? "",
+          images: post.images.map((i) => ({ url: i.url, alt: i.alt })),
           author: post.author,
           status: post.status === "published" ? "published" : "draft",
           publishedAt: toLocalInput(post.publishedAt),
