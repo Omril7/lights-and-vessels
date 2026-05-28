@@ -23,6 +23,7 @@ import {
 import { CATEGORIES } from "@/types";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { SOCIAL_PLATFORMS } from "@/lib/social";
 
 type FieldKind =
   | "text"
@@ -33,6 +34,7 @@ type FieldKind =
   | "image-list"
   | "category-images"
   | "testimonials"
+  | "social-links"
   | "toggle";
 
 type Field = {
@@ -181,7 +183,16 @@ export const SECTIONS: Section[] = [
     id: "footer",
     heading: "פוטר",
     icon: Square3Stack3DIcon,
-    fields: [{ key: "footer_text", label: "טקסט הפוטר", kind: "text", wide: true }],
+    fields: [
+      { key: "footer_text", label: "טקסט הפוטר", kind: "text", wide: true },
+      {
+        key: "social_links",
+        label: "קישורים לרשתות חברתיות",
+        kind: "social-links",
+        wide: true,
+        help: "כל שורה מוצגת כאייקון בפוטר. השאר ריק כדי להסתיר את כל האייקונים.",
+      },
+    ],
   },
   {
     id: "email",
@@ -420,6 +431,10 @@ function ContentField({
 
   if (field.kind === "testimonials") {
     return <TestimonialsField value={value} label={field.label} help={field.help} onChange={onChange} />;
+  }
+
+  if (field.kind === "social-links") {
+    return <SocialLinksField value={value} label={field.label} help={field.help} onChange={onChange} />;
   }
 
   const inputBase =
@@ -944,6 +959,137 @@ function TestimonialsField({
       >
         <PlusIcon className="h-4 w-4" />
         הוספת המלצה
+      </button>
+
+      {help && <p className="text-xs text-charcoal/50">{help}</p>}
+    </div>
+  );
+}
+
+type SocialLinkItem = { platform: string; url: string };
+
+function parseSocialLinkList(value: string): SocialLinkItem[] {
+  try {
+    const arr = JSON.parse(value);
+    if (!Array.isArray(arr)) return [];
+    return arr
+      .filter((x) => x && typeof x.platform === "string")
+      .map((x) => ({
+        platform: String(x.platform),
+        url: typeof x.url === "string" ? x.url : "",
+      }));
+  } catch {
+    return [];
+  }
+}
+
+function SocialLinksField({
+  value,
+  label,
+  help,
+  onChange,
+}: {
+  value: string;
+  label: string;
+  help?: string;
+  onChange: (v: string) => void;
+}) {
+  const items = parseSocialLinkList(value);
+  const persist = (next: SocialLinkItem[]) => onChange(JSON.stringify(next));
+
+  const update = (i: number, patch: Partial<SocialLinkItem>) =>
+    persist(items.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
+
+  const remove = (i: number) => persist(items.filter((_, idx) => idx !== i));
+
+  const move = (i: number, dir: -1 | 1) => {
+    const j = i + dir;
+    if (j < 0 || j >= items.length) return;
+    const next = [...items];
+    [next[i], next[j]] = [next[j], next[i]];
+    persist(next);
+  };
+
+  const add = () =>
+    persist([...items, { platform: SOCIAL_PLATFORMS[0]?.slug ?? "facebook", url: "" }]);
+
+  const inputBase =
+    "w-full rounded-md border border-charcoal/15 bg-cream px-2.5 py-2 text-sm text-ink placeholder:text-charcoal/35 focus:border-charcoal/50 focus:outline-none focus:ring-2 focus:ring-gold/30";
+
+  return (
+    <div className="space-y-3">
+      <span className="block text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
+        {label}
+      </span>
+
+      {items.length > 0 && (
+        <ul className="space-y-2">
+          {items.map((item, i) => (
+            <li
+              key={i}
+              className="rounded-xl border border-charcoal/10 bg-linen/40 p-3"
+            >
+              <div className="grid gap-2 sm:grid-cols-[10rem_minmax(0,1fr)_auto]">
+                <select
+                  value={item.platform}
+                  onChange={(e) => update(i, { platform: e.target.value })}
+                  className={inputBase}
+                >
+                  {SOCIAL_PLATFORMS.map((p) => (
+                    <option key={p.slug} value={p.slug}>
+                      {p.label}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="url"
+                  value={item.url}
+                  onChange={(e) => update(i, { url: e.target.value })}
+                  placeholder="https://..."
+                  dir="ltr"
+                  className={inputBase}
+                />
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => move(i, -1)}
+                    disabled={i === 0}
+                    aria-label="הזזה אחורה"
+                    className="rounded-md p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => move(i, 1)}
+                    disabled={i === items.length - 1}
+                    aria-label="הזזה קדימה"
+                    className="rounded-md p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
+                  >
+                    ›
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => remove(i)}
+                    aria-label="הסרה"
+                    className="rounded-md p-1 text-terracotta transition-colors hover:bg-terracotta/10"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <button
+        type="button"
+        onClick={add}
+        className="inline-flex items-center gap-1.5 rounded-full border border-charcoal/20 px-4 py-2 text-sm text-charcoal transition-colors hover:bg-charcoal/[0.06]"
+      >
+        <PlusIcon className="h-4 w-4" />
+        הוספת רשת חברתית
       </button>
 
       {help && <p className="text-xs text-charcoal/50">{help}</p>}

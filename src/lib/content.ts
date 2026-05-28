@@ -17,6 +17,8 @@ const FALLBACKS: Record<string, string> = {
   contact_text:
     "יש לכם שאלה על פריט, רעיון להגיד שלום, או רעיון להזמנה אישית? אני קורא כל הודעה בעצמי.",
   footer_text: "נוצר ביד במנות קטנות.",
+  // JSON array of { platform, url }. platform is one of SOCIAL_PLATFORMS in src/lib/social.ts.
+  social_links: "[]",
   banner_enabled: "false",
   banner_text: "משלוח חינם בהזמנות מעל ₪250",
   banner_link: "",
@@ -91,6 +93,28 @@ export function parseGallery(value: string | undefined | null): GalleryItem[] {
     return arr
       .filter((x) => x && typeof x.url === "string" && x.url.trim())
       .map((x) => ({ url: String(x.url), alt: typeof x.alt === "string" ? x.alt : "" }));
+  } catch {
+    return [];
+  }
+}
+
+export type SocialLink = { platform: string; url: string };
+
+export function parseSocialLinks(value: string | undefined | null): SocialLink[] {
+  if (!value) return [];
+  try {
+    const arr = JSON.parse(value);
+    if (!Array.isArray(arr)) return [];
+    return arr
+      .filter(
+        (x) =>
+          x &&
+          typeof x.platform === "string" &&
+          x.platform.trim() &&
+          typeof x.url === "string" &&
+          x.url.trim(),
+      )
+      .map((x) => ({ platform: String(x.platform), url: String(x.url) }));
   } catch {
     return [];
   }

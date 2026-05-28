@@ -1,8 +1,20 @@
 import Link from "next/link";
 import { CATEGORIES } from "@/types";
+import { type SocialLink } from "@/lib/content";
+import { getPlatform } from "@/lib/social";
 
-export function Footer({ footerText }: { footerText: string }) {
+export function Footer({
+  footerText,
+  socialLinks,
+}: {
+  footerText: string;
+  socialLinks: SocialLink[];
+}) {
   const year = new Date().getFullYear();
+  const items = socialLinks
+    .map((l) => ({ ...l, platform: getPlatform(l.platform) }))
+    .filter((l): l is { platform: NonNullable<ReturnType<typeof getPlatform>>; url: string } => !!l.platform);
+
   return (
     <footer className="mt-24 border-t border-charcoal/10 bg-linen paper-grain">
       <div className="mx-auto grid max-w-editorial gap-10 px-5 py-14 md:grid-cols-3 md:px-8">
@@ -13,6 +25,23 @@ export function Footer({ footerText }: { footerText: string }) {
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-charcoal/70">
             {footerText}
           </p>
+          {items.length > 0 && (
+            <ul className="mt-5 flex items-center gap-3">
+              {items.map(({ platform, url }) => (
+                <li key={platform.slug}>
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={platform.label}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-charcoal/15 text-charcoal/70 transition hover:border-copper hover:text-copper"
+                  >
+                    <platform.Icon className="h-4 w-4" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div>
