@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { BlogMarkdown } from "@/components/storefront/BlogMarkdown";
+import { Markdown } from "@/components/ui/Markdown";
 import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -102,7 +102,7 @@ export default async function BlogPostPage({
         />
       </div>
 
-      <BlogMarkdown source={post.body} />
+      <Markdown source={post.body} />
     </main>
   );
 }

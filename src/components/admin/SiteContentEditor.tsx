@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/Button";
 import { Dropdown } from "@/components/ui/Dropdown";
 import { cn } from "@/lib/utils";
 import { SOCIAL_PLATFORMS } from "@/lib/social";
+import { Markdown, MarkdownCheatSheet } from "@/components/ui/Markdown";
 
 type FieldKind =
   | "text"
@@ -438,6 +439,17 @@ function ContentField({
     return <SocialLinksField value={value} label={field.label} help={field.help} onChange={onChange} />;
   }
 
+  if (field.kind === "richtext") {
+    return (
+      <MarkdownField
+        value={value}
+        label={field.label}
+        help={field.help}
+        onChange={onChange}
+      />
+    );
+  }
+
   const inputBase =
     "w-full rounded-xl border border-charcoal/15 bg-cream px-3 py-2.5 text-sm text-ink placeholder:text-charcoal/30 focus:outline-none focus:border-charcoal/50 focus:ring-2 focus:ring-gold/30 transition-colors";
 
@@ -446,11 +458,11 @@ function ContentField({
       <span className="text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
         {field.label}
       </span>
-      {field.kind === "textarea" || field.kind === "richtext" ? (
+      {field.kind === "textarea" ? (
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          rows={field.kind === "richtext" ? 8 : 3}
+          rows={3}
           className={inputBase}
         />
       ) : (
@@ -468,6 +480,89 @@ function ContentField({
     </label>
   );
 }
+
+function MarkdownField({
+  value,
+  label,
+  help,
+  onChange,
+}: {
+  value: string;
+  label: string;
+  help?: string;
+  onChange: (v: string) => void;
+}) {
+  const [tab, setTab] = useState<"edit" | "preview">("edit");
+  const [showHelp, setShowHelp] = useState(false);
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between">
+        <span className="text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
+          {label}
+        </span>
+        <div className="flex items-center gap-1 text-xs">
+          <button
+            type="button"
+            onClick={() => setShowHelp((v) => !v)}
+            className={cn(
+              "rounded-full px-3 py-1 text-charcoal/60 hover:bg-charcoal/[0.06]",
+              showHelp && "bg-charcoal/[0.06] text-charcoal"
+            )}
+          >
+            עזרה
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab("edit")}
+            className={cn(
+              "rounded-full px-3 py-1",
+              tab === "edit"
+                ? "bg-charcoal text-cream"
+                : "text-charcoal/60 hover:bg-charcoal/[0.06]"
+            )}
+          >
+            עריכה
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab("preview")}
+            className={cn(
+              "rounded-full px-3 py-1",
+              tab === "preview"
+                ? "bg-charcoal text-cream"
+                : "text-charcoal/60 hover:bg-charcoal/[0.06]"
+            )}
+          >
+            תצוגה מקדימה
+          </button>
+        </div>
+      </div>
+
+      {showHelp && <MarkdownCheatSheet />}
+
+      {tab === "edit" ? (
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          rows={10}
+          className="w-full rounded-xl border border-charcoal/15 bg-cream px-3 py-2.5 text-sm text-ink placeholder:text-charcoal/30 focus:outline-none focus:border-charcoal/50 focus:ring-2 focus:ring-gold/30"
+          placeholder="כתבו כאן… **מודגש**, *נטוי*, ## כותרת, - רשימה, [קישור](https://…)"
+        />
+      ) : (
+        <div className="min-h-[14rem] rounded-xl border border-charcoal/10 bg-linen/60 p-4">
+          {value ? (
+            <Markdown source={value} />
+          ) : (
+            <p className="text-charcoal/40">אין תוכן עדיין.</p>
+          )}
+        </div>
+      )}
+      {help && <p className="text-xs text-charcoal/50">{help}</p>}
+    </div>
+  );
+}
+
 
 function ImageField({
   value,

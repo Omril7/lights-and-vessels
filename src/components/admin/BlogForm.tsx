@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/Input";
 import { Dropdown } from "@/components/ui/Dropdown";
 import { DateTimePicker } from "@/components/ui/DateTimePicker";
 import { makeSlug, cn } from "@/lib/utils";
-import { BlogMarkdown } from "@/components/storefront/BlogMarkdown";
+import { Markdown, MarkdownCheatSheet } from "@/components/ui/Markdown";
 
 export type BlogFormValues = {
   id?: string;
@@ -52,6 +52,7 @@ export function BlogForm({
   const [values, setValues] = useState<BlogFormValues>({ ...EMPTY, ...initial });
   const [slugTouched, setSlugTouched] = useState(!!initial?.slug);
   const [bodyTab, setBodyTab] = useState<"edit" | "preview">("edit");
+  const [showBodyHelp, setShowBodyHelp] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -218,6 +219,16 @@ export function BlogForm({
                 <div className="flex gap-1 text-xs">
                   <button
                     type="button"
+                    onClick={() => setShowBodyHelp((v) => !v)}
+                    className={cn(
+                      "rounded-full px-3 py-1 text-charcoal/60 hover:bg-charcoal/[0.06]",
+                      showBodyHelp && "bg-charcoal/[0.06] text-charcoal"
+                    )}
+                  >
+                    עזרה
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setBodyTab("edit")}
                     className={cn(
                       "rounded-full px-3 py-1",
@@ -242,6 +253,11 @@ export function BlogForm({
                   </button>
                 </div>
               </div>
+              {showBodyHelp && (
+                <div className="mt-2">
+                  <MarkdownCheatSheet />
+                </div>
+              )}
               {bodyTab === "edit" ? (
                 <textarea
                   value={values.body}
@@ -253,7 +269,7 @@ export function BlogForm({
               ) : (
                 <div className="mt-1.5 min-h-[16rem] rounded-xl border border-charcoal/10 bg-linen/60 p-4">
                   {values.body ? (
-                    <BlogMarkdown source={values.body} />
+                    <Markdown source={values.body} />
                   ) : (
                     <p className="text-charcoal/40">אין תוכן עדיין.</p>
                   )}
