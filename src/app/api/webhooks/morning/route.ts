@@ -93,6 +93,8 @@ export async function POST(req: Request) {
 
   if (!isSuccess(payload)) {
     // Leave the order in `pending` so the customer can retry from /checkout/failed.
+    // The reserved stock stays held until the customer succeeds, an admin cancels,
+    // or the TTL sweep (/api/orders/sweep) releases it after the reservation window.
     console.info("[morning/webhook] payment not successful for", order.orderNumber);
     return NextResponse.json({ ok: true, note: "not successful — order left pending" });
   }

@@ -1,3 +1,5 @@
+import { prisma } from "@/lib/prisma";
+
 export const ORDER_STATUSES = [
   "pending",
   "confirmed",
@@ -29,3 +31,28 @@ export const STATUS_TONES: Record<
   cancelled: "sale",
   refunded: "sale",
 };
+
+/**
+ * Release stock reserved by a pending order and mark it `cancelled`.
+ * Idempotent: only runs when status === "pending". Safe to call from the
+ * webhook non-success branch and from the TTL sweep.
+ */
+export async function releaseOrderStock(orderId: string) {
+  await prisma.$transaction(async (tx) => {
+    const order = await tx.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+    if (!order || order.status !== "pending") return;
+    for (const item of order.items) {
+      await tx.product.update({
+        where: { id: item.productId },
+        data: { stockCount: { increment: item.quantity } },
+      });
+    }
+    await tx.order.update({
+      where: { id: orderId },
+      data: { status: "cancelled" },
+    });
+  });
+}

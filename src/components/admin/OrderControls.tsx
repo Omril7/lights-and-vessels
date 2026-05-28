@@ -24,6 +24,25 @@ export function OrderControls({
   const [status, setStatus] = useState<OrderStatus>(initialStatus);
   const [notes, setNotes] = useState(initialNotes);
   const [saving, setSaving] = useState(false);
+  const [releasing, setReleasing] = useState(false);
+
+  async function releaseReservation() {
+    if (!confirm("לשחרר את המלאי שמור להזמנה זו ולסמן אותה כמבוטלת?")) return;
+    setReleasing(true);
+    try {
+      const res = await fetch(`/api/orders/${id}/release`, { method: "POST" });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || "שגיאה בשחרור המלאי");
+      }
+      toast.success("המלאי שוחרר וההזמנה בוטלה");
+      router.refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "שגיאה");
+    } finally {
+      setReleasing(false);
+    }
+  }
 
   async function save() {
     setSaving(true);
@@ -82,6 +101,23 @@ export function OrderControls({
       <Button onClick={save} disabled={saving} className="w-full" size="sm">
         {saving ? "שומר…" : "שמירת שינויים"}
       </Button>
+
+      {initialStatus === "pending" && (
+        <div className="pt-3 border-t border-charcoal/10">
+          <p className="text-xs text-charcoal/60 mb-2">
+            הזמנה זו מחזיקה רזרבת מלאי. שחרר כדי להחזיר את היחידות לחנות ולסמן את ההזמנה כמבוטלת.
+          </p>
+          <Button
+            onClick={releaseReservation}
+            disabled={releasing}
+            variant="ghost"
+            size="sm"
+            className="w-full"
+          >
+            {releasing ? "משחרר…" : "שחרור רזרבת מלאי"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

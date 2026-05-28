@@ -1,5 +1,22 @@
 # Feature Specifications
 
+## Inventory & Stock Reservation
+
+`Product.stockCount` is the authoritative live inventory count; `Product.inStock` is a manual admin toggle (e.g. to hide an item even when count > 0).
+
+**Reservation model (option B):**
+
+1. **At `/api/checkout`** — stock is decremented atomically inside a `prisma.$transaction`. Each item uses `updateMany({ where: { id, published: true, inStock: true, stockCount: { gte: quantity } }, data: { stockCount: { decrement: quantity } } })`. If any update returns `count: 0`, the transaction throws and rolls back, and the customer gets `409 אזל מהמלאי: <product>`. This makes concurrent checkouts race-safe — two customers can't both reserve the last unit.
+2. **On Morning payment-form creation failure** — the route releases the reservation via `releaseOrderStock(orderId)` (increments stock back, marks order `cancelled`).
+3. **On Morning IPN success** — the order moves to `confirmed`; the reservation becomes a permanent sale. No further stock change.
+4. **On Morning IPN non-success** — the order stays `pending` so the customer can retry from `/checkout/failed` (which re-uses the same order via `/api/checkout/retry`). Stock stays reserved during the retry window.
+5. **TTL sweep — `/api/orders/sweep`** — releases stock for any `pending` orders older than `ORDER_RESERVATION_TTL_MINUTES` (default 30). Protected by `CRON_SECRET` (Bearer token or `?secret=`). Wired in `vercel.json` to run hourly (the highest frequency the Hobby tier allows). Upgrade to Pro to run more often.
+6. **Manual admin release — `POST /api/orders/[id]/release`** — admin-only button shown on the order detail page when status is `pending`. Lets the artist free up stock immediately instead of waiting for the next cron tick.
+
+Helper: `releaseOrderStock(orderId)` in `src/lib/orders.ts` is idempotent (only acts when status is `pending`) — safe to call from the webhook, the checkout failure path, and the sweep.
+
+---
+
 ## Shipping
 
 Two delivery options at checkout — no courier integration, no parcel-locker integration.

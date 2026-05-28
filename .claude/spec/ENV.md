@@ -29,7 +29,11 @@ MORNING_API_KEY_ID="..."             # from Morning admin → API keys
 MORNING_API_SECRET="..."             # the secret paired with the key id
 MORNING_PLUGIN_ID=""                 # if Morning requires a plugin id for hosted forms
 MORNING_DEFAULT_DOC_TYPE="400"       # 400 = קבלה (artist is עוסק פטור). 320 only if moving to עוסק מורשה.
-MORNING_WEBHOOK_SECRET="..."         # shared secret used to sign IPN requests
+MORNING_WEBHOOK_SECRET="..."         # shared secret used to sign IPN requests (optional in dev; required in prod)
+
+# Stock-reservation sweep (option B inventory model — see FEATURES.md "Inventory & Stock Reservation")
+ORDER_RESERVATION_TTL_MINUTES="30"   # how long a pending order holds its stock reservation before the sweep releases it
+CRON_SECRET="..."                    # bearer token guarding /api/orders/sweep — set in Vercel + Vercel Cron config
 
 # Email — order confirmation. Provider is chosen from the admin UI (SiteContent.email_use_gmail).
 # EMAIL_PROVIDER is a fallback used only if the DB is unreachable. See API.md "Email confirmation".

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createPaymentForm, VAT_TYPE_EXEMPT } from "@/lib/morning";
 import { getSiteContent } from "@/lib/content";
+import { releaseOrderStock } from "@/lib/orders";
 
 export const dynamic = "force-dynamic";
 
@@ -53,12 +54,6 @@ export async function POST(req: Request) {
   if (products.length !== parsed.items.length) {
     return NextResponse.json({ error: "אחד הפריטים לא זמין יותר" }, { status: 400 });
   }
-  for (const item of parsed.items) {
-    const p = products.find((p) => p.id === item.productId)!;
-    if (!p.inStock || p.stockCount < item.quantity) {
-      return NextResponse.json({ error: `אזל מהמלאי: ${p.name}` }, { status: 409 });
-    }
-  }
 
   // Shipping cost from SiteContent
   const content = await getSiteContent();
@@ -79,26 +74,56 @@ export async function POST(req: Request) {
   const total = subtotal + shippingCost;
 
   const orderNumber = await nextOrderNumber();
-  const order = await prisma.order.create({
-    data: {
-      orderNumber,
-      status: "pending",
-      customerName: parsed.customer.name,
-      customerEmail: parsed.customer.email,
-      phone: parsed.customer.phone,
-      shippingMethod: parsed.shippingMethod,
-      shippingAddress: JSON.stringify(parsed.shippingAddress ?? {}),
-      subtotal,
-      shippingCost,
-      total,
-      items: {
-        create: parsed.items.map((item) => {
-          const p = products.find((p) => p.id === item.productId)!;
-          return { productId: p.id, quantity: item.quantity, price: p.price };
-        }),
-      },
-    },
-  });
+
+  // Atomically reserve stock + create the pending order. Each updateMany only
+  // succeeds when stockCount >= quantity, so concurrent checkouts can't oversell.
+  let order;
+  try {
+    order = await prisma.$transaction(async (tx) => {
+      for (const item of parsed.items) {
+        const res = await tx.product.updateMany({
+          where: {
+            id: item.productId,
+            published: true,
+            inStock: true,
+            stockCount: { gte: item.quantity },
+          },
+          data: { stockCount: { decrement: item.quantity } },
+        });
+        if (res.count !== 1) {
+          throw new Error(`OUT_OF_STOCK:${item.productId}`);
+        }
+      }
+      return tx.order.create({
+        data: {
+          orderNumber,
+          status: "pending",
+          customerName: parsed.customer.name,
+          customerEmail: parsed.customer.email,
+          phone: parsed.customer.phone,
+          shippingMethod: parsed.shippingMethod,
+          shippingAddress: JSON.stringify(parsed.shippingAddress ?? {}),
+          subtotal,
+          shippingCost,
+          total,
+          items: {
+            create: parsed.items.map((item) => {
+              const p = products.find((p) => p.id === item.productId)!;
+              return { productId: p.id, quantity: item.quantity, price: p.price };
+            }),
+          },
+        },
+      });
+    });
+  } catch (err) {
+    const msg = (err as Error).message;
+    if (msg.startsWith("OUT_OF_STOCK:")) {
+      const id = msg.split(":")[1];
+      const p = products.find((p) => p.id === id);
+      return NextResponse.json({ error: `אזל מהמלאי: ${p?.name ?? ""}` }, { status: 409 });
+    }
+    throw err;
+  }
 
   // Build Morning payment-form payload
   const origin = originFromRequest(req);
@@ -151,6 +176,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ orderId: order.id, redirectUrl: form.url });
   } catch (err) {
     console.error("[checkout] Morning createPaymentForm failed:", err);
+    // Release the stock we reserved and cancel the order so it doesn't sit
+    // pending and consume inventory until the TTL sweep runs.
+    try {
+      await releaseOrderStock(order.id);
+    } catch (restoreErr) {
+      console.error("[checkout] stock restore failed:", restoreErr);
+    }
     return NextResponse.json(
       { error: "תקלה בחיבור לסליקה. נסה שוב בעוד רגע." },
       { status: 502 },
