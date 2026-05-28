@@ -8,6 +8,7 @@ import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Dropdown } from "@/components/ui/Dropdown";
+import { DateTimePicker } from "@/components/ui/DateTimePicker";
 import { makeSlug, cn } from "@/lib/utils";
 import { BlogMarkdown } from "@/components/storefront/BlogMarkdown";
 
@@ -124,7 +125,9 @@ export function BlogForm({
       coverAlt: values.coverAlt.trim() || null,
       author: values.author.trim() || "אלון בראל",
       status: values.status,
-      publishedAt: values.publishedAt || null,
+      publishedAt: values.publishedAt
+        ? new Date(values.publishedAt).toISOString()
+        : null,
       tagIds: values.tagIds,
     };
     const url =
@@ -326,12 +329,11 @@ export function BlogForm({
               >
                 תאריך פרסום
               </label>
-              <input
+              <DateTimePicker
                 id="publishedAt"
-                type="datetime-local"
+                ariaLabel="תאריך פרסום"
                 value={values.publishedAt}
-                onChange={(e) => set("publishedAt", e.target.value)}
-                className="w-full rounded-xl border border-charcoal/20 bg-cream px-4 py-3 text-sm"
+                onChange={(v) => set("publishedAt", v)}
               />
               <p className="text-xs text-charcoal/50">
                 ריק = עכשיו (כשעוברים למפורסם).
