@@ -33,7 +33,10 @@ MORNING_WEBHOOK_SECRET="..."         # shared secret used to sign IPN requests (
 
 # Stock-reservation sweep (option B inventory model — see FEATURES.md "Inventory & Stock Reservation")
 ORDER_RESERVATION_TTL_MINUTES="30"   # how long a pending order holds its stock reservation before the sweep releases it
-CRON_SECRET="..."                    # bearer token guarding /api/orders/sweep — set in Vercel + Vercel Cron config
+CRON_SECRET="dev-cron-secret-change-me"   # bearer token guarding /api/orders/sweep. Any long random string works.
+                                          # Generate prod value with: openssl rand -hex 32
+                                          # Or PowerShell: [Convert]::ToBase64String((1..32 | %{ Get-Random -Maximum 256 }))
+                                          # Set the SAME value in Vercel env vars; Vercel Cron sends it as `Authorization: Bearer <CRON_SECRET>` automatically.
 
 # Email — order confirmation. Provider is chosen from the admin UI (SiteContent.email_use_gmail).
 # EMAIL_PROVIDER is a fallback used only if the DB is unreachable. See API.md "Email confirmation".
