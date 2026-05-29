@@ -132,9 +132,9 @@ export function ProductCard({
             {categoryLabel(product.category)}
           </p>
         )}
-        <h3 className="mt-1 font-serif text-lg leading-snug text-ink transition-colors group-hover:text-copper">
+        <h2 className="mt-1 font-serif text-lg leading-snug text-ink transition-colors group-hover:text-copper">
           {product.name}
-        </h3>
+        </h2>
         <div className="mt-1 flex items-baseline gap-2">
           <span className="text-sm font-medium text-charcoal">
             {formatPrice(product.price)}

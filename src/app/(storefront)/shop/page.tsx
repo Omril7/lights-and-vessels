@@ -13,6 +13,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "החנות",
   description: "אוסף התכשיטים וחפצי הבית של הסטודיו.",
+  alternates: { canonical: "/shop" },
 };
 
 const SORT_MAP: Record<SortKey, Prisma.ProductOrderByWithRelationInput> = {

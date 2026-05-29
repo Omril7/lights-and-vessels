@@ -14,6 +14,13 @@
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
+  "browserslist": [
+    "chrome >= 96",
+    "edge >= 96",
+    "firefox >= 95",
+    "safari >= 15",
+    "ios_saf >= 15"
+  ],
   "dependencies": {
     "@heroicons/react": "^2.1.5",
     "@prisma/client": "^5.18.0",

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -13,12 +14,12 @@ import type { ProductWithImages } from "@/types";
 
 export const dynamic = "force-dynamic";
 
-async function getProduct(slug: string) {
-  return prisma.product.findFirst({
+const getProduct = cache(async (slug: string) =>
+  prisma.product.findFirst({
     where: { slug, published: true },
     include: { images: { orderBy: { order: "asc" } } },
-  });
-}
+  }),
+);
 
 export async function generateMetadata({
   params,

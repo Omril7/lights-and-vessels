@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -8,7 +9,7 @@ import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-async function getPost(slug: string) {
+const getPost = cache(async (slug: string) => {
   const post = await prisma.blogPost.findUnique({
     where: { slug },
     include: {
@@ -25,7 +26,7 @@ async function getPost(slug: string) {
     return null;
   }
   return post;
-}
+});
 
 export async function generateMetadata({
   params,

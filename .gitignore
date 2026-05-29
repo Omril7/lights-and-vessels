@@ -38,6 +38,9 @@ yarn-error.log*
 # uploads
 uploads/
 
+# lighthouse audits
+.lighthouse/
+
 # local meeting / artist notes
 meeting-checklist.html
 meeting-notes-*.json

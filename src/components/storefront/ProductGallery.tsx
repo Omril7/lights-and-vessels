@@ -92,7 +92,7 @@ export function ProductGallery({
         onTouchStart={(e) => (touchStartX.current = e.touches[0]?.clientX ?? null)}
         onTouchEnd={(e) => onTouchEnd(e.changedTouches[0]?.clientX ?? 0)}
       >
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={current.id}
             initial={{ opacity: 0 }}

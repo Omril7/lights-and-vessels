@@ -67,7 +67,7 @@ export function Dropdown({
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label={ariaLabel}
+        aria-label={current ? `${current.label} — ${ariaLabel}` : ariaLabel}
         onClick={() => setOpen((o) => !o)}
         className={triggerClass}
       >

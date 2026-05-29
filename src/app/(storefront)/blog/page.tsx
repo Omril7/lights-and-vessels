@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "בלוג",
   description: "מחשבות, השראות וסיפורים מהסטודיו.",
+  alternates: { canonical: "/blog" },
 };
 
 export default async function BlogIndexPage({
