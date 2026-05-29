@@ -71,5 +71,5 @@ See also: [ENV.md](ENV.md) for dev env vars.
 
 ## Hardening
 - Confirm `middleware.ts` matchers cover all admin routes; smoke-test logged-out access.
-- Set security headers (CSP, X-Frame-Options, Referrer-Policy) in `next.config.js`.
+- ~~Set security headers (CSP, X-Frame-Options, Referrer-Policy) in `next.config.js`.~~ ✅ Done — `next.config.js` `headers()` returns HSTS (2y + preload), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and a `Permissions-Policy` opting out of camera/mic/geolocation/payment. CSP intentionally deferred — needs a `report-only` shakedown against Next.js inline scripts + Resend/Supabase domains before enforcing.
 - Verify `next.config.js` `images.remotePatterns` covers any prod image host.
