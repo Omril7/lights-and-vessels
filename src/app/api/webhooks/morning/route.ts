@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getDocumentPreviewUrl, verifyWebhookSignature } from "@/lib/morning";
-import { sendOrderConfirmationEmail } from "@/lib/email";
+import { sendOrderConfirmationEmail, sendAdminOrderNotificationEmail } from "@/lib/email";
 import { getSiteContent } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
@@ -159,8 +159,9 @@ export async function POST(req: Request) {
       pickupHours: content.shipping_pickup_hours,
       shippingEta: content.shipping_post_eta,
     });
+    await sendAdminOrderNotificationEmail(updated);
   } catch (err) {
-    console.error("[morning/webhook] confirmation email failed:", err);
+    console.error("[morning/webhook] order emails failed:", err);
   }
 
   return NextResponse.json({ ok: true });

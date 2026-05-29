@@ -110,7 +110,7 @@ A running record of what has been built, phase by phase. Update this as work pro
 - Defensive payload parsing (accepts `id`/`formId`/`paymentFormId`, `documentId`/`document.id`, multiple `status` shapes — exact shape needs first live IPN to confirm).
 - Resolves order by echoed `custom` (our `Order.id`) first, falls back to `morningPaymentFormId`.
 - Idempotent: no-op if order is already `confirmed` + `paidAt`.
-- On success: marks `confirmed`, sets `paidAt` / transaction id / document fields, upserts `MorningDocument`, fires branded Resend email (Hebrew RTL — post variant shows address + ETA; pickup variant shows address + hours from `SiteContent`).
+- On success: marks `confirmed`, sets `paidAt` / transaction id / document fields, upserts `MorningDocument`, fires branded Resend email (Hebrew RTL — post variant shows address + ETA; pickup variant shows address + hours from `SiteContent`), then sends an admin "הזמנה חדשה" email to every address in `ADMIN_EMAILS` via the same provider — order summary + customer contact + deep link to `/admin/orders/[id]`. Missing recipients → `console.warn`, never throws.
 - On failure: leaves order `pending`.
 
 **Admin — order detail extensions**

@@ -26,8 +26,8 @@ Split from the original `artist-ecommerce-spec.md`. Open the file that matches w
 **Where we are** (per [PROGRESS_LOG.md](PROGRESS_LOG.md)):
 - Phase 1 — Storefront ✅
 - Phase 2 — Admin Panel ✅
-- Phase 3 — Morning Payments ✅ *code-complete; not yet live-tested; admin "new order" notification email (PHASES.md #12) still to implement*
-- Phase 4 — Polish 🚧 *only Lighthouse audit left*
+- Phase 3 — Morning Payments ✅ *code-complete; not yet live-tested*
+- Phase 4 — Polish ✅
 - Phase 5 — Pre-deploy ❌ *not started*
 - Legal pages ([LEGAL.md](LEGAL.md)) ❌ *4 of 5 missing; hard launch blocker*
 
@@ -35,8 +35,8 @@ Split from the original `artist-ecommerce-spec.md`. Open the file that matches w
 
 Do these in order. Each step is a gate on the next.
 
-1. **Finish Phase 4 — Lighthouse audit** (the one open item in [PROGRESS_LOG.md](PROGRESS_LOG.md) §Phase 4). Fix any P0/P1 findings (performance, a11y, best-practices, SEO).
-2. **Implement admin "new order" email** ([PHASES.md](PHASES.md) #12 + [API.md](API.md) → *Admin notification*) — quick win, lives in the same IPN handler as the existing customer confirmation.
+1. ~~**Finish Phase 4 — Lighthouse audit.**~~ ✅ Done — see [PROGRESS_LOG.md](PROGRESS_LOG.md) §Phase 4.
+2. ~~**Implement admin "new order" email.**~~ ✅ Done — see [PROGRESS_LOG.md](PROGRESS_LOG.md) §Phase 3 webhook.
 3. **Legal pages scaffold** ([LEGAL.md](LEGAL.md) §Implementation plan) — add `/legal/[slug]` route, admin editor fields for `legal_terms` / `legal_privacy` / `legal_returns` / `legal_shipping`, footer links, sitemap. Code-only step; copy lands in step 4.
 4. **Artist drafts legal copy** — terms, privacy, returns, shipping. Resolve [LEGAL.md](LEGAL.md) §"Open questions for the artist" first (refund policy, restocking fee, accessibility coordinator, etc.). This is the slow step — kick it off in parallel with step 5.
 5. **Phase 3 live sandbox test** — see [PROGRESS_LOG.md](PROGRESS_LOG.md) §"Still needed before live testing":
