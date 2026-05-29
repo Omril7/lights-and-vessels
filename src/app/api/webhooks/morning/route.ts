@@ -56,6 +56,18 @@ export async function POST(req: Request) {
   const raw = await req.text();
   const signature = req.headers.get("x-morning-signature") || req.headers.get("x-signature");
 
+  // First-time diagnostics: log every header + the raw body so we can confirm
+  // Morning's actual field names + signature header without guessing. Cheap,
+  // and Vercel logs are admin-only — safe to leave on through the sandbox phase.
+  // Remove (or gate behind a flag) once the payload shape is confirmed.
+  console.log(
+    "[morning/webhook] incoming",
+    JSON.stringify({
+      headers: Object.fromEntries(req.headers.entries()),
+      body: raw,
+    }),
+  );
+
   // Webhook signature: enforce in prod when secret is configured.
   const secret = process.env.MORNING_WEBHOOK_SECRET;
   if (secret && secret !== "..." && !verifyWebhookSignature(raw, signature)) {
