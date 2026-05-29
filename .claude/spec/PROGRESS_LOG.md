@@ -154,7 +154,7 @@ External setup that must be in place before a real end-to-end smoke test:
 - `/shop/[slug]` — `generateMetadata` adds canonical, per-product OG image (first product image), Twitter card.
 - JSON-LD — `Organization` on homepage, `Product` (price/availability/SKU) on product pages.
 - `src/app/robots.ts` — allows storefront, disallows `/admin`, `/api`, `/cart`, `/checkout`.
-- `src/app/sitemap.ts` — static routes (`/`, `/shop`, `/about`, `/accessibility-statement`) + every published product (by `updatedAt`).
+- `src/app/sitemap.ts` — static routes (`/`, `/shop`, `/about`, plus all `/legal/*` pages) + every published product (by `updatedAt`).
 - Site URL driven by `NEXT_PUBLIC_SITE_URL` (falls back to the prod Vercel domain).
 
 **Loading states** ✅
@@ -196,4 +196,17 @@ Ran across `/`, `/shop`, `/shop/[slug]`, `/blog`. Median scores after fixes: **A
 - Accessibility on `/shop`: darkened `--copper` (`#a86b3c`→`#93582d`) and `--terracotta` (`#b5704e`→`#9c5a36`) to clear AA 4.5:1 on cream; `ProductCard` title now `<h2>` (was `<h3>`, skipped a level under the page `<h1>`); `Dropdown` `aria-label` now includes the visible selected option so it satisfies "Label in Name".
 - Performance: wrapped `getProduct` / `getPost` in React `cache()` to dedupe the double fetch between `generateMetadata` and the page render — product TTFB **2050 ms → 740 ms**. Product gallery `AnimatePresence` set to `initial={false}` so the hero `next/image` doesn't fade in from `opacity: 0` (the LCP element). Modern `browserslist` added to `package.json` to trim polyfills.
 - Deferred (low impact, higher effort): bf-cache disabled by NextAuth `Cache-Control: no-store`; render-blocking CSS (~610ms) from Next.js inlined globals.
+
+## Legal pages — 🚧 Draft live (2026-05-29)
+
+Static const pages under `src/app/(storefront)/legal/{terms,privacy,returns,shipping}/page.tsx` plus a shared `<LegalPage>` shell at `src/components/storefront/LegalPage.tsx`. Decision (per artist's request): copy lives in code, not in `SiteContent` — no admin editor fields for legal text. Updates ship as PRs.
+
+- All four pages have per-page `metadata` with `title`, `description`, and `alternates.canonical`.
+- Footer (`src/components/storefront/Footer.tsx`) gained a dedicated bottom row linking all five legal pages.
+- Moved `/accessibility-statement` → `/legal/accessibility` for consistency. No redirect (pre-launch, nothing external indexed). Internal links updated in `Footer.tsx` and `AccessibilityWidget.tsx`.
+- **Cookie banner skipped** — site has no analytics / ad pixels / tracking. Add a real consent banner when GA / Meta Pixel / Hotjar / retargeting is introduced; see [LEGAL.md](../spec/LEGAL.md) §Implementation plan for the trigger.
+- `src/app/sitemap.ts` updated with the four `/legal/*` routes (yearly changefreq, priority 0.3). Robots already allows them.
+- The shipping page numbers (₪30, 1–3 day processing, 7 day Israel Post ETA, no free-shipping threshold, no international) are **hardcoded** to the current defaults — keep in sync manually with the `SiteContent` shipping keys until the artist asks for dynamic rendering.
+
+**Not yet done:** every page is generated boilerplate. Artist must review and approve the text (and ideally a lawyer for terms + privacy) before launch. See [LEGAL.md](../spec/LEGAL.md) for the open questions and what each page must cover.
 

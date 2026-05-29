@@ -29,7 +29,7 @@ Split from the original `artist-ecommerce-spec.md`. Open the file that matches w
 - Phase 3 — Morning Payments ✅ *code-complete; not yet live-tested*
 - Phase 4 — Polish ✅
 - Phase 5 — Pre-deploy ❌ *not started*
-- Legal pages ([LEGAL.md](LEGAL.md)) ❌ *4 of 5 missing; hard launch blocker*
+- Legal pages ([LEGAL.md](LEGAL.md)) 🚧 *scaffolds + boilerplate copy live at `/legal/{terms,privacy,returns,shipping}`; artist must review every word before launch*
 
 ### Ordered path to production
 
@@ -37,7 +37,7 @@ Do these in order. Each step is a gate on the next.
 
 1. ~~**Finish Phase 4 — Lighthouse audit.**~~ ✅ Done — see [PROGRESS_LOG.md](PROGRESS_LOG.md) §Phase 4.
 2. ~~**Implement admin "new order" email.**~~ ✅ Done — see [PROGRESS_LOG.md](PROGRESS_LOG.md) §Phase 3 webhook.
-3. **Legal pages scaffold** ([LEGAL.md](LEGAL.md) §Implementation plan) — add `/legal/[slug]` route, admin editor fields for `legal_terms` / `legal_privacy` / `legal_returns` / `legal_shipping`, footer links, sitemap. Code-only step; copy lands in step 4.
+3. ~~**Legal pages scaffold.**~~ ✅ Done — static const pages live at `/legal/{terms,privacy,returns,shipping}` with boilerplate Hebrew copy; footer + sitemap updated. See [LEGAL.md](LEGAL.md) §Implementation plan.
 4. **Artist drafts legal copy** — terms, privacy, returns, shipping. Resolve [LEGAL.md](LEGAL.md) §"Open questions for the artist" first (refund policy, restocking fee, accessibility coordinator, etc.). This is the slow step — kick it off in parallel with step 5.
 5. **Phase 3 live sandbox test** — see [PROGRESS_LOG.md](PROGRESS_LOG.md) §"Still needed before live testing":
    - Generate Morning sandbox API key + webhook secret.

@@ -499,7 +499,7 @@ export function AccessibilityWidget() {
                 </button>
                 <div className="mt-3 flex items-center justify-between text-xs text-charcoal/55">
                   <Link
-                    href="/accessibility-statement"
+                    href="/legal/accessibility"
                     onClick={() => setOpen(false)}
                     className="underline-offset-2 transition hover:text-copper hover:underline"
                   >

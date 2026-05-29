@@ -10,11 +10,11 @@ All five are linked from the footer. None should ship with lorem-ipsum — every
 
 | Doc | Hebrew | Legal basis | Status | Route |
 |---|---|---|---|---|
-| Terms of Service | תקנון האתר | חוק הגנת הצרכן + commercial best practice | ❌ Missing | `/legal/terms` (planned) |
-| Privacy Policy | מדיניות פרטיות | חוק הגנת הפרטיות תשמ"א-1981 | ❌ Missing | `/legal/privacy` (planned) |
-| Returns & Cancellations | מדיניות החזרות וביטולים | חוק הגנת הצרכן — 14-day cooling-off for distance sales | ❌ Missing | `/legal/returns` (planned) |
-| Shipping Policy | מדיניות משלוחים | Disclosure best practice (delivery times, costs, liability) | ❌ Missing | `/legal/shipping` (planned) |
-| Accessibility Statement | הצהרת נגישות | תקן ישראלי 5568 (mandatory) | 🚧 Partial | `/accessibility-statement` (live) |
+| Terms of Service | תקנון האתר | חוק הגנת הצרכן + commercial best practice | 🚧 Draft live (pending artist + lawyer review) | `/legal/terms` (planned) |
+| Privacy Policy | מדיניות פרטיות | חוק הגנת הפרטיות תשמ"א-1981 | 🚧 Draft live (pending artist + lawyer review) | `/legal/privacy` (planned) |
+| Returns & Cancellations | מדיניות החזרות וביטולים | חוק הגנת הצרכן — 14-day cooling-off for distance sales | 🚧 Draft live (pending artist + lawyer review) | `/legal/returns` (planned) |
+| Shipping Policy | מדיניות משלוחים | Disclosure best practice (delivery times, costs, liability) | 🚧 Draft live (pending artist + lawyer review) | `/legal/shipping` (planned) |
+| Accessibility Statement | הצהרת נגישות | תקן ישראלי 5568 (mandatory) | 🚧 Partial | `/legal/accessibility` (live) |
 
 ---
 
@@ -92,7 +92,7 @@ All five are linked from the footer. None should ship with lorem-ipsum — every
 
 **Why mandatory:** Israeli accessibility standard 5568 applies to commercial sites. Non-compliance is enforced by class actions.
 
-**Current state:** page exists at `/accessibility-statement`. Needs:
+**Current state:** page exists at `/legal/accessibility`. Needs:
 - Compliance level claimed (AA per WCAG 2.1 is the target).
 - Accessibility-coordinator name + contact (artist must designate someone — likely himself; needs phone + email).
 - List of known gaps (the `text-charcoal/40-50` contrast tradeoffs documented in `PROGRESS_LOG.md`).
@@ -103,14 +103,17 @@ All five are linked from the footer. None should ship with lorem-ipsum — every
 
 ## Implementation plan
 
-1. **Routes** — add `src/app/(storefront)/legal/[slug]/page.tsx` reading from `SiteContent` keys (`legal_terms`, `legal_privacy`, `legal_returns`, `legal_shipping`). Render with the existing `renderMarkdown()`.
-2. **Admin** — add a "מסמכים משפטיים" section in `SiteContentEditor` with `richtext` fields for each (textarea + live preview, like `about_text`).
-3. **Footer** — link each page.
-4. **Accessibility statement** — leave at `/accessibility-statement` (already linked in the footer), or move under `/legal/` for consistency. Decision pending.
-5. **Sitemap** — add the 4 new routes to `src/app/sitemap.ts` once the pages exist.
-6. **Robots** — these pages should be indexable (already allowed by default in `src/app/robots.ts`).
+**Done (2026-05-29):**
+1. **Routes** ✅ — four static const pages: `src/app/(storefront)/legal/{terms,privacy,returns,shipping}/page.tsx`. Each is a server component that renders its copy inline (no SiteContent dependency, no Markdown — plain JSX inside a shared `<LegalPage>` shell at `src/components/storefront/LegalPage.tsx`). Decision: kept content in code rather than DB so the artist can't accidentally break formatting; updates ship as PRs.
+2. **Admin** ❌ skipped by request — no `legal_*` SiteContent keys, no editor fields.
+3. **Footer** ✅ — new dedicated row in `Footer.tsx` linking all four legal pages + the accessibility statement.
+4. **Accessibility statement** ✅ — moved from `/accessibility-statement` to `/legal/accessibility` for consistency. No redirect — site is pre-launch with no external indexing to preserve. Linked from the footer alongside the four `/legal/*` pages.
 
-**Order of work:** scaffold the routes + admin fields first (an hour). Then the artist drafts the actual text — that's the slow part. Site can launch only once **all five** have real text.
+**Cookie banner — intentionally skipped (2026-05-29).** No analytics, no ad pixels, no third-party trackers; cart + a11y prefs live in `localStorage` (not cookies), and the only cookie is NextAuth's strictly-necessary admin session. Israeli law requires disclosure (covered in §5 of the privacy page), not opt-in; GDPR requires consent only for non-essential cookies. **Revisit the moment** Google Analytics, Meta Pixel, Hotjar, or any retargeting tool is added — at that point add a real consent banner (`@klaro/core` or similar) and grow privacy §5 with a "Third-party cookies" subsection.
+5. **Sitemap** ✅ — the four `/legal/*` routes added to `src/app/sitemap.ts` (yearly changefreq, priority 0.3).
+6. **Robots** ✅ — indexable by default (no `Disallow` covers `/legal`).
+
+**Still required before launch:** every page currently contains a *draft* — generated boilerplate based on the headings in this document. The artist (and ideally a lawyer for terms + privacy) must review and replace every word. Once approved, drop the "🚧 Draft live" status in the table above to ✅.
 
 ---
 

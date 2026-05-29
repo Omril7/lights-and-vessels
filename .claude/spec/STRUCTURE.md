@@ -17,6 +17,12 @@
 │   │   │   │   └── page.tsx          # About the artist
 │   │   │   ├── cart/
 │   │   │   │   └── page.tsx          # Cart page
+│   │   │   ├── legal/                # Static legal pages
+│   │   │   │   ├── terms/page.tsx
+│   │   │   │   ├── privacy/page.tsx
+│   │   │   │   ├── returns/page.tsx
+│   │   │   │   ├── shipping/page.tsx
+│   │   │   │   └── accessibility/page.tsx
 │   │   │   └── layout.tsx            # Storefront layout (nav + footer)
 │   │   ├── admin/          # Admin panel (protected)
 │   │   │   ├── page.tsx              # Dashboard
