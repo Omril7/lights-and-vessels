@@ -90,4 +90,4 @@ The send function in `src/lib/email.ts` reads the toggle and picks one of two ba
 
 When the chosen provider's credentials are missing, the send is skipped with a `console.warn` (it never throws and never blocks order creation). Decision is reversible by flipping `EMAIL_PROVIDER` — no code change.
 
-**Environment & credentials.** See [ENV.md](ENV.md). Test against Morning's **sandbox** (`https://sandbox.d.greeninvoice.co.il/api/v1/`) until the client confirms go-live.
+**Environment & credentials.** See [ENV.md](ENV.md). Test against Morning's **sandbox** (`https://sandbox.d.greeninvoice.co.il/api/v1/`) until the client confirms go-live. Sandbox API keys + webhook secret are issued from the sandbox site itself (<https://sandbox.d.greeninvoice.co.il>), separately from the production console (`app.greeninvoice.co.il`).

@@ -136,8 +136,8 @@ A running record of what has been built, phase by phase. Update this as work pro
 
 External setup that must be in place before a real end-to-end smoke test:
 
-1. **`MORNING_API_KEY_ID` + `MORNING_API_SECRET`** — generated from the artist's Morning **sandbox** account at <https://app.greeninvoice.co.il/settings/developers/api>, dropped into `.env`.
-2. **`MORNING_WEBHOOK_SECRET`** — generated on Morning's developers page (<https://app.greeninvoice.co.il/settings/developers/api>) against the Vercel deploy URL as the hosting/notify URL. Set it as a Vercel env var (and locally in `.env` if you want to test against the same secret). (When unset or `"..."`, the webhook route skips signature verification with a console warning — fine for very first ping, not for any real test.)
+1. **`MORNING_API_KEY_ID` + `MORNING_API_SECRET`** — generated from the artist's Morning **sandbox** account at <https://sandbox.d.greeninvoice.co.il> (developers / API keys page), dropped into `.env`. The sandbox is a separate site from the production console (`app.greeninvoice.co.il`); sandbox keys only work against the sandbox API base.
+2. **`MORNING_WEBHOOK_SECRET`** — generated on the Morning **sandbox** developers page (<https://sandbox.d.greeninvoice.co.il>) against the Vercel deploy URL as the hosting/notify URL. Set it as a Vercel env var (and locally in `.env` if you want to test against the same secret). (When unset or `"..."`, the webhook route skips signature verification with a console warning — fine for very first ping, not for any real test.)
 3. ~~**`RESEND_API_KEY`** — free Resend account; with `RESEND_FROM_EMAIL=onboarding@resend.dev` no domain verification is needed yet. Without the key the branded confirmation silently no-ops (logs a warn).~~
 4. **Vercel deploy** → Morning's IPN must reach a public HTTPS URL. Steps:
    - Deploy the project to Vercel; note the assigned `*.vercel.app` URL (a custom domain is not required — the default Vercel domain works).

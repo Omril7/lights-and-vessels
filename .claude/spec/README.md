@@ -40,7 +40,7 @@ Do these in order. Each step is a gate on the next.
 3. ~~**Legal pages scaffold.**~~ ✅ Done — static const pages live at `/legal/{terms,privacy,returns,shipping}` with boilerplate Hebrew copy; footer + sitemap updated. See [LEGAL.md](LEGAL.md) §Implementation plan.
 4. **Artist drafts legal copy** — terms, privacy, returns, shipping. Resolve [LEGAL.md](LEGAL.md) §"Open questions for the artist" first (refund policy, restocking fee, accessibility coordinator, etc.). This is the slow step — kick it off in parallel with step 5.
 5. **Phase 3 live sandbox test** — see [PROGRESS_LOG.md](PROGRESS_LOG.md) §"Still needed before live testing":
-   - Generate Morning sandbox API key + webhook secret.
+   - Generate Morning sandbox API key + webhook secret from the sandbox site <https://sandbox.d.greeninvoice.co.il> (not the prod console).
    - Deploy to Vercel; register `<vercel-url>/api/webhooks/morning` as the notify URL.
    - Run end-to-end: checkout → IPN → document issued → customer email → admin email (step 2) → refund via credit note.
    - Log the first raw IPN body and tighten the payload parser to match Morning's actual field names + signature header.

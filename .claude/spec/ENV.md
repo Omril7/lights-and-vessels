@@ -25,7 +25,7 @@ GOOGLE_CLIENT_SECRET="..."
 
 # Morning (Green Invoice)
 MORNING_API_BASE="https://sandbox.d.greeninvoice.co.il/api/v1"  # prod: https://api.greeninvoice.co.il/api/v1
-MORNING_API_KEY_ID="..."             # from Morning admin → API keys
+MORNING_API_KEY_ID="..."             # sandbox keys from https://sandbox.d.greeninvoice.co.il (prod keys from app.greeninvoice.co.il)
 MORNING_API_SECRET="..."             # the secret paired with the key id
 MORNING_PLUGIN_ID=""                 # if Morning requires a plugin id for hosted forms
 MORNING_DEFAULT_DOC_TYPE="400"       # 400 = קבלה (artist is עוסק פטור). 320 only if moving to עוסק מורשה.
