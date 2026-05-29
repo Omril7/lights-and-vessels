@@ -150,7 +150,7 @@ External setup that must be in place before a real end-to-end smoke test:
 ## Phase 4 — Polish — ✅
 
 **SEO** ✅
-- Root metadata in `src/app/layout.tsx` — title template, description, keywords, `metadataBase`, OG (he_IL + black logo), Twitter card, icons (favicon + apple-touch from `/public/logo-2169x1282-black.png`), robots directives.
+- Root metadata in `src/app/layout.tsx` — title template, description, keywords, `metadataBase`, OG (he_IL + wide black logo), Twitter card, icons (favicon + apple-touch from the square `/public/apple-icon.png`), robots directives.
 - `/shop/[slug]` — `generateMetadata` adds canonical, per-product OG image (first product image), Twitter card.
 - JSON-LD — `Organization` on homepage, `Product` (price/availability/SKU) on product pages.
 - `src/app/robots.ts` — allows storefront, disallows `/admin`, `/api`, `/cart`, `/checkout`.
@@ -187,7 +187,7 @@ External setup that must be in place before a real end-to-end smoke test:
 - `src/app/manifest.ts` (served at `/manifest.webmanifest`) — **admin-only PWA**: name "ניהול אורות וכלים", `start_url: /admin`, `scope: /admin`, `display: standalone`, Hebrew RTL. Manifest is linked **only** from admin pages (via `metadata.manifest` in `src/app/admin/layout.tsx`); the storefront does not advertise an installable app.
 - Apple-icon declares `sizes: "180x180"` in root `layout.tsx`.
 - `/manifest.webmanifest` is publicly fetchable (gating removed — the auth redirect was logging a console error on every storefront page and dragging Best-Practices in Lighthouse). Manifest is still only *linked* from `/admin` pages.
-- **Asset caveat**: both favicon and apple-touch reuse the wide `logo-2169x1282-black.png`. On iOS home screen and Android install banner this gets letterboxed (the logo is 1.7:1, not square). For a polished install experience, drop a square 180×180 (or 512×512 maskable) PNG at `public/apple-icon.png` and point the metadata + manifest at it — non-blocking but a nice-to-have.
+- Square `public/apple-icon.png` (180×180) now used for favicon, apple-touch, and the PWA manifest icon. Wide `logo-2169x1282-black.png` is still referenced for OG / Twitter / JSON-LD `Organization.logo` (where wide is correct).
 
 **Lighthouse audit** ✅ (2026-05-29)
 Ran across `/`, `/shop`, `/shop/[slug]`, `/blog`. Median scores after fixes: **Accessibility 100, Best-Practices 100, SEO 100** on all four pages; Performance 78–87.

@@ -15,8 +15,8 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: "portrait",
     icons: [
       {
-        src: "/logo-2169x1282-black.png",
-        sizes: "any",
+        src: "/apple-icon.png",
+        sizes: "180x180",
         type: "image/png",
       },
     ],

@@ -71,8 +71,8 @@ export const metadata: Metadata = {
     images: ["/logo-2169x1282-black.png"],
   },
   icons: {
-    icon: "/logo-2169x1282-black.png",
-    apple: { url: "/logo-2169x1282-black.png", sizes: "180x180" },
+    icon: "/apple-icon.png",
+    apple: { url: "/apple-icon.png", sizes: "180x180" },
   },
   robots: {
     index: true,
