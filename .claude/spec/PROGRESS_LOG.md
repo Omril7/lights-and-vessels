@@ -147,7 +147,7 @@ External setup that must be in place before a real end-to-end smoke test:
 5. **First live IPN payload-shape check** — the webhook handler reads `id`/`formId`/`paymentFormId`, `documentId`/`document.id`, multiple `status` shapes, and either `x-morning-signature` or `x-signature` headers. Morning's actual field names and signature header may differ; log the raw body on first ping and tighten the parser accordingly.
 6. **`vatType: 2` confirmation** — the value used for עוסק פטור line items is the documented "Exempt (VAT free)" enum on `income[].vatType`. Verify Morning accepts it on the first sandbox transaction.
 
-## Phase 4 — Polish — 🚧 In progress
+## Phase 4 — Polish — ✅
 
 **SEO** ✅
 - Root metadata in `src/app/layout.tsx` — title template, description, keywords, `metadataBase`, OG (he_IL + black logo), Twitter card, icons (favicon + apple-touch from `/public/logo-2169x1282-black.png`), robots directives.
@@ -186,9 +186,14 @@ External setup that must be in place before a real end-to-end smoke test:
 **Apple touch icon + PWA manifest** ✅
 - `src/app/manifest.ts` (served at `/manifest.webmanifest`) — **admin-only PWA**: name "ניהול אורות וכלים", `start_url: /admin`, `scope: /admin`, `display: standalone`, Hebrew RTL. Manifest is linked **only** from admin pages (via `metadata.manifest` in `src/app/admin/layout.tsx`); the storefront does not advertise an installable app.
 - Apple-icon declares `sizes: "180x180"` in root `layout.tsx`.
-- `/manifest.webmanifest` itself is gated by `middleware.ts` (added to the NextAuth matcher) — only authenticated admins can fetch it directly.
+- `/manifest.webmanifest` is publicly fetchable (gating removed — the auth redirect was logging a console error on every storefront page and dragging Best-Practices in Lighthouse). Manifest is still only *linked* from `/admin` pages.
 - **Asset caveat**: both favicon and apple-touch reuse the wide `logo-2169x1282-black.png`. On iOS home screen and Android install banner this gets letterboxed (the logo is 1.7:1, not square). For a polished install experience, drop a square 180×180 (or 512×512 maskable) PNG at `public/apple-icon.png` and point the metadata + manifest at it — non-blocking but a nice-to-have.
 
-**Still pending**
-- Lighthouse audit.
+**Lighthouse audit** ✅ (2026-05-29)
+Ran across `/`, `/shop`, `/shop/[slug]`, `/blog`. Median scores after fixes: **Accessibility 100, Best-Practices 100, SEO 100** on all four pages; Performance 78–87.
+- Best-Practices: removed `/manifest.webmanifest` from the NextAuth middleware matcher (was 307→signin, producing console errors on every page).
+- SEO: added per-page `alternates.canonical` on `/shop` and `/blog` (root layout's `canonical: "/"` is not inherited).
+- Accessibility on `/shop`: darkened `--copper` (`#a86b3c`→`#93582d`) and `--terracotta` (`#b5704e`→`#9c5a36`) to clear AA 4.5:1 on cream; `ProductCard` title now `<h2>` (was `<h3>`, skipped a level under the page `<h1>`); `Dropdown` `aria-label` now includes the visible selected option so it satisfies "Label in Name".
+- Performance: wrapped `getProduct` / `getPost` in React `cache()` to dedupe the double fetch between `generateMetadata` and the page render — product TTFB **2050 ms → 740 ms**. Product gallery `AnimatePresence` set to `initial={false}` so the hero `next/image` doesn't fade in from `opacity: 0` (the LCP element). Modern `browserslist` added to `package.json` to trim polyfills.
+- Deferred (low impact, higher effort): bf-cache disabled by NextAuth `Cache-Control: no-store`; render-blocking CSS (~610ms) from Next.js inlined globals.
 
