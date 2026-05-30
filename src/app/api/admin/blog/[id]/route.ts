@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
 import { makeSlug } from "@/lib/utils";
+import { deleteRemovedImages, deleteStorageObjects } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,7 @@ export async function PATCH(
   const body = (await req.json().catch(() => ({}))) as Payload;
   const existing = await prisma.blogPost.findUnique({
     where: { id: params.id },
+    include: { images: true },
   });
   if (!existing) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -90,6 +92,15 @@ export async function PATCH(
       }
       return updated;
     });
+    // If the images list was replaced, drop the removed ones from storage.
+    if (Array.isArray(body.images)) {
+      await deleteRemovedImages(
+        existing.images.map((img) => img.url),
+        body.images
+          .map((i) => (i && typeof i.url === "string" ? i.url.trim() : ""))
+          .filter(Boolean)
+      );
+    }
     return NextResponse.json({ post });
   } catch (e) {
     return NextResponse.json(
@@ -105,6 +116,14 @@ export async function DELETE(
 ) {
   const auth = await requireAdmin();
   if (!auth.ok) return auth.response;
+  const existing = await prisma.blogPost.findUnique({
+    where: { id: params.id },
+    include: { images: true },
+  });
+  if (!existing) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
   await prisma.blogPost.delete({ where: { id: params.id } });
+  await deleteStorageObjects(existing.images.map((img) => img.url));
   return NextResponse.json({ ok: true });
 }

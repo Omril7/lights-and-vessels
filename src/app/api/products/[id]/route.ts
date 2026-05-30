@@ -3,7 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { makeSlug } from "@/lib/utils";
-import { supabaseAdmin } from "@/lib/supabase-server";
+import { deleteRemovedImages, deleteStorageObjects } from "@/lib/storage";
 
 const updateSchema = z.object({
   name: z.string().min(1),
@@ -36,6 +36,7 @@ export async function PUT(
 
   const existing = await prisma.product.findUnique({
     where: { id: params.id },
+    include: { images: true },
   });
   if (!existing) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -95,6 +96,12 @@ export async function PUT(
     });
   });
 
+  // Drop any images that were removed in this edit from storage.
+  await deleteRemovedImages(
+    existing.images.map((img) => img.url),
+    data.images.map((img) => img.url)
+  );
+
   return NextResponse.json(product);
 }
 
@@ -123,21 +130,7 @@ export async function DELETE(
     );
   }
 
-  const bucket = process.env.SUPABASE_STORAGE_BUCKET;
-  if (bucket && existing.images.length) {
-    const marker = `/storage/v1/object/public/${bucket}/`;
-    const paths = existing.images
-      .map((img) => {
-        const i = img.url.indexOf(marker);
-        return i >= 0 ? img.url.slice(i + marker.length) : null;
-      })
-      .filter((p): p is string => !!p);
-    if (paths.length) {
-      const { error } = await supabaseAdmin.storage.from(bucket).remove(paths);
-      if (error) console.warn("storage cleanup failed:", error.message);
-    }
-  }
-
   await prisma.product.delete({ where: { id: params.id } });
+  await deleteStorageObjects(existing.images.map((img) => img.url));
   return NextResponse.json({ ok: true });
 }
