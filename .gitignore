@@ -38,6 +38,9 @@ yarn-error.log*
 # uploads
 uploads/
 
+# local scratch (email previews etc.)
+tmp/
+
 # lighthouse audits
 .lighthouse/
 
