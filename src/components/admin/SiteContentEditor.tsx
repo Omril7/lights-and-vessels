@@ -54,10 +54,22 @@ type Field = {
   offLabel?: string;
 };
 
+type PageId = "home" | "about" | "site" | "settings";
+
+/** Groups for the section nav, in display order. */
+const PAGES: { id: PageId; label: string }[] = [
+  { id: "home", label: "דף הבית" },
+  { id: "about", label: "דף אודות" },
+  { id: "site", label: "כלל האתר" },
+  { id: "settings", label: "הגדרות" },
+];
+
 type Section = {
   id: string;
   heading: string;
   description?: string;
+  /** Which page this section belongs to — drives grouping in the nav. */
+  page: PageId;
   icon: React.ComponentType<{ className?: string }>;
   fields: Field[];
 };
@@ -67,6 +79,7 @@ export const SECTIONS: Section[] = [
     id: "banner",
     heading: "באנר עליון",
     description: "הודעה קצרה שמופיעה מעל הניווט בכל עמוד.",
+    page: "site",
     icon: MegaphoneIcon,
     fields: [
       { key: "banner_enabled", label: "באנר פעיל", kind: "toggle", wide: true },
@@ -90,6 +103,7 @@ export const SECTIONS: Section[] = [
     id: "hero",
     heading: "Hero — דף הבית",
     description: "הסקציה הראשונה שהמבקרים רואים.",
+    page: "home",
     icon: SparklesIcon,
     fields: [
       { key: "hero_title", label: "כותרת ראשית", kind: "text" },
@@ -108,6 +122,7 @@ export const SECTIONS: Section[] = [
     id: "story",
     heading: "סיפור הסטודיו",
     description: "טקסט קצר שמופיע בדף הבית עם קישור ל'אודות'.",
+    page: "home",
     icon: PaintBrushIcon,
     fields: [
       { key: "story_teaser", label: "תקציר", kind: "textarea", wide: true },
@@ -124,6 +139,7 @@ export const SECTIONS: Section[] = [
     id: "about",
     heading: "דף 'אודות'",
     description: "התוכן המלא של עמוד 'אודות' (תומך ב‑Markdown).",
+    page: "about",
     icon: UserIcon,
     fields: [
       { key: "about_text", label: "תוכן מלא", kind: "richtext", wide: true },
@@ -140,6 +156,7 @@ export const SECTIONS: Section[] = [
     id: "process_gallery",
     heading: "גלריית הסטודיו (דף 'אודות')",
     description: "תמונות מתוך תהליך העבודה. אם ריק, הגלריה מוסתרת בדף האתר.",
+    page: "about",
     icon: PhotoIcon,
     fields: [
       {
@@ -157,6 +174,7 @@ export const SECTIONS: Section[] = [
     heading: "תמונות קטגוריות (דף הבית)",
     description:
       "תמונה לכל קטגוריה ברצועת הקטגוריות בדף הבית. קטגוריה ללא תמונה — לא תוצג.",
+    page: "home",
     icon: RectangleGroupIcon,
     fields: [
       {
@@ -174,6 +192,7 @@ export const SECTIONS: Section[] = [
     heading: "המלצות לקוחות (דף הבית)",
     description:
       "המלצות שמופיעות בעמוד הבית. אם הרשימה ריקה, הסקציה מוסתרת.",
+    page: "home",
     icon: ChatBubbleBottomCenterTextIcon,
     fields: [
       {
@@ -190,6 +209,7 @@ export const SECTIONS: Section[] = [
     id: "contact",
     heading: "צרו קשר",
     description: "פרטי הקשר שמופיעים באתר ובכפתור הוואטסאפ הצף.",
+    page: "site",
     icon: ChatBubbleLeftRightIcon,
     fields: [
       { key: "contact_heading", label: "כותרת", kind: "text" },
@@ -207,6 +227,7 @@ export const SECTIONS: Section[] = [
   {
     id: "footer",
     heading: "פוטר",
+    page: "site",
     icon: Square3Stack3DIcon,
     fields: [
       { key: "footer_text", label: "טקסט הפוטר", kind: "text", wide: true },
@@ -224,6 +245,7 @@ export const SECTIONS: Section[] = [
     heading: "התראות אימייל",
     description:
       "ספק שליחת האימיילים האוטומטיים ללקוחות (אישור הזמנה). פרטי החיבור עצמם נשמרים ב‑.env.",
+    page: "settings",
     icon: EnvelopeIcon,
     fields: [
       {
@@ -248,7 +270,14 @@ export function SiteContentEditor({
   const router = useRouter();
   const [values, setValues] = useState<Record<string, string>>(initial);
   const [saving, setSaving] = useState(false);
-  const [active, setActive] = useState<string>(SECTIONS[0].id);
+  // Sections grouped by the page they belong to, in PAGES order.
+  const groupedSections = PAGES.map((p) => ({
+    ...p,
+    sections: SECTIONS.filter((s) => s.page === p.id),
+  })).filter((g) => g.sections.length > 0);
+  const orderedSections = groupedSections.flatMap((g) => g.sections);
+
+  const [active, setActive] = useState<string>(orderedSections[0].id);
 
   const set = (k: string, v: string) =>
     setValues((prev) => ({ ...prev, [k]: v }));
@@ -283,34 +312,43 @@ export function SiteContentEditor({
       <div className="grid lg:grid-cols-[14rem_minmax(0,1fr)] gap-6">
         {/* Sticky section nav */}
         <nav className="hidden lg:block">
-          <ul className="sticky top-6 space-y-1">
-            {SECTIONS.map((s) => {
-              const Icon = s.icon;
-              const on = active === s.id;
-              return (
-                <li key={s.id}>
-                  <a
-                    href={`#${s.id}`}
-                    onClick={() => setActive(s.id)}
-                    className={cn(
-                      "flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition-colors",
-                      on
-                        ? "bg-charcoal text-cream"
-                        : "text-charcoal/70 hover:bg-charcoal/[0.06]"
-                    )}
-                  >
-                    <Icon className="h-4 w-4 shrink-0" aria-hidden />
-                    <span>{s.heading}</span>
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
+          <div className="sticky top-6 space-y-4">
+            {groupedSections.map((group) => (
+              <div key={group.id}>
+                <p className="px-3 pb-1 text-[0.65rem] font-semibold uppercase tracking-wider2 text-charcoal/40">
+                  {group.label}
+                </p>
+                <ul className="space-y-1">
+                  {group.sections.map((s) => {
+                    const Icon = s.icon;
+                    const on = active === s.id;
+                    return (
+                      <li key={s.id}>
+                        <a
+                          href={`#${s.id}`}
+                          onClick={() => setActive(s.id)}
+                          className={cn(
+                            "flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition-colors",
+                            on
+                              ? "bg-charcoal text-cream"
+                              : "text-charcoal/70 hover:bg-charcoal/[0.06]"
+                          )}
+                        >
+                          <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                          <span>{s.heading}</span>
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
         </nav>
 
         {/* Main column */}
         <div className="space-y-6 pb-24">
-          {SECTIONS.map((section) => {
+          {orderedSections.map((section) => {
             const Icon = section.icon;
             return (
               <section
