@@ -9,46 +9,48 @@ export const dynamic = "force-dynamic";
 /**
  * Morning IPN handler.
  *
- * The exact payload shape depends on the merchant's Morning plugin setup;
- * we read defensively, accepting whichever of these fields Morning sends:
- *   - id / formId / paymentFormId    → matches Order.morningPaymentFormId
- *   - custom                          → echoes our Order.id
- *   - transactionId / paymentId       → payment processor id
- *   - documentId / document.id        → the issued tax document
- *   - documentNumber / document.number
- *   - status: "success" | "failed" | numeric code
- *   - errorCode / amount
+ * Confirmed from sandbox logs (user-agent GreenInvoice/2.1): Morning POSTs the
+ * payment result as `application/x-www-form-urlencoded` with snake_case fields:
+ *   id              — payment-process id
+ *   external_data   — echoes the value we passed as `custom` (our Order.id)
+ *   document_id     — issued tax document id
+ *   number          — document number
+ *   type            — document type (e.g. 400)
+ *   transaction_id  — payment processor id
+ *   url / original_doc_url / copy_doc_url — document links
+ * The IPN arrives UNSIGNED (no x-morning-signature header), so HMAC
+ * verification is only enforced when a signature header is actually present.
+ * A JSON body with camelCase fields is still accepted as a fallback.
  */
-type MorningIpnPayload = {
-  id?: string;
-  formId?: string;
-  paymentFormId?: string;
-  custom?: string;
-  transactionId?: string;
-  paymentId?: string;
-  documentId?: string;
-  documentNumber?: string;
-  document?: { id?: string; number?: string; url?: string | { he?: string; origin?: string } };
-  status?: string | number;
-  errorCode?: number;
-  amount?: number;
-};
+type IpnFields = Record<string, string | undefined>;
 
-function pickFormId(p: MorningIpnPayload): string | undefined {
-  return p.paymentFormId || p.formId || p.id;
+function parseBody(raw: string, contentType: string | null): IpnFields {
+  if (contentType && contentType.includes("application/x-www-form-urlencoded")) {
+    return Object.fromEntries(new URLSearchParams(raw));
+  }
+  try {
+    const json = JSON.parse(raw) as Record<string, unknown>;
+    if (json && typeof json === "object") {
+      const doc = json.document as { id?: string; number?: string; url?: unknown } | undefined;
+      if (doc && typeof doc === "object") {
+        json.document_id = json.document_id ?? doc.id;
+        json.number = json.number ?? doc.number;
+        if (typeof doc.url === "string") json.url = json.url ?? doc.url;
+      }
+      return json as IpnFields;
+    }
+  } catch {
+    /* not JSON — fall through to urlencoded */
+  }
+  return Object.fromEntries(new URLSearchParams(raw));
 }
 
-function isSuccess(p: MorningIpnPayload): boolean {
-  if (typeof p.status === "number") return p.status === 1 || p.status === 200;
-  if (typeof p.status === "string") return ["success", "paid", "ok", "1"].includes(p.status.toLowerCase());
-  // No status field but errorCode 0 → treat as success.
-  return p.errorCode === 0 && !!(p.documentId || p.document?.id);
-}
-
-function docUrl(p: MorningIpnPayload): string | undefined {
-  const u = p.document?.url;
-  if (typeof u === "string") return u;
-  if (u && typeof u === "object") return u.he ?? u.origin;
+/** First non-empty value among the given keys. */
+function field(p: IpnFields, ...keys: string[]): string | undefined {
+  for (const k of keys) {
+    const v = p[k];
+    if (v !== undefined && v !== null && v !== "") return String(v);
+  }
   return undefined;
 }
 
@@ -56,36 +58,35 @@ export async function POST(req: Request) {
   const raw = await req.text();
   const signature = req.headers.get("x-morning-signature") || req.headers.get("x-signature");
 
-  // First-time diagnostics: log every header + the raw body so we can confirm
-  // Morning's actual field names + signature header without guessing. Cheap,
-  // and Vercel logs are admin-only — safe to leave on through the sandbox phase.
-  // Remove (or gate behind a flag) once the payload shape is confirmed.
+  // First-time diagnostics: log every header + the raw body. Vercel logs are
+  // admin-only — safe through the sandbox phase; gate/remove once confirmed.
   console.log(
     "[morning/webhook] incoming",
-    JSON.stringify({
-      headers: Object.fromEntries(req.headers.entries()),
-      body: raw,
-    }),
+    JSON.stringify({ headers: Object.fromEntries(req.headers.entries()), body: raw }),
   );
 
-  // Webhook signature: enforce in prod when secret is configured.
+  // Enforce HMAC only when Morning actually sends a signature header. The
+  // payment IPN is currently unsigned, so a configured secret must not block it.
+  // NOTE (prod hardening): since this IPN is unsigned, authenticity rests on the
+  // echoed external_data (our internal Order.id) being unguessable. Consider
+  // re-verifying the document_id against the Morning API before go-live.
   const secret = process.env.MORNING_WEBHOOK_SECRET;
-  if (secret && secret !== "..." && !verifyWebhookSignature(raw, signature)) {
+  if (secret && secret !== "..." && signature && !verifyWebhookSignature(raw, signature)) {
     console.warn("[morning/webhook] signature verification failed");
     return NextResponse.json({ error: "invalid signature" }, { status: 401 });
   }
 
-  let payload: MorningIpnPayload;
-  try {
-    payload = JSON.parse(raw);
-  } catch {
-    return NextResponse.json({ error: "invalid json" }, { status: 400 });
-  }
+  const p = parseBody(raw, req.headers.get("content-type"));
 
-  const formId = pickFormId(payload);
-  const orderIdEcho = payload.custom;
+  const orderIdEcho = field(p, "external_data", "custom");
+  const formId = field(p, "payment_form_id", "form_id", "paymentFormId", "formId");
+  const documentId = field(p, "document_id", "documentId") || null;
+  const documentNumber = field(p, "number", "document_number", "documentNumber") || null;
+  const transactionId = field(p, "transaction_id", "transactionId", "payment_id", "paymentId") || null;
+  let documentUrl = field(p, "url", "original_doc_url", "copy_doc_url") || null;
+  const docType = Number(field(p, "type")) || 400;
 
-  // Resolve order: prefer the echoed custom (our Order.id), fall back to formId.
+  // Resolve order: the echoed external_data is our Order.id; fall back to formId.
   let order = orderIdEcho
     ? await prisma.order.findUnique({ where: { id: orderIdEcho } })
     : null;
@@ -93,7 +94,7 @@ export async function POST(req: Request) {
     order = await prisma.order.findFirst({ where: { morningPaymentFormId: formId } });
   }
   if (!order) {
-    console.warn("[morning/webhook] no matching order; formId=", formId, "custom=", orderIdEcho);
+    console.warn("[morning/webhook] no matching order; external_data=", orderIdEcho, "formId=", formId);
     // Acknowledge so Morning doesn't retry forever for unknown orders.
     return NextResponse.json({ ok: true, note: "no matching order" });
   }
@@ -103,17 +104,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, note: "already processed" });
   }
 
-  if (!isSuccess(payload)) {
-    // Leave the order in `pending` so the customer can retry from /checkout/failed.
-    // The reserved stock stays held until the customer succeeds, an admin cancels,
-    // or the TTL sweep (/api/orders/sweep) releases it after the reservation window.
-    console.info("[morning/webhook] payment not successful for", order.orderNumber);
+  // Success = Morning issued a tax document for this payment. The IPN carries no
+  // explicit status field; a present document_id (and absence of a failure
+  // status, if one is ever sent) is the success signal.
+  const statusRaw = (field(p, "status") || "").toLowerCase();
+  const failed = ["failed", "error", "cancelled", "canceled", "declined", "0"].includes(statusRaw);
+  const success = !failed && !!documentId;
+  if (!success) {
+    // Leave the order `pending` so the customer can retry from /checkout/failed.
+    console.info("[morning/webhook] payment not successful for", order.orderNumber, "status=", statusRaw || "(none)");
     return NextResponse.json({ ok: true, note: "not successful — order left pending" });
   }
 
-  const documentId = payload.documentId || payload.document?.id || null;
-  const documentNumber = payload.documentNumber || payload.document?.number || null;
-  let documentUrl = docUrl(payload) || null;
   if (!documentUrl && documentId) {
     try {
       documentUrl = (await getDocumentPreviewUrl(documentId)) || null;
@@ -127,7 +129,7 @@ export async function POST(req: Request) {
     data: {
       status: "confirmed",
       paidAt: new Date(),
-      morningTransactionId: payload.transactionId || payload.paymentId || null,
+      morningTransactionId: transactionId,
       morningDocumentId: documentId,
       morningDocumentNumber: documentNumber,
       morningDocumentUrl: documentUrl,
@@ -141,21 +143,21 @@ export async function POST(req: Request) {
         where: { morningId: documentId },
         update: {
           number: documentNumber || "",
-          amount: payload.amount ?? order.total,
+          amount: order.total,
           url: documentUrl ?? undefined,
           orderId: order.id,
         },
         create: {
           morningId: documentId,
-          type: 400,
+          type: docType,
           number: documentNumber || "",
-          amount: payload.amount ?? order.total,
+          amount: order.total,
           currency: "ILS",
           status: "issued",
           url: documentUrl ?? null,
           issuedAt: new Date(),
           orderId: order.id,
-          rawPayload: JSON.stringify(payload),
+          rawPayload: raw,
         },
       });
     } catch (err) {
@@ -163,7 +165,7 @@ export async function POST(req: Request) {
     }
   }
 
-  // Branded confirmation email (Resend) — fire and forget, errors logged.
+  // Order emails — fire and forget, errors logged.
   try {
     const content = await getSiteContent();
     await sendOrderConfirmationEmail(updated, {

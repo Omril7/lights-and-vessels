@@ -7,13 +7,13 @@
  *   npx tsx scripts/test-email.ts
  *
  *   # 2. Actually send (verify Gmail / Resend really delivers).
- *   npx tsx scripts/test-email.ts --send --provider gmail  --to you@example.com
- *   npx tsx scripts/test-email.ts --send --provider resend --to you@example.com
+ *   npx tsx scripts/test-email.ts --send --provider gmail  --to omrileizerovitch7@gmail.com
+ *   npx tsx scripts/test-email.ts --send --provider resend --to multisellerprowampi@gmail.com
  *
  * Flags:
- *   --send                Actually send the email (otherwise just writes HTML files).
- *   --provider gmail|resend   Which sender to use (default: resend).
- *   --to <email>          Recipient for --send (default: GMAIL_USER or first ADMIN_EMAILS).
+ *   --send                           Actually send the email (otherwise just writes HTML files).
+ *   --provider gmail|resend          Which sender to use (default: resend).
+ *   --to <email>                     Recipient for --send (default: GMAIL_USER or first ADMIN_EMAILS).
  *   --kind confirmation|admin|both   Which template to use (default: both).
  */
 import { loadEnvConfig } from "@next/env";
@@ -42,11 +42,7 @@ const doSend = has("--send");
 const provider = (val("--provider") || "resend").toLowerCase() as "gmail" | "resend";
 const kind = (val("--kind") || "both").toLowerCase();
 const method = (val("--method") || "post").toLowerCase(); // "post" or "pickup"
-const to =
-  val("--to") ||
-  process.env.GMAIL_USER ||
-  (process.env.ADMIN_EMAILS ?? "").split(",")[0]?.trim() ||
-  "test@example.com";
+const to = val("--to") || process.env.GMAIL_USER || "test@example.com";
 
 // --- fake order (matches the shape the renderers expect) -------------------
 const order = {
