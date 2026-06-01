@@ -108,6 +108,8 @@ export type CreatePaymentFormInput = {
   type?: number;            // doc type; defaults to MORNING_DEFAULT_DOC_TYPE
   lang?: "he" | "en";
   currency?: "ILS";
+  /** Total charge. If omitted, summed from income rows (price * quantity). */
+  amount?: number;
   income: IncomeRow[];
   client: MorningClient;
   successUrl: string;
@@ -129,11 +131,17 @@ export type CreatePaymentFormResult = {
 /* ---------------- Endpoints ---------------- */
 
 export async function createPaymentForm(input: CreatePaymentFormInput): Promise<CreatePaymentFormResult> {
+  // Morning's /payments/form reads the charge from a top-level `amount`, not
+  // from the income rows — without it the request fails with errorCode 2417
+  // ("invalid document amount"). Default to the sum of the income lines.
+  const amount =
+    input.amount ?? input.income.reduce((sum, r) => sum + r.price * r.quantity, 0);
   const body = {
     description: input.description,
     type: input.type ?? DEFAULT_DOC_TYPE,
     lang: input.lang ?? "he",
     currency: input.currency ?? "ILS",
+    amount,
     income: input.income.map((r) => ({
       description: r.description,
       quantity: r.quantity,
