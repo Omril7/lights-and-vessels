@@ -255,6 +255,7 @@ export function BlogForm({
               folder="blog"
               images={values.images}
               onChange={(imgs) => set("images", imgs)}
+              hint="מומלץ: 1600×900 פיקסל (יחס 16:9, לרוחב)"
             />
           </div>
         </section>

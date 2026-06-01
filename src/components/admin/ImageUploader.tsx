@@ -18,10 +18,13 @@ export function ImageUploader({
   images,
   onChange,
   folder = "products",
+  hint,
 }: {
   images: UploadedImage[];
   onChange: (next: UploadedImage[]) => void;
   folder?: "products" | "blog" | "content";
+  /** Recommended pixel dimensions, shown inside the dropzone. */
+  hint?: string;
 }) {
   const [uploading, setUploading] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -103,6 +106,7 @@ export function ImageUploader({
         <p className="text-xs text-charcoal/50">
           JPG, PNG, WEBP, GIF, AVIF · עד 8MB לקובץ
         </p>
+        {hint && <p className="text-xs font-medium text-copper">{hint}</p>}
         {uploading && (
           <p className="text-xs text-copper">מעלה…</p>
         )}

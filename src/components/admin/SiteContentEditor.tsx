@@ -43,6 +43,8 @@ type Field = {
   key: string;
   label: string;
   help?: string;
+  /** Recommended pixel dimensions, shown inside the upload dropzone. */
+  dimensions?: string;
   kind: FieldKind;
   /** When true, field takes a full row in the 2-col grid. */
   wide?: boolean;
@@ -93,7 +95,13 @@ export const SECTIONS: Section[] = [
       { key: "hero_title", label: "כותרת ראשית", kind: "text" },
       { key: "hero_cta", label: "טקסט כפתור", kind: "text" },
       { key: "hero_subtitle", label: "כותרת משנה", kind: "textarea", wide: true },
-      { key: "hero_image", label: "תמונת רקע", kind: "image", wide: true },
+      {
+        key: "hero_image",
+        label: "תמונת רקע",
+        kind: "image",
+        wide: true,
+        dimensions: "מומלץ: 1920×1080 פיקסל (יחס 16:9, לרוחב)",
+      },
     ],
   },
   {
@@ -103,7 +111,13 @@ export const SECTIONS: Section[] = [
     icon: PaintBrushIcon,
     fields: [
       { key: "story_teaser", label: "תקציר", kind: "textarea", wide: true },
-      { key: "story_image", label: "תמונה", kind: "image", wide: true },
+      {
+        key: "story_image",
+        label: "תמונה",
+        kind: "image",
+        wide: true,
+        dimensions: "מומלץ: 1200×1500 פיקסל (יחס 4:5, לאורך)",
+      },
     ],
   },
   {
@@ -113,7 +127,13 @@ export const SECTIONS: Section[] = [
     icon: UserIcon,
     fields: [
       { key: "about_text", label: "תוכן מלא", kind: "richtext", wide: true },
-      { key: "about_portrait", label: "פורטרט", kind: "image", wide: true },
+      {
+        key: "about_portrait",
+        label: "פורטרט",
+        kind: "image",
+        wide: true,
+        dimensions: "מומלץ: 1200×1500 פיקסל (יחס 4:5, לאורך)",
+      },
     ],
   },
   {
@@ -127,7 +147,8 @@ export const SECTIONS: Section[] = [
         label: "תמונות",
         kind: "image-list",
         wide: true,
-        help: "הוספה, הסרה ושינוי טקסט חלופי לכל תמונה. תמונות בגודל ריבועי מומלצות.",
+        dimensions: "מומלץ: 1000×1000 פיקסל (ריבוע)",
+        help: "הוספה, הסרה ושינוי טקסט חלופי לכל תמונה.",
       },
     ],
   },
@@ -143,6 +164,7 @@ export const SECTIONS: Section[] = [
         label: "קטגוריות",
         kind: "category-images",
         wide: true,
+        dimensions: "מומלץ: 1000×1200 פיקסל (יחס 5:6, לאורך)",
         help: "התמונות נשמרות ב‑Supabase Storage תחת תיקיית content/.",
       },
     ],
@@ -159,6 +181,7 @@ export const SECTIONS: Section[] = [
         label: "המלצות",
         kind: "testimonials",
         wide: true,
+        dimensions: "מומלץ: 400×400 פיקסל (ריבוע)",
         help: "ציטוט (חובה), שם, פירוט (אופציונלי), ותמונה (אופציונלי).",
       },
     ],
@@ -420,19 +443,19 @@ function ContentField({
   }
 
   if (field.kind === "image") {
-    return <ImageField value={value} label={field.label} help={field.help} onChange={onChange} />;
+    return <ImageField value={value} label={field.label} help={field.help} hint={field.dimensions} onChange={onChange} />;
   }
 
   if (field.kind === "image-list") {
-    return <ImageListField value={value} label={field.label} help={field.help} onChange={onChange} />;
+    return <ImageListField value={value} label={field.label} help={field.help} hint={field.dimensions} onChange={onChange} />;
   }
 
   if (field.kind === "category-images") {
-    return <CategoryImagesField value={value} label={field.label} help={field.help} onChange={onChange} />;
+    return <CategoryImagesField value={value} label={field.label} help={field.help} hint={field.dimensions} onChange={onChange} />;
   }
 
   if (field.kind === "testimonials") {
-    return <TestimonialsField value={value} label={field.label} help={field.help} onChange={onChange} />;
+    return <TestimonialsField value={value} label={field.label} help={field.help} hint={field.dimensions} onChange={onChange} />;
   }
 
   if (field.kind === "social-links") {
@@ -568,11 +591,13 @@ function ImageField({
   value,
   label,
   help,
+  hint,
   onChange,
 }: {
   value: string;
   label: string;
   help?: string;
+  hint?: string;
   onChange: (v: string) => void;
 }) {
   const [uploading, setUploading] = useState(false);
@@ -676,9 +701,13 @@ function ImageField({
               : "גררו תמונה לכאן או לחצו לבחירה"}
           </p>
           <p className="text-xs text-charcoal/40">JPG · PNG · WebP · AVIF · עד 8MB</p>
+          {hint && <p className="text-xs font-medium text-copper">{hint}</p>}
         </div>
       )}
 
+      {hint && value && (
+        <span className="block text-xs text-charcoal/45">{hint}</span>
+      )}
       {help && <span className="block text-xs text-charcoal/50">{help}</span>}
     </div>
   );
@@ -703,11 +732,13 @@ function ImageListField({
   value,
   label,
   help,
+  hint,
   onChange,
 }: {
   value: string;
   label: string;
   help?: string;
+  hint?: string;
   onChange: (v: string) => void;
 }) {
   const items = parseList(value);
@@ -852,6 +883,7 @@ function ImageListField({
             : "הוספת תמונות — גררו לכאן או לחצו לבחירה"}
         </p>
         <p className="text-xs text-charcoal/40">ניתן להעלות מספר תמונות בבת אחת</p>
+        {hint && <p className="text-xs font-medium text-copper">{hint}</p>}
       </div>
 
       {help && <p className="text-xs text-charcoal/50">{help}</p>}
@@ -878,11 +910,13 @@ function CategoryImagesField({
   value,
   label,
   help,
+  hint,
   onChange,
 }: {
   value: string;
   label: string;
   help?: string;
+  hint?: string;
   onChange: (v: string) => void;
 }) {
   const map = parseMap(value);
@@ -905,6 +939,7 @@ function CategoryImagesField({
             key={c.slug}
             value={map[c.slug] ?? ""}
             label={c.label}
+            hint={hint}
             onChange={(url) => setOne(c.slug, url)}
           />
         ))}
@@ -936,11 +971,13 @@ function TestimonialsField({
   value,
   label,
   help,
+  hint,
   onChange,
 }: {
   value: string;
   label: string;
   help?: string;
+  hint?: string;
   onChange: (v: string) => void;
 }) {
   const items = parseTestimonialList(value);
@@ -984,6 +1021,7 @@ function TestimonialsField({
                   <ImageField
                     value={item.image}
                     label="תמונה"
+                    hint={hint}
                     onChange={(url) => update(i, { image: url })}
                   />
                 </div>

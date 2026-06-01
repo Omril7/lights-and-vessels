@@ -230,6 +230,7 @@ export function ProductForm({
             <ImageUploader
               images={values.images}
               onChange={(imgs) => set("images", imgs)}
+              hint="מומלץ: 1200×1500 פיקסל (יחס 4:5, לאורך)"
             />
           </div>
         </section>
