@@ -243,6 +243,32 @@ function button(href: string, label: string): string {
   </table>`;
 }
 
+export async function sendAdminLowStockEmail(
+  outOfStockProducts: { name: string; slug: string }[],
+): Promise<void> {
+  if (outOfStockProducts.length === 0) return;
+  const recipients = (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  if (recipients.length === 0) return;
+  const subject =
+    outOfStockProducts.length === 1
+      ? `מלאי אזל — ${outOfStockProducts[0].name}`
+      : `מלאי אזל — ${outOfStockProducts.length} מוצרים`;
+  const html = renderLowStockHtml(outOfStockProducts);
+  const provider = await resolveProvider();
+  for (const to of recipients) {
+    const sent =
+      provider === "gmail"
+        ? await sendViaGmail({ to, subject, html })
+        : await sendViaResend({ to, subject, html });
+    if (!sent) {
+      console.warn(`[email] low-stock notification to ${to} skipped (provider=${provider})`);
+    }
+  }
+}
+
 export function renderAdminNotificationHtml(order: OrderWithItems): string {
   const isPickup = order.shippingMethod === "pickup";
   const orderUrl = `${STUDIO_URL.replace(/\/$/, "")}/admin/orders/${order.id}`;
@@ -344,6 +370,39 @@ export function renderConfirmationHtml(
     preheader: `הזמנה ${order.orderNumber} התקבלה — מתחיל להכין`,
     content,
   });
+}
+
+function renderLowStockHtml(products: { name: string; slug: string }[]): string {
+  const site = STUDIO_URL.replace(/\/$/, "");
+  const rows = products
+    .map(
+      (p) => `<tr>
+        <td style="padding:10px 0;border-bottom:1px solid ${C.border};font-family:${SANS};font-size:15px;color:${C.ink};">${escapeHtml(p.name)}</td>
+        <td align="left" style="padding:10px 0;border-bottom:1px solid ${C.border};white-space:nowrap;">
+          <a href="${escapeHtml(`${site}/admin/products`)}" style="font-family:${SANS};font-size:13px;color:${C.accent};text-decoration:none;">עדכן מלאי</a>
+        </td>
+      </tr>`,
+    )
+    .join("");
+
+  const content = `
+    <tr>
+      <td class="px" style="padding:36px 40px 0;">
+        <span style="display:inline-block;font-family:${SANS};font-size:12px;font-weight:700;letter-spacing:.4px;color:${C.accent};background:${C.soft};border-radius:999px;padding:6px 14px;">התראת מלאי</span>
+        <div style="font-family:${SERIF};font-weight:500;font-size:27px;line-height:1.2;color:${C.heading};margin:16px 0 8px;">מלאי אזל</div>
+        <p style="margin:0;font-family:${SANS};font-size:15px;line-height:1.6;color:${C.muted};">המוצרים הבאים הגיעו ל-0 יחידות במלאי לאחר ההזמנה האחרונה:</p>
+      </td>
+    </tr>
+    <tr>
+      <td class="px" style="padding:22px 40px 0;">
+        <table role="presentation" dir="rtl" width="100%" cellpadding="0" cellspacing="0">${rows}</table>
+      </td>
+    </tr>
+    <tr>
+      <td class="px" align="center" style="padding:30px 40px 38px;">${button(`${site}/admin/products`, "עבור לניהול מוצרים")}</td>
+    </tr>`;
+
+  return emailShell({ preheader: "מוצר אחד או יותר אזל מהמלאי", content });
 }
 
 function escapeHtml(s: string): string {

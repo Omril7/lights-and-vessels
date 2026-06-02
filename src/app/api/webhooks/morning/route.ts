@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getDocumentPreviewUrl, verifyWebhookSignature } from "@/lib/morning";
-import { sendOrderConfirmationEmail, sendAdminOrderNotificationEmail } from "@/lib/email";
+import { sendOrderConfirmationEmail, sendAdminOrderNotificationEmail, sendAdminLowStockEmail } from "@/lib/email";
 import { getSiteContent } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
@@ -176,6 +176,18 @@ export async function POST(req: Request) {
     await sendAdminOrderNotificationEmail(updated);
   } catch (err) {
     console.error("[morning/webhook] order emails failed:", err);
+  }
+
+  // Low-stock alert — check if any ordered product just hit 0.
+  try {
+    const productIds = updated.items.map((i) => i.productId);
+    const soldOut = await prisma.product.findMany({
+      where: { id: { in: productIds }, stockCount: 0 },
+      select: { name: true, slug: true },
+    });
+    await sendAdminLowStockEmail(soldOut);
+  } catch (err) {
+    console.error("[morning/webhook] low-stock check failed:", err);
   }
 
   return NextResponse.json({ ok: true });
