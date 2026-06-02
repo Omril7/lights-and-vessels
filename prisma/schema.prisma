@@ -96,6 +96,13 @@ model SiteContent {
   updatedAt DateTime @updatedAt
 }
 
+model SiteContentDraft {
+  key       String   @id
+  value     String
+  type      String   @default("text")
+  updatedAt DateTime @updatedAt
+}
+
 model BlogPost {
   id          String          @id @default(cuid())
   title       String

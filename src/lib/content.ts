@@ -1,3 +1,4 @@
+import { draftMode } from "next/headers";
 import { prisma } from "@/lib/prisma";
 
 /** Fallback copy so the storefront still renders if a key is missing. */
@@ -122,9 +123,16 @@ export function parseSocialLinks(value: string | undefined | null): SocialLink[]
 
 export type SiteContentMap = Record<string, string>;
 
-export async function getSiteContent(): Promise<SiteContentMap> {
-  const rows = await prisma.siteContent.findMany();
+export async function getSiteContent(
+  opts: { allowDraft?: boolean } = {}
+): Promise<SiteContentMap> {
+  const { allowDraft = true } = opts;
   const map: SiteContentMap = { ...FALLBACKS };
+  const rows = await prisma.siteContent.findMany();
   for (const row of rows) map[row.key] = row.value;
+  if (allowDraft && draftMode().isEnabled) {
+    const drafts = await prisma.siteContentDraft.findMany();
+    for (const row of drafts) map[row.key] = row.value;
+  }
   return map;
 }

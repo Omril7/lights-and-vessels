@@ -4,7 +4,9 @@ import { NavbarBanner } from "@/components/storefront/NavbarBanner";
 import { Footer } from "@/components/storefront/Footer";
 import { CartDrawer } from "@/components/storefront/CartDrawer";
 import { WhatsAppButton } from "@/components/storefront/WhatsAppButton";
+import { draftMode } from "next/headers";
 import { getSiteContent, parseSocialLinks } from "@/lib/content";
+import { PreviewBanner } from "@/components/storefront/PreviewBanner";
 
 async function BannerSlot() {
   const content = await getSiteContent();
@@ -39,6 +41,7 @@ export default function StorefrontLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const isPreview = draftMode().isEnabled;
   return (
     <div className="flex min-h-screen flex-col">
       <a href="#main-content" className="skip-link">
@@ -58,6 +61,7 @@ export default function StorefrontLayout({
       <Suspense fallback={null}>
         <WhatsAppSlot />
       </Suspense>
+      {isPreview && <PreviewBanner />}
     </div>
   );
 }

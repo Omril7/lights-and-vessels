@@ -282,16 +282,37 @@ export function SiteContentEditor({
   const set = (k: string, v: string) =>
     setValues((prev) => ({ ...prev, [k]: v }));
 
+  function buildEntries(vals: Record<string, string>) {
+    return SECTIONS.flatMap((s) =>
+      s.fields.map((f) => ({
+        key: f.key,
+        value: vals[f.key] ?? "",
+        type: f.kind === "richtext" ? "richtext" : "text",
+      }))
+    );
+  }
+
+  async function preview() {
+    const w = window.open("", "_blank");
+    try {
+      const res = await fetch("/api/site-content/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entries: buildEntries(values) }),
+      });
+      if (!res.ok) throw new Error("שגיאה");
+      if (w) w.location.href = "/";
+      else toast.error("חסימת חלון קופץ — אפשר חלונות קופצים ונסה שוב");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "שגיאה בתצוגה מקדימה");
+      w?.close();
+    }
+  }
+
   async function save() {
     setSaving(true);
     try {
-      const entries = SECTIONS.flatMap((s) =>
-        s.fields.map((f) => ({
-          key: f.key,
-          value: values[f.key] ?? "",
-          type: f.kind === "richtext" ? "richtext" : "text",
-        }))
-      );
+      const entries = buildEntries(values);
       const res = await fetch("/api/site-content", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -398,9 +419,14 @@ export function SiteContentEditor({
           <p className="text-xs text-charcoal/60">
             השינויים נכנסים לתוקף מיד באתר.
           </p>
-          <Button onClick={save} disabled={saving} size="sm">
-            {saving ? "שומר…" : "שמירת השינויים"}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={preview} disabled={saving}>
+              תצוגה מקדימה
+            </Button>
+            <Button onClick={save} disabled={saving} size="sm">
+              {saving ? "שומר…" : "שמירת השינויים"}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

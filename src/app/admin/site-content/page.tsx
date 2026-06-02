@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "תוכן האתר" };
 
 export default async function AdminSiteContentPage() {
-  const content = await getSiteContent();
+  const content = await getSiteContent({ allowDraft: false });
   return (
     <div className="space-y-6">
       <header>
