@@ -27,13 +27,13 @@ export function HeroBanner({
 
       <div className="relative mx-auto flex min-h-[88vh] max-w-editorial flex-col justify-end px-5 pb-20 md:px-8 md:pb-28">
         <div className="max-w-2xl">
-          <p className="mb-4 text-xs uppercase tracking-wider2 text-cream/80">
+          <p className="mb-4 text-xs uppercase tracking-wider2 text-cream">
             אוסף הסטודיו
           </p>
           <h1 className="font-serif text-4xl leading-[1.1] text-cream sm:text-5xl md:text-6xl lg:text-7xl">
             {title}
           </h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-cream/85 md:text-lg">
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-cream md:text-lg">
             {subtitle}
           </p>
           <div className="mt-8">
