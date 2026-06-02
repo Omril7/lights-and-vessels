@@ -23,7 +23,7 @@ export function HeroBanner({
         className="object-cover"
       />
       {/* Warm wash gradient — readable text over photography */}
-      <div className="absolute inset-0 bg-gradient-to-t from-ink/75 via-ink/25 to-ink/10" />
+      <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/45 to-ink/20" />
 
       <div className="relative mx-auto flex min-h-[88vh] max-w-editorial flex-col justify-end px-5 pb-20 md:px-8 md:pb-28">
         <div className="max-w-2xl">
