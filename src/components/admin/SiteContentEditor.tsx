@@ -414,7 +414,7 @@ export function SiteContentEditor({
       </div>
 
       {/* Floating save bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-charcoal/10 bg-cream/95 backdrop-blur md:me-64">
+      <div className="fixed inset-x-0 bottom-16 md:bottom-0 z-40 border-t border-charcoal/10 bg-cream/95 backdrop-blur md:me-64">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
           <p className="text-xs text-charcoal/60">
             השינויים נכנסים לתוקף מיד באתר.
