@@ -25,6 +25,7 @@ import {
   ViewfinderCircleIcon,
   PaintBrushIcon,
   MinusSmallIcon,
+  ArrowsPointingOutIcon,
 } from "@heroicons/react/24/outline";
 
 type Settings = {
@@ -48,6 +49,8 @@ type Settings = {
 };
 
 const KEY = "a11y-settings";
+const POS_KEY = "a11y-pos";
+const BTN_SIZE = 56; // h-14 w-14 in px
 const MAX_FONT = 3;
 const GRID_COLS = 2;
 
@@ -190,6 +193,15 @@ function ReadingGuide() {
   return <div ref={ref} className="a11y-reading-guide" aria-hidden />;
 }
 
+type Pos = { x: number; y: number };
+
+function clampPos(x: number, y: number): Pos {
+  return {
+    x: Math.max(0, Math.min(x, window.innerWidth - BTN_SIZE)),
+    y: Math.max(0, Math.min(y, window.innerHeight - BTN_SIZE)),
+  };
+}
+
 export function AccessibilityWidget() {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin") ?? false;
@@ -197,6 +209,9 @@ export function AccessibilityWidget() {
   const [settings, setSettings] = useState<Settings>(DEFAULTS);
   const [focusIdx, setFocusIdx] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [pos, setPos] = useState<Pos | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 640px)");
@@ -205,9 +220,35 @@ export function AccessibilityWidget() {
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
   }, []);
+
+  // Load saved drag position or default to bottom-left
+  useEffect(() => {
+    const defaultPos = { x: 20, y: window.innerHeight - 20 - BTN_SIZE };
+    try {
+      const raw = localStorage.getItem(POS_KEY);
+      if (raw) {
+        const p = JSON.parse(raw) as Pos;
+        setPos(clampPos(p.x, p.y));
+        return;
+      }
+    } catch { /* ignore */ }
+    setPos(defaultPos);
+  }, []);
+
+  // Clamp position on resize
+  useEffect(() => {
+    const onResize = () => {
+      setPos((p) => p ? clampPos(p.x, p.y) : p);
+    };
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   const drawerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const toggleRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const dragOrigin = useRef<{ px: number; py: number; bx: number; by: number } | null>(null);
+  const hasMoved = useRef(false);
 
   useEffect(() => {
     try {
@@ -235,6 +276,9 @@ export function AccessibilityWidget() {
   const reset = () => {
     update(DEFAULTS);
     setFocusIdx(0);
+    const defaultPos = { x: 20, y: window.innerHeight - 20 - BTN_SIZE };
+    setPos(defaultPos);
+    try { localStorage.removeItem(POS_KEY); } catch { /* ignore */ }
   };
 
   // Escape closes; lock body scroll while open.
@@ -296,6 +340,35 @@ export function AccessibilityWidget() {
       0
     );
   const active = activeCount > 0;
+  const expanded = isHovered || isDragging;
+
+  const onPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!pos) return;
+    dragOrigin.current = { px: e.clientX, py: e.clientY, bx: pos.x, by: pos.y };
+    hasMoved.current = false;
+    setIsDragging(true);
+    (e.currentTarget as HTMLButtonElement).setPointerCapture(e.pointerId);
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!dragOrigin.current) return;
+    const dx = e.clientX - dragOrigin.current.px;
+    const dy = e.clientY - dragOrigin.current.py;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) hasMoved.current = true;
+    setPos(clampPos(dragOrigin.current.bx + dx, dragOrigin.current.by + dy));
+  };
+
+  const onPointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (!dragOrigin.current) return;
+    setIsDragging(false);
+    (e.currentTarget as HTMLButtonElement).releasePointerCapture(e.pointerId);
+    if (!hasMoved.current) {
+      setOpen((v) => !v);
+    } else {
+      try { localStorage.setItem(POS_KEY, JSON.stringify(pos)); } catch { /* ignore */ }
+    }
+    dragOrigin.current = null;
+  };
 
   if (isAdmin) return null;
 
@@ -304,13 +377,28 @@ export function AccessibilityWidget() {
       {/* Floating trigger */}
       <button
         ref={buttonRef}
-        onClick={() => setOpen((v) => !v)}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerEnter={() => setIsHovered(true)}
+        onPointerLeave={() => { if (!isDragging) setIsHovered(false); }}
         aria-expanded={open}
         aria-haspopup="dialog"
         aria-label="אפשרויות נגישות"
-        className="fixed bottom-5 left-5 z-[85] flex h-14 w-14 items-center justify-center rounded-full bg-charcoal text-cream shadow-lift outline-none transition-transform duration-300 ease-grace hover:scale-105 focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+        style={pos ? { left: pos.x, top: pos.y } : undefined}
+        className={[
+          "fixed z-[85] flex h-14 items-center justify-center rounded-full bg-charcoal text-cream shadow-lift outline-none",
+          "focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-cream",
+          "transition-[width,box-shadow] duration-200",
+          expanded ? "w-24 cursor-grab gap-2 px-3" : "w-14",
+          isDragging ? "cursor-grabbing shadow-2xl scale-105" : "",
+          !pos ? "opacity-0 pointer-events-none" : "",
+        ].join(" ")}
       >
-        <AccessIcon className="h-7 w-7" />
+        {expanded && (
+          <ArrowsPointingOutIcon className="h-5 w-5 shrink-0 opacity-70" aria-hidden />
+        )}
+        <AccessIcon className="h-7 w-7 shrink-0" />
         {active && (
           <span
             aria-hidden
