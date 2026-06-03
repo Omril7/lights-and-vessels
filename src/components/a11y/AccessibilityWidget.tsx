@@ -389,7 +389,7 @@ export function AccessibilityWidget() {
         className={[
           "fixed z-[85] flex h-14 items-center justify-center rounded-full bg-charcoal text-cream shadow-lift outline-none",
           "focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-cream",
-          "transition-[width,box-shadow] duration-200",
+          "touch-none transition-[width,box-shadow] duration-200",
           expanded ? "w-24 cursor-grab gap-2 px-3" : "w-14",
           isDragging ? "cursor-grabbing shadow-2xl scale-105" : "",
           !pos ? "opacity-0 pointer-events-none" : "",
