@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useMotionValue } from "motion/react";
 import {
   XMarkIcon,
   MinusIcon,
@@ -243,6 +243,9 @@ export function AccessibilityWidget() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  const dragX = useMotionValue(0);
+  const dragY = useMotionValue(0);
+
   const drawerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const toggleRefs = useRef<Array<HTMLButtonElement | null>>([]);
@@ -364,13 +367,15 @@ export function AccessibilityWidget() {
           if (!pos) return;
           const next = clampPos(pos.x + info.offset.x, pos.y + info.offset.y);
           setPos(next);
+          dragX.set(0);
+          dragY.set(0);
           try { localStorage.setItem(POS_KEY, JSON.stringify(next)); } catch { /* ignore */ }
         }}
         onTap={() => { if (!isDragging) setOpen((v) => !v); }}
         aria-expanded={open}
         aria-haspopup="dialog"
         aria-label="אפשרויות נגישות"
-        style={pos ? { left: pos.x, top: pos.y } : undefined}
+        style={pos ? { left: pos.x, top: pos.y, x: dragX, y: dragY } : undefined}
         className={[
           "fixed z-[85] flex h-14 items-center justify-center rounded-full bg-charcoal text-cream shadow-lift outline-none touch-none",
           "focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-cream",
