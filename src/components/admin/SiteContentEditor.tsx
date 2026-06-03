@@ -17,10 +17,11 @@ import {
   EnvelopeIcon,
   PhotoIcon,
   PlusIcon,
-  RectangleGroupIcon,
+  // RectangleGroupIcon, // CATEGORIES_DISABLED
   ChatBubbleBottomCenterTextIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
-import { CATEGORIES } from "@/types";
+// import { CATEGORIES } from "@/types"; // CATEGORIES_DISABLED
 import { Button } from "@/components/ui/Button";
 import { Dropdown } from "@/components/ui/Dropdown";
 import { cn } from "@/lib/utils";
@@ -34,7 +35,7 @@ type FieldKind =
   | "url"
   | "image"
   | "image-list"
-  | "category-images"
+  // | "category-images" // CATEGORIES_DISABLED
   | "testimonials"
   | "social-links"
   | "toggle";
@@ -169,24 +170,24 @@ export const SECTIONS: Section[] = [
       },
     ],
   },
-  {
-    id: "category_images",
-    heading: "תמונות קטגוריות (דף הבית)",
-    description:
-      "תמונה לכל קטגוריה ברצועת הקטגוריות בדף הבית. קטגוריה ללא תמונה — לא תוצג.",
-    page: "home",
-    icon: RectangleGroupIcon,
-    fields: [
-      {
-        key: "category_images",
-        label: "קטגוריות",
-        kind: "category-images",
-        wide: true,
-        dimensions: "מומלץ: 1000×1200 פיקסל (יחס 5:6, לאורך)",
-        help: "התמונות נשמרות ב‑Supabase Storage תחת תיקיית content/.",
-      },
-    ],
-  },
+  // CATEGORIES_DISABLED: category_images section removed from nav/editor
+  // {
+  //   id: "category_images",
+  //   heading: "תמונות קטגוריות (דף הבית)",
+  //   description: "תמונה לכל קטגוריה ברצועת הקטגוריות בדף הבית. קטגוריה ללא תמונה — לא תוצג.",
+  //   page: "home",
+  //   icon: RectangleGroupIcon,
+  //   fields: [
+  //     {
+  //       key: "category_images",
+  //       label: "קטגוריות",
+  //       kind: "category-images",
+  //       wide: true,
+  //       dimensions: "מומלץ: 1000×1200 פיקסל (יחס 5:6, לאורך)",
+  //       help: "התמונות נשמרות ב‑Supabase Storage תחת תיקיית content/.",
+  //     },
+  //   ],
+  // },
   {
     id: "testimonials",
     heading: "המלצות לקוחות (דף הבית)",
@@ -514,9 +515,10 @@ function ContentField({
     return <ImageListField value={value} label={field.label} help={field.help} hint={field.dimensions} onChange={onChange} />;
   }
 
-  if (field.kind === "category-images") {
-    return <CategoryImagesField value={value} label={field.label} help={field.help} hint={field.dimensions} onChange={onChange} />;
-  }
+  // CATEGORIES_DISABLED:
+  // if (field.kind === "category-images") {
+  //   return <CategoryImagesField value={value} label={field.label} help={field.help} hint={field.dimensions} onChange={onChange} />;
+  // }
 
   if (field.kind === "testimonials") {
     return <TestimonialsField value={value} label={field.label} help={field.help} hint={field.dimensions} onChange={onChange} />;
@@ -955,63 +957,38 @@ function ImageListField({
   );
 }
 
-function parseMap(value: string): Record<string, string> {
-  if (!value) return {};
-  try {
-    const obj = JSON.parse(value);
-    if (!obj || typeof obj !== "object" || Array.isArray(obj)) return {};
-    const out: Record<string, string> = {};
-    for (const [k, v] of Object.entries(obj)) {
-      if (typeof v === "string") out[k] = v;
-    }
-    return out;
-  } catch {
-    return {};
-  }
-}
+// CATEGORIES_DISABLED: parseMap only used by CategoryImagesField
+// function parseMap(value: string): Record<string, string> {
+//   if (!value) return {};
+//   try {
+//     const obj = JSON.parse(value);
+//     if (!obj || typeof obj !== "object" || Array.isArray(obj)) return {};
+//     const out: Record<string, string> = {};
+//     for (const [k, v] of Object.entries(obj)) { if (typeof v === "string") out[k] = v; }
+//     return out;
+//   } catch { return {}; }
+// }
 
-function CategoryImagesField({
-  value,
-  label,
-  help,
-  hint,
-  onChange,
-}: {
-  value: string;
-  label: string;
-  help?: string;
-  hint?: string;
-  onChange: (v: string) => void;
-}) {
-  const map = parseMap(value);
-
-  const setOne = (slug: string, url: string) => {
-    const next = { ...map };
-    if (url) next[slug] = url;
-    else delete next[slug];
-    onChange(JSON.stringify(next));
-  };
-
-  return (
-    <div className="space-y-3">
-      <span className="block text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
-        {label}
-      </span>
-      <div className="grid gap-4 sm:grid-cols-2">
-        {CATEGORIES.map((c) => (
-          <ImageField
-            key={c.slug}
-            value={map[c.slug] ?? ""}
-            label={c.label}
-            hint={hint}
-            onChange={(url) => setOne(c.slug, url)}
-          />
-        ))}
-      </div>
-      {help && <p className="text-xs text-charcoal/50">{help}</p>}
-    </div>
-  );
-}
+// CATEGORIES_DISABLED: CategoryImagesField commented out
+// function CategoryImagesField({ value, label, help, hint, onChange }: { value: string; label: string; help?: string; hint?: string; onChange: (v: string) => void }) {
+//   const map = parseMap(value);
+//   const setOne = (slug: string, url: string) => {
+//     const next = { ...map };
+//     if (url) next[slug] = url; else delete next[slug];
+//     onChange(JSON.stringify(next));
+//   };
+//   return (
+//     <div className="space-y-3">
+//       <span className="block text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">{label}</span>
+//       <div className="grid gap-4 sm:grid-cols-2">
+//         {CATEGORIES.map((c) => (
+//           <ImageField key={c.slug} value={map[c.slug] ?? ""} label={c.label} hint={hint} onChange={(url) => setOne(c.slug, url)} />
+//         ))}
+//       </div>
+//       {help && <p className="text-xs text-charcoal/50">{help}</p>}
+//     </div>
+//   );
+// }
 
 type TestimonialItem = { quote: string; name: string; detail: string; image: string };
 
@@ -1045,13 +1022,17 @@ function TestimonialsField({
   onChange: (v: string) => void;
 }) {
   const items = parseTestimonialList(value);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const persist = (next: TestimonialItem[]) => onChange(JSON.stringify(next));
 
   const update = (i: number, patch: Partial<TestimonialItem>) =>
     persist(items.map((it, idx) => (idx === i ? { ...it, ...patch } : it)));
 
-  const remove = (i: number) => persist(items.filter((_, idx) => idx !== i));
+  const remove = (i: number) => {
+    persist(items.filter((_, idx) => idx !== i));
+    setOpenIndex(null);
+  };
 
   const move = (i: number, dir: -1 | 1) => {
     const j = i + dir;
@@ -1059,94 +1040,123 @@ function TestimonialsField({
     const next = [...items];
     [next[i], next[j]] = [next[j], next[i]];
     persist(next);
+    setOpenIndex(j);
   };
 
-  const add = () =>
+  const add = () => {
     persist([...items, { quote: "", name: "", detail: "", image: "" }]);
+    setOpenIndex(items.length);
+  };
 
   const inputBase =
     "w-full rounded-md border border-charcoal/15 bg-cream px-2.5 py-2 text-sm text-ink placeholder:text-charcoal/35 focus:border-charcoal/50 focus:outline-none focus:ring-2 focus:ring-gold/30";
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <span className="block text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
         {label}
       </span>
 
       {items.length > 0 && (
-        <ul className="space-y-3">
-          {items.map((item, i) => (
-            <li
-              key={i}
-              className="rounded-xl border border-charcoal/10 bg-linen/40 p-4"
-            >
-              <div className="grid gap-3 sm:grid-cols-[7rem_minmax(0,1fr)]">
-                <div className="flex flex-col items-stretch gap-2">
-                  <ImageField
-                    value={item.image}
-                    label="תמונה"
-                    hint={hint}
-                    onChange={(url) => update(i, { image: url })}
+        <ul className="divide-y divide-charcoal/8 rounded-xl border border-charcoal/10 overflow-hidden">
+          {items.map((item, i) => {
+            const isOpen = openIndex === i;
+            const preview = item.name || item.quote
+              ? [item.name, item.quote ? `"${item.quote.slice(0, 50)}${item.quote.length > 50 ? "…" : ""}"` : ""].filter(Boolean).join(" · ")
+              : `המלצה ${i + 1}`;
+            return (
+              <li key={i} className="bg-linen/40">
+                {/* Accordion header */}
+                <button
+                  type="button"
+                  onClick={() => setOpenIndex(isOpen ? null : i)}
+                  className="flex w-full items-center justify-between gap-3 px-4 py-3 text-start hover:bg-charcoal/[0.04] transition-colors"
+                >
+                  <span className="flex items-center gap-2 min-w-0">
+                    <span className="text-xs font-medium text-charcoal/40 shrink-0 tabular-nums">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="truncate text-sm text-charcoal">{preview}</span>
+                  </span>
+                  <ChevronDownIcon
+                    className={cn(
+                      "h-4 w-4 shrink-0 text-charcoal/40 transition-transform duration-200",
+                      isOpen && "rotate-180"
+                    )}
                   />
-                </div>
-                <div className="space-y-2">
-                  <textarea
-                    value={item.quote}
-                    onChange={(e) => update(i, { quote: e.target.value })}
-                    placeholder="ציטוט"
-                    rows={3}
-                    className={inputBase}
-                  />
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    <input
-                      type="text"
-                      value={item.name}
-                      onChange={(e) => update(i, { name: e.target.value })}
-                      placeholder="שם"
-                      className={inputBase}
-                    />
-                    <input
-                      type="text"
-                      value={item.detail}
-                      onChange={(e) => update(i, { detail: e.target.value })}
-                      placeholder="פירוט (עיר / לקוח חוזר וכו')"
-                      className={inputBase}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between gap-2 pt-1">
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() => move(i, -1)}
-                        disabled={i === 0}
-                        aria-label="הזזה אחורה"
-                        className="rounded-md p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
-                      >
-                        ‹
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => move(i, 1)}
-                        disabled={i === items.length - 1}
-                        aria-label="הזזה קדימה"
-                        className="rounded-md p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
-                      >
-                        ›
-                      </button>
+                </button>
+
+                {/* Accordion body */}
+                {isOpen && (
+                  <div className="border-t border-charcoal/8 px-4 pb-4 pt-3">
+                    <div className="grid gap-3 sm:grid-cols-[7rem_minmax(0,1fr)]">
+                      <ImageField
+                        value={item.image}
+                        label="תמונה"
+                        hint={hint}
+                        onChange={(url) => update(i, { image: url })}
+                      />
+                      <div className="space-y-2">
+                        <textarea
+                          value={item.quote}
+                          onChange={(e) => update(i, { quote: e.target.value })}
+                          placeholder="ציטוט"
+                          rows={3}
+                          className={inputBase}
+                        />
+                        <div className="grid gap-2 sm:grid-cols-2">
+                          <input
+                            type="text"
+                            value={item.name}
+                            onChange={(e) => update(i, { name: e.target.value })}
+                            placeholder="שם"
+                            className={inputBase}
+                          />
+                          <input
+                            type="text"
+                            value={item.detail}
+                            onChange={(e) => update(i, { detail: e.target.value })}
+                            placeholder="פירוט (עיר / לקוח חוזר וכו')"
+                            className={inputBase}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between gap-2 pt-1">
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => move(i, -1)}
+                              disabled={i === 0}
+                              aria-label="הזזה אחורה"
+                              className="rounded-md p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
+                            >
+                              ‹
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => move(i, 1)}
+                              disabled={i === items.length - 1}
+                              aria-label="הזזה קדימה"
+                              className="rounded-md p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
+                            >
+                              ›
+                            </button>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => remove(i)}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-terracotta/40 px-3 py-1 text-xs text-terracotta transition-colors hover:bg-terracotta/10"
+                          >
+                            <TrashIcon className="h-3.5 w-3.5" />
+                            הסרה
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => remove(i)}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-terracotta/40 px-3 py-1 text-xs text-terracotta transition-colors hover:bg-terracotta/10"
-                    >
-                      <TrashIcon className="h-3.5 w-3.5" />
-                      הסרה
-                    </button>
                   </div>
-                </div>
-              </div>
-            </li>
-          ))}
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
 

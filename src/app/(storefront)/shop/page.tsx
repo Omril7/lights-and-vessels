@@ -4,7 +4,8 @@ import { ShopGrid } from "@/components/storefront/ShopGrid";
 import { ShopFilters } from "@/components/storefront/ShopFilters";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { Button } from "@/components/ui/Button";
-import { CATEGORIES, categoryLabel, type SortKey } from "@/types";
+import { type SortKey } from "@/types";
+// CATEGORIES_DISABLED: import { CATEGORIES, categoryLabel, type SortKey } from "@/types";
 import type { ProductWithImages } from "@/types";
 import type { Prisma } from "@prisma/client";
 
@@ -27,11 +28,8 @@ export default async function ShopPage({
 }: {
   searchParams: { category?: string; sort?: string };
 }) {
-  const category =
-    searchParams.category &&
-    CATEGORIES.some((c) => c.slug === searchParams.category)
-      ? searchParams.category
-      : "";
+  // CATEGORIES_DISABLED: const category = searchParams.category && CATEGORIES.some((c) => c.slug === searchParams.category) ? searchParams.category : "";
+  const category = "";
   const sort: SortKey = (
     ["newest", "price-asc", "price-desc"] as const
   ).includes(searchParams.sort as SortKey)
@@ -44,11 +42,7 @@ export default async function ShopPage({
     orderBy: SORT_MAP[sort],
   })) as ProductWithImages[];
 
-  // Hide the category filter UI until at least one product has been categorized.
-  const hasAnyCategorized =
-    (await prisma.product.count({
-      where: { published: true, category: { not: null } },
-    })) > 0;
+  // CATEGORIES_DISABLED: const hasAnyCategorized = (await prisma.product.count({ where: { published: true, category: { not: null } } })) > 0;
 
   return (
     <div className="mx-auto max-w-editorial px-5 pb-10 pt-28 md:px-8 md:pt-32">
@@ -57,7 +51,8 @@ export default async function ShopPage({
           האוסף
         </p>
         <h1 className="mt-2 font-serif text-4xl text-ink md:text-5xl">
-          {category ? categoryLabel(category) : "כל הפריטים"}
+          {/* CATEGORIES_DISABLED: {category ? categoryLabel(category) : "כל הפריטים"} */}
+          כל הפריטים
         </h1>
         <p className="mx-auto mt-3 max-w-md text-sm text-charcoal/60">
           כל פריט נוצר בעבודת יד בסטודיו, במנות קטנות.
@@ -65,10 +60,9 @@ export default async function ShopPage({
       </FadeIn>
 
       <ShopFilters
-        activeCategory={category}
+        // CATEGORIES_DISABLED: activeCategory={category} showCategoryFilter={hasAnyCategorized}
         activeSort={sort}
         total={products.length}
-        showCategoryFilter={hasAnyCategorized}
       />
 
       {products.length === 0 ? (

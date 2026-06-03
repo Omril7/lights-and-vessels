@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Dropdown } from "@/components/ui/Dropdown";
 import { ImageUploader, type UploadedImage } from "@/components/admin/ImageUploader";
-import { CATEGORIES } from "@/types";
+// import { CATEGORIES } from "@/types"; // CATEGORIES_DISABLED
 import { renderMarkdown, makeSlug, cn } from "@/lib/utils";
 
 export type ProductFormValues = {
@@ -285,26 +285,16 @@ export function ProductForm({
 
           <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-4 shadow-soft">
             <h2 className="font-serif text-lg text-charcoal">סיווג</h2>
+            {/* CATEGORIES_DISABLED: category dropdown removed
             <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="category"
-                className="text-xs uppercase tracking-wider2 text-charcoal/70 font-medium"
-              >
-                קטגוריה (אופציונלי)
-              </label>
-              <Dropdown
-                id="category"
-                ariaLabel="קטגוריה"
-                variant="field"
-                placeholder="ללא קטגוריה"
+              <label htmlFor="category" className="text-xs uppercase tracking-wider2 text-charcoal/70 font-medium">קטגוריה (אופציונלי)</label>
+              <Dropdown id="category" ariaLabel="קטגוריה" variant="field" placeholder="ללא קטגוריה"
                 value={values.category ?? ""}
-                options={[
-                  { value: "", label: "ללא קטגוריה" },
-                  ...CATEGORIES.map((c) => ({ value: c.slug, label: c.label })),
-                ]}
+                options={[{ value: "", label: "ללא קטגוריה" }, ...CATEGORIES.map((c) => ({ value: c.slug, label: c.label }))]}
                 onChange={(v) => set("category", v || null)}
               />
             </div>
+            */}
             <Input
               id="tags"
               label="תגיות (מופרדות בפסיק)"

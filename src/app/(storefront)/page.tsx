@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getSiteContent } from "@/lib/content";
 import { HeroBanner } from "@/components/storefront/HeroBanner";
 import { FeaturedProducts } from "@/components/storefront/FeaturedProducts";
-import { CategoryStrip } from "@/components/storefront/CategoryStrip";
+// import { CategoryStrip } from "@/components/storefront/CategoryStrip"; // CATEGORIES_DISABLED
 import { Testimonials } from "@/components/storefront/Testimonials";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { Button } from "@/components/ui/Button";
@@ -21,10 +21,7 @@ export default async function HomePage() {
     take: 8,
   })) as ProductWithImages[];
 
-  const hasAnyCategorized =
-    (await prisma.product.count({
-      where: { published: true, category: { not: null } },
-    })) > 0;
+  // CATEGORIES_DISABLED: const hasAnyCategorized = (await prisma.product.count({ where: { published: true, category: { not: null } } })) > 0;
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://lights-and-vessels.vercel.app";
@@ -84,7 +81,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {hasAnyCategorized && <CategoryStrip />}
+      {/* CATEGORIES_DISABLED: {hasAnyCategorized && <CategoryStrip />} */}
 
       <Testimonials />
     </>
