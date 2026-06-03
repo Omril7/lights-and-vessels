@@ -79,7 +79,7 @@ function Card({ t }: { t: TestimonialItem }) {
     <figure
       dir="rtl"
       data-tween
-      className="flex h-full flex-col rounded-2xl border border-charcoal/10 bg-linen p-6 shadow-soft will-change-transform md:p-7"
+      className="flex h-full flex-col rounded-2xl border border-charcoal/10 bg-linen p-6 shadow-soft will-change-transform select-none md:p-7"
     >
       <div className="mb-3 text-3xl leading-none text-clay" aria-hidden>&ldquo;</div>
       <blockquote className="flex-1 font-serif text-lg leading-relaxed text-ink">
