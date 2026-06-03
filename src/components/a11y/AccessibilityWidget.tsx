@@ -211,7 +211,6 @@ export function AccessibilityWidget() {
   const [isMobile, setIsMobile] = useState(false);
   const [pos, setPos] = useState<Pos | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 640px)");
@@ -248,7 +247,7 @@ export function AccessibilityWidget() {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const toggleRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const dragOrigin = useRef<{ px: number; py: number; bx: number; by: number } | null>(null);
-  const hasMoved = useRef(false);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     try {
@@ -340,36 +339,47 @@ export function AccessibilityWidget() {
       0
     );
   const active = activeCount > 0;
-  const expanded = isHovered || isDragging;
+  const expanded = isDragging;
+
+  const cancelLongPress = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
 
   const onPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
     if (!pos) return;
-    dragOrigin.current = { px: e.clientX, py: e.clientY, bx: pos.x, by: pos.y };
-    hasMoved.current = false;
-    (e.currentTarget as HTMLButtonElement).setPointerCapture(e.pointerId);
+    const btn = e.currentTarget as HTMLButtonElement;
+    const captured = { px: e.clientX, py: e.clientY, bx: pos.x, by: pos.y };
+    longPressTimer.current = setTimeout(() => {
+      dragOrigin.current = captured;
+      setIsDragging(true);
+      btn.setPointerCapture(e.pointerId);
+    }, 1000);
   };
 
   const onPointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
-    if (!dragOrigin.current) return;
+    if (!dragOrigin.current || !isDragging) return;
     const dx = e.clientX - dragOrigin.current.px;
     const dy = e.clientY - dragOrigin.current.py;
-    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
-      hasMoved.current = true;
-      if (!isDragging) setIsDragging(true);
-    }
-    if (hasMoved.current) {
-      setPos(clampPos(dragOrigin.current.bx + dx, dragOrigin.current.by + dy));
-    }
+    setPos(clampPos(dragOrigin.current.bx + dx, dragOrigin.current.by + dy));
   };
 
   const onPointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
-    if (!dragOrigin.current) return;
-    (e.currentTarget as HTMLButtonElement).releasePointerCapture(e.pointerId);
-    if (!hasMoved.current) {
-      setOpen((v) => !v);
-    } else {
+    if (isDragging) {
+      (e.currentTarget as HTMLButtonElement).releasePointerCapture(e.pointerId);
       try { localStorage.setItem(POS_KEY, JSON.stringify(pos)); } catch { /* ignore */ }
+      setIsDragging(false);
+      dragOrigin.current = null;
+    } else {
+      cancelLongPress();
+      setOpen((v) => !v);
     }
+  };
+
+  const onPointerCancel = () => {
+    cancelLongPress();
     setIsDragging(false);
     dragOrigin.current = null;
   };
@@ -384,8 +394,7 @@ export function AccessibilityWidget() {
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        onPointerEnter={() => setIsHovered(true)}
-        onPointerLeave={() => { if (!isDragging) setIsHovered(false); }}
+        onPointerCancel={onPointerCancel}
         aria-expanded={open}
         aria-haspopup="dialog"
         aria-label="אפשרויות נגישות"
