@@ -346,7 +346,6 @@ export function AccessibilityWidget() {
     if (!pos) return;
     dragOrigin.current = { px: e.clientX, py: e.clientY, bx: pos.x, by: pos.y };
     hasMoved.current = false;
-    setIsDragging(true);
     (e.currentTarget as HTMLButtonElement).setPointerCapture(e.pointerId);
   };
 
@@ -354,19 +353,24 @@ export function AccessibilityWidget() {
     if (!dragOrigin.current) return;
     const dx = e.clientX - dragOrigin.current.px;
     const dy = e.clientY - dragOrigin.current.py;
-    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) hasMoved.current = true;
-    setPos(clampPos(dragOrigin.current.bx + dx, dragOrigin.current.by + dy));
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+      hasMoved.current = true;
+      if (!isDragging) setIsDragging(true);
+    }
+    if (hasMoved.current) {
+      setPos(clampPos(dragOrigin.current.bx + dx, dragOrigin.current.by + dy));
+    }
   };
 
   const onPointerUp = (e: React.PointerEvent<HTMLButtonElement>) => {
     if (!dragOrigin.current) return;
-    setIsDragging(false);
     (e.currentTarget as HTMLButtonElement).releasePointerCapture(e.pointerId);
     if (!hasMoved.current) {
       setOpen((v) => !v);
     } else {
       try { localStorage.setItem(POS_KEY, JSON.stringify(pos)); } catch { /* ignore */ }
     }
+    setIsDragging(false);
     dragOrigin.current = null;
   };
 
