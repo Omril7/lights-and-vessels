@@ -32,7 +32,7 @@ MORNING_DEFAULT_DOC_TYPE="400"       # 400 = קבלה (artist is עוסק פטו
 MORNING_WEBHOOK_SECRET="..."         # shared secret used to sign IPN requests (optional in dev; required in prod)
 
 # Stock-reservation sweep (option B inventory model — see FEATURES.md "Inventory & Stock Reservation")
-ORDER_RESERVATION_TTL_MINUTES="30"   # how long a pending order holds its stock reservation before the sweep releases it
+ORDER_RESERVATION_TTL_MINUTES="60"   # how long a pending order holds its stock reservation before the sweep releases it
 CRON_SECRET="dev-cron-secret-change-me"   # bearer token guarding /api/orders/sweep. Any long random string works.
                                           # Generate prod value with: openssl rand -hex 32
                                           # Or PowerShell: [Convert]::ToBase64String((1..32 | %{ Get-Random -Maximum 256 }))

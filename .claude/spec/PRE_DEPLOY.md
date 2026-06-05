@@ -38,7 +38,7 @@ All third-party accounts must end up under the artist's ownership so that if Omr
 - `MORNING_PLUGIN_ID` — if required by Morning for hosted payment forms on the merchant account.
 - `MORNING_DEFAULT_DOC_TYPE` — confirmed with client (`320` or `400`).
 - `CRON_SECRET` — random string; gates `/api/orders/sweep`. Add the same value to the Vercel Cron job header (Bearer) or `?secret=` query.
-- `ORDER_RESERVATION_TTL_MINUTES` — defaults to 30; set explicitly if you want a different reservation window.
+- `ORDER_RESERVATION_TTL_MINUTES` — defaults to 60; set explicitly if you want a different reservation window.
 - **Configure Vercel Cron** to hit `GET /api/orders/sweep` every 5–10 minutes with `Authorization: Bearer <CRON_SECRET>`. Without this, abandoned pending orders never release their stock reservations.
 - `MORNING_WEBHOOK_SECRET` — **required for prod** (optional in dev: when unset, the webhook route skips signature verification with a warning). Paste the same string into Morning's webhook "secret" field and into this env var. Morning's field has undocumented validation — if `openssl rand -hex 32` is rejected with `ValidationException: Invalid secret value`, try a shorter alphanumeric value (e.g. `openssl rand -hex 16`).
 - `NEXT_PUBLIC_SUPABASE_URL` — prod Supabase project URL (same project as `DATABASE_URL`).

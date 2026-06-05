@@ -5,7 +5,7 @@ import { releaseOrderStock } from "@/lib/orders";
 export const dynamic = "force-dynamic";
 
 // How long a pending order holds its stock reservation before the sweep releases it.
-const RESERVATION_TTL_MINUTES = Number(process.env.ORDER_RESERVATION_TTL_MINUTES || "30");
+const RESERVATION_TTL_MINUTES = Number(process.env.ORDER_RESERVATION_TTL_MINUTES || "60");
 
 /**
  * Releases stock held by abandoned pending orders.
