@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ShoppingBagIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
@@ -80,13 +81,16 @@ export function Navbar() {
 
         <Link
           href="/"
-          className="absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2 whitespace-nowrap font-serif text-lg font-medium tracking-wide text-ink sm:text-xl md:text-2xl"
+          className="absolute start-1/2 -translate-x-1/2 rtl:translate-x-1/2"
         >
-          סטודיו
-          <span className="mx-1 hidden text-copper sm:inline">·</span>
-          <span className="hidden text-base font-normal text-charcoal/70 sm:inline">
-            אורות וכלים
-          </span>
+          <Image
+            src="/logo-2169x1282-black.png"
+            alt="סטודיו אורות וכלים"
+            width={120}
+            height={71}
+            className="h-8 w-auto sm:h-9 md:h-10"
+            priority
+          />
         </Link>
 
         <button
