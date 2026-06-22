@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useDropzone } from "react-dropzone";
+import { IsraelFlag, UsaFlag } from "@/lib/flags";
+import { Button, Dropdown, LocalizedInput, LocalizedTextarea, Markdown, MarkdownCheatSheet } from "@/components/ui";
 import {
   MegaphoneIcon,
   SparklesIcon,
@@ -22,11 +24,8 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 // import { CATEGORIES } from "@/types"; // CATEGORIES_DISABLED
-import { Button } from "@/components/ui/Button";
-import { Dropdown } from "@/components/ui/Dropdown";
 import { cn } from "@/lib/utils";
 import { SOCIAL_PLATFORMS } from "@/lib/social";
-import { Markdown, MarkdownCheatSheet } from "@/components/ui/Markdown";
 
 type FieldKind =
   | "text"
@@ -263,13 +262,15 @@ export const SECTIONS: Section[] = [
   },
 ];
 
+type BilingualValues = Record<string, { he: string; en: string }>;
+
 export function SiteContentEditor({
   initial,
 }: {
-  initial: Record<string, string>;
+  initial: BilingualValues;
 }) {
   const router = useRouter();
-  const [values, setValues] = useState<Record<string, string>>(initial);
+  const [values, setValues] = useState<BilingualValues>(initial);
   const [saving, setSaving] = useState(false);
   // Sections grouped by the page they belong to, in PAGES order.
   const groupedSections = PAGES.map((p) => ({
@@ -280,14 +281,15 @@ export function SiteContentEditor({
 
   const [active, setActive] = useState<string>(orderedSections[0].id);
 
-  const set = (k: string, v: string) =>
-    setValues((prev) => ({ ...prev, [k]: v }));
+  const set = (k: string, lang: "he" | "en", v: string) =>
+    setValues((prev) => ({ ...prev, [k]: { ...prev[k], [lang]: v } }));
 
-  function buildEntries(vals: Record<string, string>) {
+  function buildEntries(vals: BilingualValues) {
     return SECTIONS.flatMap((s) =>
       s.fields.map((f) => ({
         key: f.key,
-        value: vals[f.key] ?? "",
+        value_he: vals[f.key]?.he ?? "",
+        value_en: vals[f.key]?.en || null,
         type: f.kind === "richtext" ? "richtext" : "text",
       }))
     );
@@ -402,8 +404,10 @@ export function SiteContentEditor({
                     >
                       <ContentField
                         field={field}
-                        value={values[field.key] ?? ""}
-                        onChange={(v) => set(field.key, v)}
+                        valueHe={values[field.key]?.he ?? ""}
+                        valueEn={values[field.key]?.en ?? ""}
+                        onChangeHe={(v) => set(field.key, "he", v)}
+                        onChangeEn={(v) => set(field.key, "en", v)}
                       />
                     </div>
                   ))}
@@ -436,15 +440,19 @@ export function SiteContentEditor({
 
 function ContentField({
   field,
-  value,
-  onChange,
+  valueHe,
+  valueEn,
+  onChangeHe,
+  onChangeEn,
 }: {
   field: Field;
-  value: string;
-  onChange: (v: string) => void;
+  valueHe: string;
+  valueEn: string;
+  onChangeHe: (v: string) => void;
+  onChangeEn: (v: string) => void;
 }) {
   if (field.kind === "toggle") {
-    const on = value === "true";
+    const on = valueHe === "true";
     const Icon = field.icon ?? MegaphoneIcon;
     const onText = field.onLabel ?? "פעיל — מוצג למבקרים";
     const offText = field.offLabel ?? "כבוי — אינו מוצג";
@@ -452,7 +460,7 @@ function ContentField({
       <div className="space-y-1.5">
       <button
         type="button"
-        onClick={() => onChange(on ? "false" : "true")}
+        onClick={() => onChangeHe(on ? "false" : "true")}
         aria-pressed={on}
         className={cn(
           "group flex w-full items-center justify-between gap-4 rounded-2xl border px-5 py-4 text-start transition-all",
@@ -508,33 +516,33 @@ function ContentField({
   }
 
   if (field.kind === "image") {
-    return <ImageField value={value} label={field.label} help={field.help} hint={field.dimensions} onChange={onChange} />;
+    return <ImageField value={valueHe} label={field.label} help={field.help} hint={field.dimensions} onChange={onChangeHe} />;
   }
 
   if (field.kind === "image-list") {
-    return <ImageListField value={value} label={field.label} help={field.help} hint={field.dimensions} onChange={onChange} />;
+    return <ImageListField value={valueHe} label={field.label} help={field.help} hint={field.dimensions} onChange={onChangeHe} />;
   }
 
   // CATEGORIES_DISABLED:
-  // if (field.kind === "category-images") {
-  //   return <CategoryImagesField value={value} label={field.label} help={field.help} hint={field.dimensions} onChange={onChange} />;
-  // }
+  // if (field.kind === "category-images") { ... }
 
   if (field.kind === "testimonials") {
-    return <TestimonialsField value={value} label={field.label} help={field.help} hint={field.dimensions} onChange={onChange} />;
+    return <TestimonialsField value={valueHe} label={field.label} help={field.help} hint={field.dimensions} onChange={onChangeHe} />;
   }
 
   if (field.kind === "social-links") {
-    return <SocialLinksField value={value} label={field.label} help={field.help} onChange={onChange} />;
+    return <SocialLinksField value={valueHe} label={field.label} help={field.help} onChange={onChangeHe} />;
   }
 
   if (field.kind === "richtext") {
     return (
       <MarkdownField
-        value={value}
+        valueHe={valueHe}
+        valueEn={valueEn}
         label={field.label}
         help={field.help}
-        onChange={onChange}
+        onChangeHe={onChangeHe}
+        onChangeEn={onChangeEn}
       />
     );
   }
@@ -542,52 +550,76 @@ function ContentField({
   const inputBase =
     "w-full rounded-xl border border-charcoal/15 bg-cream px-3 py-2.5 text-sm text-ink placeholder:text-charcoal/30 focus:outline-none focus:border-charcoal/50 focus:ring-2 focus:ring-gold/30 transition-colors";
 
-  return (
-    <label className="block space-y-1.5">
-      <span className="text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
-        {field.label}
-      </span>
-      {field.kind === "textarea" ? (
-        <textarea
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          rows={3}
-          className={inputBase}
-        />
-      ) : (
+  // url fields are not translatable — single HE input
+  if (field.kind === "url") {
+    return (
+      <label className="block space-y-1.5">
+        <span className="text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
+          {field.label}
+        </span>
         <input
-          type={field.kind === "url" ? "url" : "text"}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          dir={field.kind === "url" ? "ltr" : undefined}
+          type="url"
+          value={valueHe}
+          onChange={(e) => onChangeHe(e.target.value)}
+          dir="ltr"
           className={inputBase}
         />
+        {field.help && (
+          <span className="block text-xs text-charcoal/50">{field.help}</span>
+        )}
+      </label>
+    );
+  }
+
+  // text / textarea — bilingual via atomic LocalizedInput / LocalizedTextarea
+  const bilingualPairs = (
+    <div className="grid sm:grid-cols-2 gap-3">
+      {field.kind === "textarea" ? (
+        <>
+          <LocalizedTextarea id={`${field.key}-he`} locale="he" label={field.label} value={valueHe} onChange={(e) => onChangeHe(e.target.value)} rows={3} />
+          <LocalizedTextarea id={`${field.key}-en`} locale="en" label={field.label} value={valueEn} onChange={(e) => onChangeEn(e.target.value)} rows={3} />
+        </>
+      ) : (
+        <>
+          <LocalizedInput id={`${field.key}-he`} locale="he" label={field.label} value={valueHe} onChange={(e) => onChangeHe(e.target.value)} />
+          <LocalizedInput id={`${field.key}-en`} locale="en" label={field.label} value={valueEn} onChange={(e) => onChangeEn(e.target.value)} />
+        </>
       )}
-      {field.help && (
-        <span className="block text-xs text-charcoal/50">{field.help}</span>
-      )}
-    </label>
+    </div>
   );
+  return field.help ? (
+    <div className="space-y-1.5">
+      {bilingualPairs}
+      <span className="block text-xs text-charcoal/50">{field.help}</span>
+    </div>
+  ) : bilingualPairs;
 }
 
 function MarkdownField({
-  value,
+  valueHe,
+  valueEn,
   label,
   help,
-  onChange,
+  onChangeHe,
+  onChangeEn,
 }: {
-  value: string;
+  valueHe: string;
+  valueEn: string;
   label: string;
   help?: string;
-  onChange: (v: string) => void;
+  onChangeHe: (v: string) => void;
+  onChangeEn: (v: string) => void;
 }) {
   const [tab, setTab] = useState<"edit" | "preview">("edit");
   const [showHelp, setShowHelp] = useState(false);
 
+  const inputBase = "w-full rounded-xl border border-charcoal/15 bg-cream px-3 py-2.5 text-sm text-ink placeholder:text-charcoal/30 focus:outline-none focus:border-charcoal/50 focus:ring-2 focus:ring-gold/30";
+
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
-        <span className="text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
+        <span className="text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium flex items-center gap-1.5">
+          <IsraelFlag className="h-3 w-4 rounded-sm" />
           {label}
         </span>
         <div className="flex items-center gap-1 text-xs">
@@ -632,21 +664,35 @@ function MarkdownField({
 
       {tab === "edit" ? (
         <textarea
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
+          value={valueHe}
+          onChange={(e) => onChangeHe(e.target.value)}
           rows={10}
-          className="w-full rounded-xl border border-charcoal/15 bg-cream px-3 py-2.5 text-sm text-ink placeholder:text-charcoal/30 focus:outline-none focus:border-charcoal/50 focus:ring-2 focus:ring-gold/30"
+          dir="rtl"
+          className={inputBase}
           placeholder="כתבו כאן… **מודגש**, *נטוי*, ## כותרת, - רשימה, [קישור](https://…)"
         />
       ) : (
         <div className="min-h-[14rem] rounded-xl border border-charcoal/10 bg-linen/60 p-4">
-          {value ? (
-            <Markdown source={value} />
+          {valueHe ? (
+            <Markdown source={valueHe} />
           ) : (
             <p className="text-charcoal/40">אין תוכן עדיין.</p>
           )}
         </div>
       )}
+
+      <div className="mt-2">
+        <LocalizedTextarea
+          id={`${label}-en`}
+          locale="en"
+          label={label}
+          value={valueEn}
+          onChange={(e) => onChangeEn(e.target.value)}
+          rows={6}
+          placeholder="English content… **bold**, *italic*, ## heading, - list"
+        />
+      </div>
+
       {help && <p className="text-xs text-charcoal/50">{help}</p>}
     </div>
   );
@@ -779,7 +825,7 @@ function ImageField({
   );
 }
 
-type GalleryItem = { url: string; alt: string };
+type GalleryItem = { url: string; alt: string; alt_en: string };
 
 function parseList(value: string): GalleryItem[] {
   if (!value) return [];
@@ -788,7 +834,11 @@ function parseList(value: string): GalleryItem[] {
     if (!Array.isArray(arr)) return [];
     return arr
       .filter((x) => x && typeof x.url === "string" && x.url.trim())
-      .map((x) => ({ url: String(x.url), alt: typeof x.alt === "string" ? x.alt : "" }));
+      .map((x) => ({
+        url: String(x.url),
+        alt: typeof x.alt === "string" ? x.alt : "",
+        alt_en: typeof x.alt_en === "string" ? x.alt_en : "",
+      }));
   } catch {
     return [];
   }
@@ -825,6 +875,7 @@ function ImageListField({
       const added: GalleryItem[] = (body?.files || []).map((f: { url: string }) => ({
         url: f.url,
         alt: "",
+        alt_en: "",
       }));
       persist([...items, ...added]);
       toast.success(`${added.length} תמונות נוספו`);
@@ -859,8 +910,8 @@ function ImageListField({
     persist(items.filter((_, idx) => idx !== i));
   }
 
-  function setAlt(i: number, alt: string) {
-    persist(items.map((it, idx) => (idx === i ? { ...it, alt } : it)));
+  function setAlt(i: number, field: "alt" | "alt_en", value: string) {
+    persist(items.map((it, idx) => (idx === i ? { ...it, [field]: value } : it)));
   }
 
   return (
@@ -885,12 +936,21 @@ function ImageListField({
                   className="object-cover"
                 />
               </div>
-              <div className="space-y-2 p-2">
+              <div className="space-y-1.5 p-2">
                 <input
                   type="text"
                   value={item.alt}
-                  onChange={(e) => setAlt(i, e.target.value)}
-                  placeholder="טקסט חלופי (alt)"
+                  onChange={(e) => setAlt(i, "alt", e.target.value)}
+                  dir="rtl"
+                  placeholder="טקסט חלופי 🇮🇱"
+                  className="w-full rounded-md border border-charcoal/15 bg-cream px-2 py-1 text-xs text-charcoal focus:border-charcoal/50 focus:outline-none"
+                />
+                <input
+                  type="text"
+                  value={item.alt_en}
+                  onChange={(e) => setAlt(i, "alt_en", e.target.value)}
+                  dir="ltr"
+                  placeholder="Alt text 🇬🇧"
                   className="w-full rounded-md border border-charcoal/15 bg-cream px-2 py-1 text-xs text-charcoal focus:border-charcoal/50 focus:outline-none"
                 />
                 <div className="flex items-center justify-between gap-1">
@@ -990,7 +1050,15 @@ function ImageListField({
 //   );
 // }
 
-type TestimonialItem = { quote: string; name: string; detail: string; image: string };
+type TestimonialItem = {
+  quote: string;
+  name: string;
+  detail: string;
+  image: string;
+  quote_en: string;
+  name_en: string;
+  detail_en: string;
+};
 
 function parseTestimonialList(value: string): TestimonialItem[] {
   if (!value) return [];
@@ -1002,6 +1070,9 @@ function parseTestimonialList(value: string): TestimonialItem[] {
       name: typeof x?.name === "string" ? x.name : "",
       detail: typeof x?.detail === "string" ? x.detail : "",
       image: typeof x?.image === "string" ? x.image : "",
+      quote_en: typeof x?.quote_en === "string" ? x.quote_en : "",
+      name_en: typeof x?.name_en === "string" ? x.name_en : "",
+      detail_en: typeof x?.detail_en === "string" ? x.detail_en : "",
     }));
   } catch {
     return [];
@@ -1044,7 +1115,7 @@ function TestimonialsField({
   };
 
   const add = () => {
-    persist([...items, { quote: "", name: "", detail: "", image: "" }]);
+    persist([...items, { quote: "", name: "", detail: "", image: "", quote_en: "", name_en: "", detail_en: "" }]);
     setOpenIndex(items.length);
   };
 
@@ -1097,11 +1168,15 @@ function TestimonialsField({
                         onChange={(url) => update(i, { image: url })}
                       />
                       <div className="space-y-2">
+                        <span className="flex items-center gap-1 text-[0.65rem] text-charcoal/45">
+                          <IsraelFlag className="h-3 w-4 rounded-sm" /> עברית
+                        </span>
                         <textarea
                           value={item.quote}
                           onChange={(e) => update(i, { quote: e.target.value })}
                           placeholder="ציטוט"
                           rows={3}
+                          dir="rtl"
                           className={inputBase}
                         />
                         <div className="grid gap-2 sm:grid-cols-2">
@@ -1110,6 +1185,7 @@ function TestimonialsField({
                             value={item.name}
                             onChange={(e) => update(i, { name: e.target.value })}
                             placeholder="שם"
+                            dir="rtl"
                             className={inputBase}
                           />
                           <input
@@ -1117,6 +1193,36 @@ function TestimonialsField({
                             value={item.detail}
                             onChange={(e) => update(i, { detail: e.target.value })}
                             placeholder="פירוט (עיר / לקוח חוזר וכו')"
+                            dir="rtl"
+                            className={inputBase}
+                          />
+                        </div>
+                        <span className="flex items-center gap-1 text-[0.65rem] text-charcoal/45 mt-1">
+                          <UsaFlag className="h-3 w-4 rounded-sm" /> English (optional)
+                        </span>
+                        <textarea
+                          value={item.quote_en}
+                          onChange={(e) => update(i, { quote_en: e.target.value })}
+                          placeholder="Quote in English"
+                          rows={3}
+                          dir="ltr"
+                          className={inputBase}
+                        />
+                        <div className="grid gap-2 sm:grid-cols-2">
+                          <input
+                            type="text"
+                            value={item.name_en}
+                            onChange={(e) => update(i, { name_en: e.target.value })}
+                            placeholder="Name"
+                            dir="ltr"
+                            className={inputBase}
+                          />
+                          <input
+                            type="text"
+                            value={item.detail_en}
+                            onChange={(e) => update(i, { detail_en: e.target.value })}
+                            placeholder="Detail (city / returning customer)"
+                            dir="ltr"
                             className={inputBase}
                           />
                         </div>

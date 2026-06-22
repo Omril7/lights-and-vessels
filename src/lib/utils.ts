@@ -8,8 +8,8 @@ export function formatPrice(amount: number): string {
   }).format(amount);
 }
 
-export function formatDate(date: Date | string): string {
-  return new Intl.DateTimeFormat("he-IL", {
+export function formatDate(date: Date | string, locale = "he"): string {
+  return new Intl.DateTimeFormat(locale === "he" ? "he-IL" : "en-US", {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -92,6 +92,16 @@ export function renderMarkdown(md: string): string {
 
 export function cn(...classes: (string | false | null | undefined)[]): string {
   return classes.filter(Boolean).join(" ");
+}
+
+export function localize<T extends Record<string, unknown>>(
+  obj: T,
+  field: string,
+  locale: string
+): string {
+  const localized = obj[`${field}_${locale}`] as string | null | undefined;
+  const fallback = obj[`${field}_he`] as string;
+  return localized ?? fallback;
 }
 
 /** Builds a wa.me link from a number (any format) and an optional message. */

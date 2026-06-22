@@ -1,18 +1,10 @@
 "use client";
 
+import { DatePicker } from "@/components/ui";
+import { formatPrice } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { formatPrice } from "@/lib/utils";
-import { DatePicker } from "@/components/ui/DatePicker";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 type ReportRow = { date: string; amount: number; type?: number };
 type ReportPayload = { from: string; to: string; rows?: ReportRow[] };

@@ -1,9 +1,9 @@
 "use client";
 
+import { Button } from "@/components/ui";
+import { formatDate, formatPrice } from "@/lib/utils";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { Button } from "@/components/ui/Button";
-import { formatPrice, formatDate } from "@/lib/utils";
 
 type Props = {
   orderId: string;

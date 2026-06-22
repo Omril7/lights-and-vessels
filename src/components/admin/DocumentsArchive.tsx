@@ -1,11 +1,10 @@
 "use client";
 
+import { DatePicker, Dropdown } from "@/components/ui";
+import { cn, formatDate, formatPrice } from "@/lib/utils";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { formatPrice, formatDate, cn } from "@/lib/utils";
-import { Dropdown } from "@/components/ui/Dropdown";
-import { DatePicker } from "@/components/ui/DatePicker";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 type Doc = {
   id: string;

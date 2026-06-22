@@ -143,7 +143,7 @@ export default async function AdminProductsPage({
                           {img && (
                             <Image
                               src={img}
-                              alt={p.name}
+                              alt={p.name_he}
                               fill
                               className="object-cover"
                               sizes="48px"
@@ -157,7 +157,7 @@ export default async function AdminProductsPage({
                           href={`/admin/products/${p.id}/edit`}
                           className="font-medium text-charcoal hover:text-copper"
                         >
-                          {p.name}
+                          {p.name_he}
                         </Link>
                         <p className="text-xs text-charcoal/40" dir="ltr">
                           /{p.slug}

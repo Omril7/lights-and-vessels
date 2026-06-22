@@ -67,7 +67,8 @@ export type Testimonial = {
 };
 
 export function parseTestimonials(
-  value: string | undefined | null
+  value: string | undefined | null,
+  locale = "he"
 ): Testimonial[] {
   if (!value) return [];
   try {
@@ -76,9 +77,9 @@ export function parseTestimonials(
     return arr
       .filter((x) => x && typeof x.quote === "string" && x.quote.trim())
       .map((x) => ({
-        quote: String(x.quote),
-        name: typeof x.name === "string" ? x.name : "",
-        detail: typeof x.detail === "string" ? x.detail : "",
+        quote: (locale !== "he" && x.quote_en) ? String(x.quote_en) : String(x.quote),
+        name: (locale !== "he" && x.name_en) ? String(x.name_en) : (typeof x.name === "string" ? x.name : ""),
+        detail: (locale !== "he" && x.detail_en) ? String(x.detail_en) : (typeof x.detail === "string" ? x.detail : ""),
         image: typeof x.image === "string" ? x.image : "",
       }));
   } catch {
@@ -86,14 +87,20 @@ export function parseTestimonials(
   }
 }
 
-export function parseGallery(value: string | undefined | null): GalleryItem[] {
+export function parseGallery(
+  value: string | undefined | null,
+  locale = "he"
+): GalleryItem[] {
   if (!value) return [];
   try {
     const arr = JSON.parse(value);
     if (!Array.isArray(arr)) return [];
     return arr
       .filter((x) => x && typeof x.url === "string" && x.url.trim())
-      .map((x) => ({ url: String(x.url), alt: typeof x.alt === "string" ? x.alt : "" }));
+      .map((x) => ({
+        url: String(x.url),
+        alt: (locale !== "he" && x.alt_en) ? String(x.alt_en) : (typeof x.alt === "string" ? x.alt : ""),
+      }));
   } catch {
     return [];
   }
@@ -124,15 +131,33 @@ export function parseSocialLinks(value: string | undefined | null): SocialLink[]
 export type SiteContentMap = Record<string, string>;
 
 export async function getSiteContent(
-  opts: { allowDraft?: boolean } = {}
+  opts: { allowDraft?: boolean; locale?: string } = {}
 ): Promise<SiteContentMap> {
-  const { allowDraft = true } = opts;
+  const { allowDraft = true, locale = "he" } = opts;
   const map: SiteContentMap = { ...FALLBACKS };
   const rows = await prisma.siteContent.findMany();
-  for (const row of rows) map[row.key] = row.value;
+  for (const row of rows) {
+    map[row.key] = (locale !== "he" && row.value_en) ? row.value_en : row.value_he;
+  }
   if (allowDraft && draftMode().isEnabled) {
     const drafts = await prisma.siteContentDraft.findMany();
-    for (const row of drafts) map[row.key] = row.value;
+    for (const row of drafts) {
+      map[row.key] = (locale !== "he" && row.value_en) ? row.value_en : row.value_he;
+    }
+  }
+  return map;
+}
+
+export type SiteContentBilingualMap = Record<string, { he: string; en: string }>;
+
+export async function getSiteContentBilingual(): Promise<SiteContentBilingualMap> {
+  const map: SiteContentBilingualMap = {};
+  for (const [key, val] of Object.entries(FALLBACKS)) {
+    map[key] = { he: val, en: "" };
+  }
+  const rows = await prisma.siteContent.findMany();
+  for (const row of rows) {
+    map[row.key] = { he: row.value_he, en: row.value_en ?? "" };
   }
   return map;
 }

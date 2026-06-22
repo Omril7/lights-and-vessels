@@ -1,15 +1,10 @@
 "use client";
 
+import { Button, Dropdown } from "@/components/ui";
+import { ORDER_STATUSES, STATUS_LABELS, type OrderStatus } from "@/lib/orders";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { Button } from "@/components/ui/Button";
-import { Dropdown } from "@/components/ui/Dropdown";
-import {
-  ORDER_STATUSES,
-  STATUS_LABELS,
-  type OrderStatus,
-} from "@/lib/orders";
 
 export function OrderControls({
   id,

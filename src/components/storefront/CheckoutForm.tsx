@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { useCart, cartSubtotal } from "@/lib/cart";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -10,7 +11,7 @@ import { formatPrice } from "@/lib/utils";
 
 type ShippingConfig = {
   postPrice: number;
-  freeOver: number; // 0 = no free-shipping threshold
+  freeOver: number;
   postEta: string;
   pickupAddress: string;
   pickupHours: string;
@@ -19,6 +20,7 @@ type ShippingConfig = {
 type ShippingMethod = "post" | "pickup";
 
 export function CheckoutForm({ shipping }: { shipping: ShippingConfig }) {
+  const t = useTranslations("checkout");
   const router = useRouter();
   const { items } = useCart();
   const [mounted, setMounted] = useState(false);
@@ -47,9 +49,9 @@ export function CheckoutForm({ shipping }: { shipping: ShippingConfig }) {
   if (items.length === 0) {
     return (
       <div className="rounded-2xl border border-charcoal/15 bg-linen p-10 text-center">
-        <p className="text-charcoal/70">העגלה ריקה.</p>
+        <p className="text-charcoal/70">{t("cartEmpty")}</p>
         <Button href="/shop" className="mt-4">
-          לעיון באוסף
+          {t("browse")}
         </Button>
       </div>
     );
@@ -60,11 +62,11 @@ export function CheckoutForm({ shipping }: { shipping: ShippingConfig }) {
     if (submitting) return;
 
     if (!name.trim() || !email.trim() || !phone.trim()) {
-      toast.error("נא למלא שם, אימייל וטלפון");
+      toast.error(t("errorFill"));
       return;
     }
     if (method === "post" && (!street.trim() || !city.trim())) {
-      toast.error("נא למלא כתובת למשלוח");
+      toast.error(t("errorAddress"));
       return;
     }
 
@@ -85,12 +87,12 @@ export function CheckoutForm({ shipping }: { shipping: ShippingConfig }) {
       });
       const data = await res.json();
       if (!res.ok || !data?.redirectUrl) {
-        throw new Error(data?.error || "תקלה ביצירת תשלום");
+        throw new Error(data?.error || t("errorPayment"));
       }
       window.location.href = data.redirectUrl;
     } catch (err) {
       console.error(err);
-      toast.error(err instanceof Error ? err.message : "תקלה ביצירת תשלום");
+      toast.error(err instanceof Error ? err.message : t("errorPayment"));
       setSubmitting(false);
     }
   }
@@ -99,52 +101,52 @@ export function CheckoutForm({ shipping }: { shipping: ShippingConfig }) {
     <form onSubmit={handleSubmit} className="grid gap-10 lg:grid-cols-3">
       <div className="space-y-8 lg:col-span-2">
         <section>
-          <h2 className="mb-4 font-serif text-2xl text-ink">פרטי קשר</h2>
+          <h2 className="mb-4 font-serif text-2xl text-ink">{t("contact")}</h2>
           <div className="grid gap-4 md:grid-cols-2">
-            <Input id="name" label="שם מלא" value={name} onChange={(e) => setName(e.target.value)} required autoComplete="name" />
-            <Input id="email" label="אימייל" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
-            <Input id="phone" label="טלפון" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required autoComplete="tel" />
+            <Input id="name" label={t("fullName")} value={name} onChange={(e) => setName(e.target.value)} required autoComplete="name" />
+            <Input id="email" label={t("email")} type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
+            <Input id="phone" label={t("phone")} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required autoComplete="tel" />
           </div>
         </section>
 
         <section>
-          <h2 className="mb-4 font-serif text-2xl text-ink">שיטת משלוח</h2>
+          <h2 className="mb-4 font-serif text-2xl text-ink">{t("shippingMethod")}</h2>
           <div className="grid gap-3">
             <ShippingOption
               checked={method === "post"}
               onChange={() => setMethod("post")}
-              title="דואר ישראל"
-              subtitle={shipping.postEta}
+              title={t("post")}
+              subtitle={shipping.postEta || ""}
               price={
                 shipping.freeOver > 0 && subtotal >= shipping.freeOver
-                  ? "חינם"
+                  ? t("free")
                   : formatPrice(shipping.postPrice)
               }
             />
             <ShippingOption
               checked={method === "pickup"}
               onChange={() => setMethod("pickup")}
-              title="איסוף עצמי"
-              subtitle={shipping.pickupAddress ? shipping.pickupAddress : "תיאום באמצעות וואטסאפ לאחר ההזמנה"}
-              price="חינם"
+              title={t("pickup")}
+              subtitle={shipping.pickupAddress || t("pickupNote")}
+              price={t("free")}
             />
           </div>
         </section>
 
         {method === "post" && (
           <section>
-            <h2 className="mb-4 font-serif text-2xl text-ink">כתובת למשלוח</h2>
+            <h2 className="mb-4 font-serif text-2xl text-ink">{t("shippingAddress")}</h2>
             <div className="grid gap-4 md:grid-cols-2">
-              <Input id="street" label="רחוב ומספר" value={street} onChange={(e) => setStreet(e.target.value)} required autoComplete="street-address" />
-              <Input id="city" label="עיר" value={city} onChange={(e) => setCity(e.target.value)} required autoComplete="address-level2" />
-              <Input id="zip" label="מיקוד (לא חובה)" value={zip} onChange={(e) => setZip(e.target.value)} autoComplete="postal-code" />
+              <Input id="street" label={t("street")} value={street} onChange={(e) => setStreet(e.target.value)} required autoComplete="street-address" />
+              <Input id="city" label={t("city")} value={city} onChange={(e) => setCity(e.target.value)} required autoComplete="address-level2" />
+              <Input id="zip" label={t("zip")} value={zip} onChange={(e) => setZip(e.target.value)} autoComplete="postal-code" />
             </div>
           </section>
         )}
       </div>
 
       <aside className="h-fit rounded-2xl border border-charcoal/15 bg-linen p-6 lg:sticky lg:top-28">
-        <h2 className="font-serif text-2xl text-ink">סיכום</h2>
+        <h2 className="font-serif text-2xl text-ink">{t("summary")}</h2>
         <ul className="mt-4 space-y-2 text-sm">
           {items.map((i) => (
             <li key={i.productId} className="flex justify-between gap-2 text-charcoal/80">
@@ -155,30 +157,30 @@ export function CheckoutForm({ shipping }: { shipping: ShippingConfig }) {
         </ul>
         <dl className="mt-4 space-y-2 border-t border-charcoal/15 pt-4 text-sm">
           <div className="flex justify-between">
-            <dt className="text-charcoal/70">סכום ביניים</dt>
+            <dt className="text-charcoal/70">{t("subtotal")}</dt>
             <dd>{formatPrice(subtotal)}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-charcoal/70">משלוח</dt>
-            <dd>{shippingCost === 0 ? "חינם" : formatPrice(shippingCost)}</dd>
+            <dt className="text-charcoal/70">{t("shipping")}</dt>
+            <dd>{shippingCost === 0 ? t("free") : formatPrice(shippingCost)}</dd>
           </div>
         </dl>
         <div className="mt-4 flex justify-between border-t border-charcoal/15 pt-4">
-          <span className="font-serif text-lg text-ink">סך הכול</span>
+          <span className="font-serif text-lg text-ink">{t("total")}</span>
           <span className="font-serif text-2xl text-ink">{formatPrice(total)}</span>
         </div>
         <Button type="submit" size="lg" className="mt-6 w-full" disabled={submitting}>
-          {submitting ? "מעבר לתשלום…" : "לתשלום מאובטח"}
+          {submitting ? t("processing") : t("submit")}
         </Button>
         <p className="mt-3 text-center text-xs text-charcoal/50">
-          התשלום מתבצע באתר מאובטח של Morning. לא נשמרים פרטי כרטיס אצלנו.{" "}
+          {t("secureNote")}{" "}
           <a
             href="https://www.greeninvoice.co.il/"
             target="_blank"
             rel="noopener noreferrer"
             className="text-copper underline-offset-2 hover:underline"
           >
-            מידע נוסף
+            {t("moreInfo")}
           </a>
         </p>
       </aside>

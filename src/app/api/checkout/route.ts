@@ -120,7 +120,7 @@ export async function POST(req: Request) {
     if (msg.startsWith("OUT_OF_STOCK:")) {
       const id = msg.split(":")[1];
       const p = products.find((p) => p.id === id);
-      return NextResponse.json({ error: `אזל מהמלאי: ${p?.name ?? ""}` }, { status: 409 });
+      return NextResponse.json({ error: `אזל מהמלאי: ${p?.name_he ?? ""}` }, { status: 409 });
     }
     throw err;
   }
@@ -130,7 +130,7 @@ export async function POST(req: Request) {
   const income = parsed.items.map((item) => {
     const p = products.find((p) => p.id === item.productId)!;
     return {
-      description: p.name,
+      description: p.name_he,
       quantity: item.quantity,
       price: p.price,
       vatType: VAT_TYPE_EXEMPT,

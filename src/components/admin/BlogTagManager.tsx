@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { Button, Input } from "@/components/ui";
+import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import { TrashIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 
 export type BlogTagRow = {
   id: string;
-  name: string;
+  name_he: string;
+  name_en: string | null;
   slug: string;
   order: number;
 };
@@ -17,24 +17,30 @@ export type BlogTagRow = {
 export function BlogTagManager({ initial }: { initial: BlogTagRow[] }) {
   const router = useRouter();
   const [tags, setTags] = useState<BlogTagRow[]>(initial);
-  const [name, setName] = useState("");
+  const [nameHe, setNameHe] = useState("");
+  const [nameEn, setNameEn] = useState("");
   const [slug, setSlug] = useState("");
   const [saving, setSaving] = useState(false);
 
   async function addTag(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!nameHe.trim()) return;
     setSaving(true);
     try {
       const res = await fetch("/api/admin/blog/tags", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), slug: slug.trim() }),
+        body: JSON.stringify({
+          name: nameHe.trim(),
+          name_en: nameEn.trim() || null,
+          slug: slug.trim(),
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "שגיאה");
       setTags((prev) => [...prev, data.tag]);
-      setName("");
+      setNameHe("");
+      setNameEn("");
       setSlug("");
       toast.success("תגית נוספה");
       router.refresh();
@@ -60,7 +66,10 @@ export function BlogTagManager({ initial }: { initial: BlogTagRow[] }) {
     }
   }
 
-  async function updateTag(id: string, patch: Partial<BlogTagRow>) {
+  async function updateTag(
+    id: string,
+    patch: { name?: string; name_en?: string | null; slug?: string; order?: number }
+  ) {
     const res = await fetch(`/api/admin/blog/tags/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -83,22 +92,30 @@ export function BlogTagManager({ initial }: { initial: BlogTagRow[] }) {
         <h2 className="font-serif text-lg text-charcoal">תגית חדשה</h2>
         <div className="grid sm:grid-cols-2 gap-3">
           <Input
-            id="tag-name"
-            label="שם"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="רהיטים"
+            id="tag-name-he"
+            label="שם בעברית"
+            value={nameHe}
+            onChange={(e) => setNameHe(e.target.value)}
+            placeholder="תכשיטים"
             required
           />
           <Input
-            id="tag-slug"
-            label="slug (אופציונלי)"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
+            id="tag-name-en"
+            label="Name in English"
+            value={nameEn}
+            onChange={(e) => setNameEn(e.target.value)}
             dir="ltr"
-            placeholder="furniture"
+            placeholder="Jewelry"
           />
         </div>
+        <Input
+          id="tag-slug"
+          label="slug (אופציונלי)"
+          value={slug}
+          onChange={(e) => setSlug(e.target.value)}
+          dir="ltr"
+          placeholder="jewelry"
+        />
         <div className="flex justify-end">
           <Button type="submit" size="sm" disabled={saving}>
             <PlusIcon className="h-4 w-4" /> הוספה
@@ -118,19 +135,41 @@ export function BlogTagManager({ initial }: { initial: BlogTagRow[] }) {
                 key={t.id}
                 className="flex flex-wrap items-center gap-3 px-5 py-3"
               >
+                {/* Hebrew name */}
                 <input
                   type="text"
-                  value={t.name}
+                  value={t.name_he}
                   onChange={(e) =>
                     setTags((prev) =>
                       prev.map((x) =>
-                        x.id === t.id ? { ...x, name: e.target.value } : x
+                        x.id === t.id ? { ...x, name_he: e.target.value } : x
                       )
                     )
                   }
-                  onBlur={() => updateTag(t.id, { name: t.name })}
-                  className="flex-1 min-w-[10rem] rounded-lg border border-charcoal/10 bg-cream px-3 py-2 text-sm"
+                  onBlur={() => updateTag(t.id, { name: t.name_he })}
+                  dir="rtl"
+                  placeholder="עברית"
+                  className="flex-1 min-w-[8rem] rounded-lg border border-charcoal/10 bg-cream px-3 py-2 text-sm"
                 />
+                {/* English name */}
+                <input
+                  type="text"
+                  value={t.name_en ?? ""}
+                  onChange={(e) =>
+                    setTags((prev) =>
+                      prev.map((x) =>
+                        x.id === t.id ? { ...x, name_en: e.target.value } : x
+                      )
+                    )
+                  }
+                  onBlur={() =>
+                    updateTag(t.id, { name_en: t.name_en || null })
+                  }
+                  dir="ltr"
+                  placeholder="English"
+                  className="flex-1 min-w-[8rem] rounded-lg border border-charcoal/10 bg-cream px-3 py-2 text-sm"
+                />
+                {/* Slug */}
                 <input
                   type="text"
                   dir="ltr"
@@ -143,8 +182,9 @@ export function BlogTagManager({ initial }: { initial: BlogTagRow[] }) {
                     )
                   }
                   onBlur={() => updateTag(t.id, { slug: t.slug })}
-                  className="w-40 rounded-lg border border-charcoal/10 bg-cream px-3 py-2 text-sm"
+                  className="w-36 rounded-lg border border-charcoal/10 bg-cream px-3 py-2 text-sm"
                 />
+                {/* Order */}
                 <input
                   type="number"
                   value={t.order}

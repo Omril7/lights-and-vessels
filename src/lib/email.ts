@@ -21,7 +21,7 @@ async function resolveProvider(): Promise<"resend" | "gmail"> {
 }
 
 type OrderWithItems = Order & {
-  items: (OrderItem & { product: Pick<Product, "name" | "slug"> })[];
+  items: (OrderItem & { product: Pick<Product, "name_he" | "slug"> })[];
 };
 
 type SendArgs = { to: string; subject: string; html: string };
@@ -210,7 +210,7 @@ function summaryTable(order: OrderWithItems): string {
     .map(
       (i) => `
         <tr>
-          <td style="padding:13px 0;border-bottom:1px solid ${C.border};font-family:${SANS};font-size:15px;color:${C.ink};">${escapeHtml(i.product.name)} <span style="color:${C.faint};">× ${i.quantity}</span></td>
+          <td style="padding:13px 0;border-bottom:1px solid ${C.border};font-family:${SANS};font-size:15px;color:${C.ink};">${escapeHtml(i.product.name_he)} <span style="color:${C.faint};">× ${i.quantity}</span></td>
           <td align="left" style="padding:13px 0;border-bottom:1px solid ${C.border};font-family:${SANS};font-size:15px;color:${C.ink};white-space:nowrap;">${formatPrice(i.price * i.quantity)}</td>
         </tr>`,
     )
@@ -244,7 +244,7 @@ function button(href: string, label: string): string {
 }
 
 export async function sendAdminLowStockEmail(
-  outOfStockProducts: { name: string; slug: string }[],
+  outOfStockProducts: { name_he: string; slug: string }[],
 ): Promise<void> {
   if (outOfStockProducts.length === 0) return;
   const recipients = (process.env.ADMIN_EMAILS ?? "")
@@ -254,7 +254,7 @@ export async function sendAdminLowStockEmail(
   if (recipients.length === 0) return;
   const subject =
     outOfStockProducts.length === 1
-      ? `מלאי אזל — ${outOfStockProducts[0].name}`
+      ? `מלאי אזל — ${outOfStockProducts[0].name_he}`
       : `מלאי אזל — ${outOfStockProducts.length} מוצרים`;
   const html = renderLowStockHtml(outOfStockProducts);
   const provider = await resolveProvider();
@@ -372,12 +372,12 @@ export function renderConfirmationHtml(
   });
 }
 
-function renderLowStockHtml(products: { name: string; slug: string }[]): string {
+function renderLowStockHtml(products: { name_he: string; slug: string }[]): string {
   const site = STUDIO_URL.replace(/\/$/, "");
   const rows = products
     .map(
       (p) => `<tr>
-        <td style="padding:10px 0;border-bottom:1px solid ${C.border};font-family:${SANS};font-size:15px;color:${C.ink};">${escapeHtml(p.name)}</td>
+        <td style="padding:10px 0;border-bottom:1px solid ${C.border};font-family:${SANS};font-size:15px;color:${C.ink};">${escapeHtml(p.name_he)}</td>
         <td align="left" style="padding:10px 0;border-bottom:1px solid ${C.border};white-space:nowrap;">
           <a href="${escapeHtml(`${site}/admin/products`)}" style="font-family:${SANS};font-size:13px;color:${C.accent};text-decoration:none;">עדכן מלאי</a>
         </td>

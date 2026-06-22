@@ -9,28 +9,32 @@ datasource db {
 }
 
 model Product {
-  id           String         @id @default(cuid())
-  name         String
-  slug         String         @unique
-  description  String
-  price        Float
-  comparePrice Float?
-  category     String?
-  tags         String?
-  images       ProductImage[]
-  inStock      Boolean        @default(true)
-  stockCount   Int            @default(0)
-  featured     Boolean        @default(false)
-  published    Boolean        @default(false)
-  orderItems   OrderItem[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id             String         @id @default(cuid())
+  name_he        String
+  name_en        String?
+  slug           String         @unique
+  description_he String
+  description_en String?
+  price          Float
+  comparePrice   Float?
+  category       String?
+  tags_he        String?
+  tags_en        String?
+  images         ProductImage[]
+  inStock        Boolean        @default(true)
+  stockCount     Int            @default(0)
+  featured       Boolean        @default(false)
+  published      Boolean        @default(false)
+  orderItems     OrderItem[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 }
 
 model ProductImage {
   id        String  @id @default(cuid())
   url       String
-  alt       String?
+  alt_he    String?
+  alt_en    String?
   order     Int     @default(0)
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
@@ -49,6 +53,7 @@ model Order {
   subtotal              Float
   shippingCost          Float             @default(0)
   total                 Float
+  locale                String            @default("he")
   morningPaymentFormId  String?
   morningPaymentFormUrl String?
   morningTransactionId  String?
@@ -91,24 +96,29 @@ model OrderItem {
 model SiteContent {
   id        String   @id @default(cuid())
   key       String   @unique
-  value     String
+  value_he  String
+  value_en  String?
   type      String   @default("text")
   updatedAt DateTime @updatedAt
 }
 
 model SiteContentDraft {
-  key       String   @id
-  value     String
-  type      String   @default("text")
+  key      String   @id
+  value_he String
+  value_en String?
+  type     String   @default("text")
   updatedAt DateTime @updatedAt
 }
 
 model BlogPost {
   id          String          @id @default(cuid())
-  title       String
+  title_he    String
+  title_en    String?
   slug        String          @unique
-  excerpt     String
-  body        String
+  excerpt_he  String
+  excerpt_en  String?
+  body_he     String
+  body_en     String?
   author      String          @default("אלון בראל")
   status      String          @default("draft")
   publishedAt DateTime?
@@ -123,7 +133,8 @@ model BlogPost {
 model BlogPostImage {
   id     String   @id @default(cuid())
   url    String
-  alt    String?
+  alt_he String?
+  alt_en String?
   order  Int      @default(0)
   post   BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId String
@@ -131,7 +142,8 @@ model BlogPostImage {
 
 model BlogTag {
   id        String        @id @default(cuid())
-  name      String        @unique
+  name_he   String        @unique
+  name_en   String?
   slug      String        @unique
   order     Int           @default(0)
   posts     BlogPostTag[]

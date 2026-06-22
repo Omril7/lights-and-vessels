@@ -103,7 +103,7 @@ export function ProductGallery({
           >
             <Image
               src={current.url}
-              alt={current.alt ?? name}
+              alt={current.alt_he ?? name}
               fill
               priority
               sizes="(max-width: 1024px) 100vw, 50vw"
@@ -168,7 +168,7 @@ export function ProductGallery({
             >
               <Image
                 src={img.url}
-                alt={img.alt ?? name}
+                alt={img.alt_he ?? name}
                 fill
                 sizes="64px"
                 className="object-cover"
@@ -179,7 +179,7 @@ export function ProductGallery({
       )}
 
       <Modal open={lightbox} onClose={() => setLightbox(false)} label={name}>
-        <ZoomImage src={current.url} alt={current.alt ?? name} />
+        <ZoomImage src={current.url} alt={current.alt_he ?? name} />
       </Modal>
     </div>
   );

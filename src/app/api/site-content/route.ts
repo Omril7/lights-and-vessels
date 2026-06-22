@@ -15,7 +15,8 @@ const updateSchema = z.object({
   entries: z.array(
     z.object({
       key: z.string().min(1),
-      value: z.string(),
+      value_he: z.string(),
+      value_en: z.string().nullable().optional(),
       type: z.string().optional(),
     })
   ),
@@ -38,7 +39,6 @@ export async function PUT(req: Request) {
 
   const entries = parsed.data.entries;
 
-  // Snapshot the old values so we can clean up any images dropped by this save.
   const keys = entries.map((e) => e.key);
   const oldRows = await prisma.siteContent.findMany({
     where: { key: { in: keys } },
@@ -48,20 +48,24 @@ export async function PUT(req: Request) {
     entries.map((e) =>
       prisma.siteContent.upsert({
         where: { key: e.key },
-        update: { value: e.value, type: e.type ?? "text" },
-        create: { key: e.key, value: e.value, type: e.type ?? "text" },
+        update: {
+          value_he: e.value_he,
+          value_en: e.value_en ?? null,
+          type: e.type ?? "text",
+        },
+        create: {
+          key: e.key,
+          value_he: e.value_he,
+          value_en: e.value_en ?? null,
+          type: e.type ?? "text",
+        },
       })
     )
   );
 
-  // Remove from storage any image URL present before but gone after the save.
-  // Values are scanned for bucket URLs, so this covers single-image keys
-  // (hero/story/portrait) and JSON collections (gallery, category images,
-  // testimonials) alike. A URL still referenced anywhere in the new payload is
-  // kept, so moving an image between fields won't delete it.
   await deleteRemovedImages(
-    oldRows.map((r) => r.value),
-    entries.map((e) => e.value)
+    oldRows.map((r) => r.value_he),
+    entries.map((e) => e.value_he)
   );
 
   return NextResponse.json({ ok: true });

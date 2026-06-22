@@ -3,6 +3,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { useTranslations } from "next-intl";
 import { useCart } from "@/lib/cart";
 import { Button } from "@/components/ui/Button";
 import type { ProductWithImages } from "@/types";
@@ -14,6 +15,7 @@ export function AddToCartButton({
   product: ProductWithImages;
   withQuantity?: boolean;
 }) {
+  const t = useTranslations("product");
   const addItem = useCart((s) => s.addItem);
   const [qty, setQty] = useState(1);
 
@@ -24,20 +26,20 @@ export function AddToCartButton({
       {
         productId: product.id,
         slug: product.slug,
-        name: product.name,
+        name: product.name_he,
         price: product.price,
         image: product.images[0]?.url ?? "",
         stockCount: product.stockCount,
       },
       qty
     );
-    toast.success("נוסף לעגלה");
+    toast.success(t("addedToCart"));
   };
 
   if (soldOut) {
     return (
       <Button variant="outline" disabled className="w-full">
-        אזל מהמלאי
+        {t("soldOut")}
       </Button>
     );
   }
@@ -48,7 +50,7 @@ export function AddToCartButton({
         <div className="flex items-center justify-between rounded-full border border-charcoal/25 px-2 sm:w-36">
           <button
             onClick={() => setQty((q) => Math.max(1, q - 1))}
-            aria-label="הפחתת כמות"
+            aria-label={t("decreaseQty")}
             className="p-2 text-charcoal transition hover:text-ink disabled:opacity-30"
             disabled={qty <= 1}
           >
@@ -61,7 +63,7 @@ export function AddToCartButton({
             onClick={() =>
               setQty((q) => Math.min(product.stockCount, q + 1))
             }
-            aria-label="הוספת כמות"
+            aria-label={t("increaseQty")}
             className="p-2 text-charcoal transition hover:text-ink disabled:opacity-30"
             disabled={qty >= product.stockCount}
           >
@@ -70,7 +72,7 @@ export function AddToCartButton({
         </div>
       )}
       <Button onClick={handleAdd} className="flex-1" size={withQuantity ? "lg" : "md"}>
-        הוספה לעגלה
+        {t("addToCart")}
       </Button>
     </div>
   );

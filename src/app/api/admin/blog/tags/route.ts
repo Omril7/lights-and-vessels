@@ -20,6 +20,7 @@ export async function POST(req: Request) {
 
   const body = (await req.json().catch(() => ({}))) as {
     name?: string;
+    name_en?: string | null;
     slug?: string;
     order?: number;
   };
@@ -28,10 +29,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Name required" }, { status: 400 });
   }
   const slug = (body.slug?.trim() || makeSlug(name)) || `tag-${Date.now()}`;
+  const name_en = body.name_en?.trim() || null;
 
   try {
     const tag = await prisma.blogTag.create({
-      data: { name, slug, order: body.order ?? 0 },
+      data: { name_he: name, name_en, slug, order: body.order ?? 0 },
     });
     return NextResponse.json({ tag });
   } catch {

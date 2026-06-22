@@ -1,11 +1,11 @@
-import { getSiteContent } from "@/lib/content";
+import { getSiteContentBilingual } from "@/lib/content";
 import { SiteContentEditor } from "@/components/admin/SiteContentEditor";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "תוכן האתר" };
 
 export default async function AdminSiteContentPage() {
-  const content = await getSiteContent({ allowDraft: false });
+  const content = await getSiteContentBilingual();
   return (
     <div className="space-y-6">
       <header>

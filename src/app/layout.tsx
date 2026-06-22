@@ -5,7 +5,6 @@ import { AccessibilityWidget } from "@/components/a11y/AccessibilityWidget";
 import { MotionPrefsProvider } from "@/lib/motion-prefs";
 import "./globals.css";
 
-/** Applies saved accessibility settings before first paint to avoid flicker. */
 const a11yBootScript = `(function(){try{var s=JSON.parse(localStorage.getItem('a11y-settings')||'{}');var c=document.documentElement.classList;if(s.fontStep)c.add('a11y-font-'+s.fontStep);if(s.contrast)c.add('a11y-contrast');if(s.dark)c.add('a11y-dark');if(s.grayscale)c.add('a11y-grayscale');if(s.links)c.add('a11y-links');if(s.readable)c.add('a11y-readable');if(s.cursor)c.add('a11y-cursor');if(s.noMotion)c.add('a11y-no-motion');if(s.lineSpacing)c.add('a11y-line-spacing');if(s.letterSpacing)c.add('a11y-letter-spacing');if(s.hideImages)c.add('a11y-hide-images');if(s.underlineHeadings)c.add('a11y-underline-headings');if(s.pauseMedia)c.add('a11y-pause-media');if(s.bold)c.add('a11y-bold');if(s.focus)c.add('a11y-focus');if(s.sepia)c.add('a11y-sepia');}catch(e){}})();`;
 
 const frank = Frank_Ruhl_Libre({
@@ -91,7 +90,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="he" dir="rtl" className={`${frank.variable} ${assistant.variable}`}>
+    <html
+      lang="he"
+      dir="rtl"
+      suppressHydrationWarning
+      className={`${frank.variable} ${assistant.variable}`}
+    >
       <body className="font-sans antialiased bg-cream text-ink">
         <script dangerouslySetInnerHTML={{ __html: a11yBootScript }} />
         <MotionPrefsProvider>

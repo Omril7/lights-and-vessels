@@ -105,20 +105,26 @@ body {
 .prose-art h2,
 .prose-art h3 {
   font-family: var(--font-frank), serif;
+  color: var(--ink);
   margin: 1.75rem 0 0.75rem;
 }
 .prose-art h2 {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
 }
 .prose-art h3 {
   font-size: 1.25rem;
 }
-.prose-art ul {
+.prose-art ul,
+.prose-art ol {
   list-style: disc;
-  padding-left: 1.25rem;
+  padding-inline-start: 1.25rem;
   margin-bottom: 1rem;
 }
-.prose-art ul li {
+.prose-art ol {
+  list-style: decimal;
+}
+.prose-art ul li,
+.prose-art ol li {
   margin-bottom: 0.35rem;
 }
 .prose-art strong {
@@ -131,6 +137,12 @@ body {
   color: var(--copper);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+.prose-art code {
+  background: var(--linen);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.3rem;
+  font-size: 0.9em;
 }
 
 /* Blog post body */

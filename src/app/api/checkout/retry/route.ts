@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
   const origin = process.env.NEXTAUTH_URL || new URL(req.url).origin;
   const income = order.items.map((i) => ({
-    description: i.product.name,
+    description: i.product.name_he,
     quantity: i.quantity,
     price: i.price,
     vatType: VAT_TYPE_EXEMPT,

@@ -85,7 +85,7 @@ export default async function AdminOrderDetailPage({
                         href={`/admin/products/${item.productId}/edit`}
                         className="text-charcoal hover:text-copper"
                       >
-                        {item.product.name}
+                        {item.product.name_he}
                       </Link>
                     </td>
                     <td className="px-5 py-3 text-charcoal/60 text-end">

@@ -1,11 +1,25 @@
-import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { CATEGORIES } from "@/types";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { getSiteContent, parseCategoryImages } from "@/lib/content";
 
+const CATEGORY_KEYS: Record<string, "rings" | "necklaces" | "bracelets" | "earrings" | "homeDecor"> = {
+  rings: "rings",
+  necklaces: "necklaces",
+  bracelets: "bracelets",
+  earrings: "earrings",
+  "home-decor": "homeDecor",
+};
+
 export async function CategoryStrip() {
-  const content = await getSiteContent();
+  const [locale, t, tCat] = await Promise.all([
+    getLocale(),
+    getTranslations("home"),
+    getTranslations("categories"),
+  ]);
+  const content = await getSiteContent({ locale });
   const images = parseCategoryImages(content.category_images);
   const items = CATEGORIES.filter((c) => images[c.slug]);
 
@@ -16,10 +30,10 @@ export async function CategoryStrip() {
       <div className="mx-auto max-w-editorial px-5 md:px-8">
         <FadeIn className="mb-10 text-center">
           <p className="text-xs uppercase tracking-wider2 text-copper">
-            לפי קטגוריה
+            {t("categoryLabel")}
           </p>
           <h2 className="mt-2 font-serif text-3xl text-ink md:text-4xl">
-            עיון באוסף
+            {t("browse")}
           </h2>
         </FadeIn>
 
@@ -33,14 +47,14 @@ export async function CategoryStrip() {
                 <div className="relative aspect-[5/6] overflow-hidden rounded-xl bg-sand">
                   <Image
                     src={images[c.slug]}
-                    alt={c.label}
+                    alt={tCat(CATEGORY_KEYS[c.slug] ?? (c.slug as never))}
                     fill
                     sizes="(max-width: 768px) 50vw, 20vw"
                     className="object-cover transition-transform duration-700 ease-grace group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent" />
                   <span className="absolute inset-x-0 bottom-0 p-4 text-center font-serif text-lg text-cream">
-                    {c.label}
+                    {tCat(CATEGORY_KEYS[c.slug] ?? (c.slug as never))}
                   </span>
                 </div>
               </Link>

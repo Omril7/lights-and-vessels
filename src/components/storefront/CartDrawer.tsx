@@ -1,14 +1,16 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { XMarkIcon, MinusIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { useTranslations } from "next-intl";
 import { useCart, cartSubtotal, cartCount } from "@/lib/cart";
 import { Button } from "@/components/ui/Button";
 import { formatPrice } from "@/lib/utils";
 
 export function CartDrawer() {
+  const t = useTranslations("cart");
   const { items, isOpen, closeCart, setQuantity, removeItem } = useCart();
   const subtotal = cartSubtotal(items);
   const count = cartCount(items);
@@ -32,20 +34,20 @@ export function CartDrawer() {
             exit={{ x: "-100%" }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             role="dialog"
-            aria-label="עגלת הקניות"
+            aria-label={t("title")}
           >
             <header className="flex items-center justify-between border-b border-charcoal/10 px-6 py-5">
               <h2 className="font-serif text-xl text-ink">
-                העגלה שלך
+                {t("title")}
                 {count > 0 && (
                   <span className="ms-2 text-sm text-charcoal/50">
-                    ({count} פריטים)
+                    ({t("items", { count })})
                   </span>
                 )}
               </h2>
               <button
                 onClick={closeCart}
-                aria-label="סגירה"
+                aria-label={t("close")}
                 className="rounded-full p-1.5 text-charcoal transition hover:bg-sand"
               >
                 <XMarkIcon className="h-6 w-6" />
@@ -54,12 +56,12 @@ export function CartDrawer() {
 
             {items.length === 0 ? (
               <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
-                <p className="font-serif text-2xl text-ink">העגלה ריקה</p>
+                <p className="font-serif text-2xl text-ink">{t("empty")}</p>
                 <p className="max-w-xs text-sm text-charcoal/60">
-                  עדיין לא הוספת פריטים. בואו נמצא משהו יפה.
+                  {t("emptyMessage")}
                 </p>
                 <Button href="/shop" variant="outline" onClick={closeCart}>
-                  לעיון באוסף
+                  {t("browse")}
                 </Button>
               </div>
             ) : (
@@ -93,7 +95,7 @@ export function CartDrawer() {
                           </Link>
                           <button
                             onClick={() => removeItem(item.productId)}
-                            aria-label="הסרה"
+                            aria-label={t("remove")}
                             className="text-charcoal/40 transition hover:text-terracotta"
                           >
                             <TrashIcon className="h-4 w-4" />
@@ -108,7 +110,7 @@ export function CartDrawer() {
                               onClick={() =>
                                 setQuantity(item.productId, item.quantity - 1)
                               }
-                              aria-label="הפחתה"
+                              aria-label={t("decrease")}
                               className="p-1.5 text-charcoal hover:text-ink"
                             >
                               <MinusIcon className="h-3.5 w-3.5" />
@@ -120,7 +122,7 @@ export function CartDrawer() {
                               onClick={() =>
                                 setQuantity(item.productId, item.quantity + 1)
                               }
-                              aria-label="הוספה"
+                              aria-label={t("increase")}
                               className="p-1.5 text-charcoal hover:text-ink disabled:opacity-30"
                               disabled={item.quantity >= item.stockCount}
                             >
@@ -138,17 +140,17 @@ export function CartDrawer() {
 
                 <footer className="border-t border-charcoal/10 px-6 py-5">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-charcoal/70">סכום ביניים</span>
+                    <span className="text-charcoal/70">{t("subtotal")}</span>
                     <span className="font-serif text-xl text-ink">
                       {formatPrice(subtotal)}
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-charcoal/50">
-                    דמי המשלוח מחושבים בקופה.
+                    {t("shippingNote")}
                   </p>
                   <div className="mt-4 flex flex-col gap-2">
                     <Button href="/cart" onClick={closeCart} className="w-full">
-                      מעבר לעגלה
+                      {t("viewCart")}
                     </Button>
                     <Button
                       href="/cart"
@@ -156,7 +158,7 @@ export function CartDrawer() {
                       onClick={closeCart}
                       className="w-full"
                     >
-                      המשך קנייה
+                      {t("continueShopping")}
                     </Button>
                   </div>
                 </footer>

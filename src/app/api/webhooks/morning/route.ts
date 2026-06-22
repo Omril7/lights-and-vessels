@@ -134,7 +134,7 @@ export async function POST(req: Request) {
       morningDocumentNumber: documentNumber,
       morningDocumentUrl: documentUrl,
     },
-    include: { items: { include: { product: { select: { name: true, slug: true } } } } },
+    include: { items: { include: { product: { select: { name_he: true, slug: true } } } } },
   });
 
   if (documentId) {
@@ -183,7 +183,7 @@ export async function POST(req: Request) {
     const productIds = updated.items.map((i) => i.productId);
     const soldOut = await prisma.product.findMany({
       where: { id: { in: productIds }, stockCount: 0 },
-      select: { name: true, slug: true },
+      select: { name_he: true, slug: true },
     });
     await sendAdminLowStockEmail(soldOut);
   } catch (err) {

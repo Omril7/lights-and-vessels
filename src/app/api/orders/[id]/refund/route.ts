@@ -46,7 +46,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   const income = isFull
     ? [
         ...order.items.map((i) => ({
-          description: i.product.name,
+          description: i.product.name_he,
           quantity: i.quantity,
           price: i.price,
           vatType: VAT_TYPE_EXEMPT,

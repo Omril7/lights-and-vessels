@@ -1,25 +1,21 @@
 "use client";
 
+import { ImageUploader, type UploadedImage } from "@/components/admin/ImageUploader";
+import { Button, DateTimePicker, Dropdown, Input, LocalizedInput, LocalizedTextarea, Markdown, MarkdownCheatSheet } from "@/components/ui";
+import { cn, makeSlug } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Dropdown } from "@/components/ui/Dropdown";
-import { DateTimePicker } from "@/components/ui/DateTimePicker";
-import { makeSlug, cn } from "@/lib/utils";
-import { Markdown, MarkdownCheatSheet } from "@/components/ui/Markdown";
-import {
-  ImageUploader,
-  type UploadedImage,
-} from "@/components/admin/ImageUploader";
 
 export type BlogFormValues = {
   id?: string;
-  title: string;
+  title_he: string;
+  title_en: string;
   slug: string;
-  excerpt: string;
-  body: string;
+  excerpt_he: string;
+  excerpt_en: string;
+  body_he: string;
+  body_en: string;
   images: UploadedImage[];
   author: string;
   status: "draft" | "published";
@@ -28,10 +24,13 @@ export type BlogFormValues = {
 };
 
 const EMPTY: BlogFormValues = {
-  title: "",
+  title_he: "",
+  title_en: "",
   slug: "",
-  excerpt: "",
-  body: "",
+  excerpt_he: "",
+  excerpt_en: "",
+  body_he: "",
+  body_en: "",
   images: [],
   author: "אלון בראל",
   status: "draft",
@@ -59,11 +58,11 @@ export function BlogForm({
   const set = <K extends keyof BlogFormValues>(k: K, v: BlogFormValues[K]) =>
     setValues((prev) => ({ ...prev, [k]: v }));
 
-  const onTitleChange = (title: string) =>
+  const onTitleChange = (title_he: string) =>
     setValues((p) => ({
       ...p,
-      title,
-      slug: slugTouched ? p.slug : makeSlug(title),
+      title_he,
+      slug: slugTouched ? p.slug : makeSlug(title_he),
     }));
 
   function toggleTag(id: string) {
@@ -77,7 +76,7 @@ export function BlogForm({
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!values.title.trim()) {
+    if (!values.title_he.trim()) {
       toast.error("כותרת חובה");
       return;
     }
@@ -87,10 +86,13 @@ export function BlogForm({
     }
     setSaving(true);
     const payload = {
-      title: values.title.trim(),
-      slug: values.slug.trim() || makeSlug(values.title),
-      excerpt: values.excerpt.trim(),
-      body: values.body,
+      title_he: values.title_he.trim(),
+      title_en: values.title_en.trim() || null,
+      slug: values.slug.trim() || makeSlug(values.title_he),
+      excerpt_he: values.excerpt_he.trim(),
+      excerpt_en: values.excerpt_en.trim() || null,
+      body_he: values.body_he,
+      body_en: values.body_en || null,
       images: values.images,
       author: values.author.trim() || "אלון בראל",
       status: values.status,
@@ -145,13 +147,27 @@ export function BlogForm({
         <section className="lg:col-span-2 space-y-6">
           <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-4 shadow-soft">
             <h2 className="font-serif text-lg text-charcoal">פרטי הפוסט</h2>
-            <Input
-              id="title"
-              label="כותרת"
-              value={values.title}
-              onChange={(e) => onTitleChange(e.target.value)}
-              required
-            />
+
+            <div className="grid sm:grid-cols-2 gap-3">
+              <LocalizedInput
+                id="title-he"
+                locale="he"
+                label="כותרת"
+                value={values.title_he}
+                onChange={(e) => onTitleChange(e.target.value)}
+                placeholder="כותרת בעברית"
+                required
+              />
+              <LocalizedInput
+                id="title-en"
+                locale="en"
+                label="Title"
+                value={values.title_en}
+                onChange={(e) => set("title_en", e.target.value)}
+                placeholder="Title in English"
+              />
+            </div>
+
             <Input
               id="slug"
               label="כתובת (slug)"
@@ -163,26 +179,33 @@ export function BlogForm({
               }}
               placeholder="auto-generated-from-title"
             />
-            <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="excerpt"
-                className="text-xs uppercase tracking-wider2 text-charcoal/70 font-medium"
-              >
-                תקציר
-              </label>
-              <textarea
-                id="excerpt"
+
+            <div className="grid sm:grid-cols-2 gap-3">
+              <LocalizedTextarea
+                id="excerpt-he"
+                locale="he"
+                label="תקציר"
+                value={values.excerpt_he}
+                onChange={(e) => set("excerpt_he", e.target.value)}
                 rows={2}
-                value={values.excerpt}
-                onChange={(e) => set("excerpt", e.target.value)}
-                className="w-full rounded-xl border border-charcoal/20 bg-cream p-3 text-sm focus:outline-none focus:border-charcoal/60 focus:ring-2 focus:ring-gold/30"
+                placeholder="תקציר בעברית"
+              />
+              <LocalizedTextarea
+                id="excerpt-en"
+                locale="en"
+                label="Excerpt"
+                value={values.excerpt_en}
+                onChange={(e) => set("excerpt_en", e.target.value)}
+                rows={2}
+                placeholder="Excerpt in English"
               />
             </div>
 
+            {/* Body — Hebrew with edit/preview */}
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs uppercase tracking-wider2 text-charcoal/70 font-medium">
-                  תוכן (Markdown)
+                  תוכן (Markdown · עברית)
                 </span>
                 <div className="flex gap-1 text-xs">
                   <button
@@ -228,21 +251,37 @@ export function BlogForm({
               )}
               {bodyTab === "edit" ? (
                 <textarea
-                  value={values.body}
-                  onChange={(e) => set("body", e.target.value)}
+                  value={values.body_he}
+                  onChange={(e) => set("body_he", e.target.value)}
                   rows={16}
+                  dir="rtl"
                   className="mt-1.5 w-full rounded-xl border border-charcoal/20 bg-cream p-3 font-sans text-sm focus:outline-none focus:border-charcoal/60 focus:ring-2 focus:ring-gold/30"
                   placeholder="כתבו פוסט עשיר…  **מודגש**, *נטוי*, ## כותרת, - רשימה, [קישור](https://…), ![תיאור](url-תמונה)"
                 />
               ) : (
                 <div className="mt-1.5 min-h-[16rem] rounded-xl border border-charcoal/10 bg-linen/60 p-4">
-                  {values.body ? (
-                    <Markdown source={values.body} />
+                  {values.body_he ? (
+                    <Markdown source={values.body_he} />
                   ) : (
                     <p className="text-charcoal/40">אין תוכן עדיין.</p>
                   )}
                 </div>
               )}
+            </div>
+
+            {/* Body — English */}
+            <div>
+              <span className="text-xs uppercase tracking-wider2 text-charcoal/70 font-medium">
+                Content in English (Markdown · optional)
+              </span>
+              <textarea
+                value={values.body_en}
+                onChange={(e) => set("body_en", e.target.value)}
+                rows={10}
+                dir="ltr"
+                className="mt-1.5 w-full rounded-xl border border-charcoal/20 bg-cream p-3 font-sans text-sm focus:outline-none focus:border-charcoal/60 focus:ring-2 focus:ring-gold/30"
+                placeholder="Write the full post in English…"
+              />
             </div>
           </div>
 

@@ -10,7 +10,8 @@ const entriesSchema = z.object({
   entries: z.array(
     z.object({
       key: z.string().min(1),
-      value: z.string(),
+      value_he: z.string(),
+      value_en: z.string().nullable().optional(),
       type: z.string().optional(),
     })
   ),
@@ -38,7 +39,8 @@ export async function POST(req: Request) {
     prisma.siteContentDraft.createMany({
       data: entries.map((e) => ({
         key: e.key,
-        value: e.value,
+        value_he: e.value_he,
+        value_en: e.value_en ?? null,
         type: e.type ?? "text",
       })),
     }),

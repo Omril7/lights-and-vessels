@@ -1,24 +1,24 @@
 "use client";
 
+import { ImageUploader, type UploadedImage } from "@/components/admin/ImageUploader";
+import { Button, Input, LocalizedInput, LocalizedTextarea } from "@/components/ui";
+import { cn, makeSlug, renderMarkdown } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Dropdown } from "@/components/ui/Dropdown";
-import { ImageUploader, type UploadedImage } from "@/components/admin/ImageUploader";
-// import { CATEGORIES } from "@/types"; // CATEGORIES_DISABLED
-import { renderMarkdown, makeSlug, cn } from "@/lib/utils";
 
 export type ProductFormValues = {
   id?: string;
-  name: string;
+  name_he: string;
+  name_en: string;
   slug: string;
-  description: string;
+  description_he: string;
+  description_en: string;
   price: number;
   comparePrice: number | null;
   category: string | null;
-  tags: string;
+  tags_he: string;
+  tags_en: string;
   stockCount: number;
   inStock: boolean;
   featured: boolean;
@@ -27,13 +27,16 @@ export type ProductFormValues = {
 };
 
 const EMPTY: ProductFormValues = {
-  name: "",
+  name_he: "",
+  name_en: "",
   slug: "",
-  description: "",
+  description_he: "",
+  description_en: "",
   price: 0,
   comparePrice: null,
   category: null,
-  tags: "",
+  tags_he: "",
+  tags_en: "",
   stockCount: 0,
   inStock: true,
   featured: false,
@@ -63,17 +66,17 @@ export function ProductForm({
     v: ProductFormValues[K]
   ) => setValues((prev) => ({ ...prev, [k]: v }));
 
-  const onNameChange = (name: string) => {
+  const onNameChange = (name_he: string) => {
     setValues((prev) => ({
       ...prev,
-      name,
-      slug: slugTouched ? prev.slug : makeSlug(name),
+      name_he,
+      slug: slugTouched ? prev.slug : makeSlug(name_he),
     }));
   };
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!values.name.trim()) {
+    if (!values.name_he.trim()) {
       toast.error("שם המוצר חובה");
       return;
     }
@@ -84,16 +87,19 @@ export function ProductForm({
 
     setSaving(true);
     const payload = {
-      name: values.name.trim(),
-      slug: values.slug.trim() || makeSlug(values.name),
-      description: values.description,
+      name_he: values.name_he.trim(),
+      name_en: values.name_en.trim() || null,
+      slug: values.slug.trim() || makeSlug(values.name_he),
+      description_he: values.description_he,
+      description_en: values.description_en || null,
       price: Number(values.price),
       comparePrice:
         values.comparePrice == null || Number.isNaN(values.comparePrice)
           ? null
           : Number(values.comparePrice),
       category: values.category || null,
-      tags: values.tags || null,
+      tags_he: values.tags_he || null,
+      tags_en: values.tags_en || null,
       stockCount: Number(values.stockCount) | 0,
       inStock: values.inStock,
       featured: values.featured,
@@ -153,13 +159,27 @@ export function ProductForm({
         <section className="lg:col-span-2 space-y-6">
           <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-4 shadow-soft">
             <h2 className="font-serif text-lg text-charcoal">פרטי המוצר</h2>
-            <Input
-              id="name"
-              label="שם המוצר"
-              value={values.name}
-              onChange={(e) => onNameChange(e.target.value)}
-              required
-            />
+
+            <div className="grid sm:grid-cols-2 gap-3">
+              <LocalizedInput
+                id="name-he"
+                locale="he"
+                label="שם המוצר"
+                value={values.name_he}
+                onChange={(e) => onNameChange(e.target.value)}
+                placeholder="שם בעברית"
+                required
+              />
+              <LocalizedInput
+                id="name-en"
+                locale="en"
+                label="שם המוצר"
+                value={values.name_en}
+                onChange={(e) => set("name_en", e.target.value)}
+                placeholder="Name in English"
+              />
+            </div>
+
             <Input
               id="slug"
               label="כתובת (slug)"
@@ -175,7 +195,7 @@ export function ProductForm({
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs uppercase tracking-wider2 text-charcoal/70 font-medium">
-                  תיאור (Markdown)
+                  תיאור (Markdown · עברית)
                 </span>
                 <div className="flex gap-1 text-xs">
                   <button
@@ -206,9 +226,10 @@ export function ProductForm({
               </div>
               {descTab === "edit" ? (
                 <textarea
-                  value={values.description}
-                  onChange={(e) => set("description", e.target.value)}
-                  rows={2}
+                  value={values.description_he}
+                  onChange={(e) => set("description_he", e.target.value)}
+                  rows={8}
+                  dir="rtl"
                   className="mt-1.5 w-full rounded-xl border border-charcoal/20 bg-cream p-3 font-sans text-sm focus:outline-none focus:border-charcoal/60 focus:ring-2 focus:ring-gold/30"
                   placeholder="כתבו תיאור עשיר…  שורות חדשות, **מודגש**, *נטוי*, ## כותרת, - רשימה"
                 />
@@ -217,11 +238,25 @@ export function ProductForm({
                   className="mt-1.5 min-h-[12rem] rounded-xl border border-charcoal/10 bg-linen/60 p-4 prose-product"
                   dangerouslySetInnerHTML={{
                     __html:
-                      renderMarkdown(values.description) ||
+                      renderMarkdown(values.description_he) ||
                       '<p class="text-charcoal/40">אין תוכן עדיין.</p>',
                   }}
                 />
               )}
+            </div>
+
+            <div>
+              <span className="text-xs uppercase tracking-wider2 text-charcoal/70 font-medium">
+                Description (Markdown · English)
+              </span>
+              <textarea
+                value={values.description_en}
+                onChange={(e) => set("description_en", e.target.value)}
+                rows={6}
+                dir="ltr"
+                className="mt-1.5 w-full rounded-xl border border-charcoal/20 bg-cream p-3 font-sans text-sm focus:outline-none focus:border-charcoal/60 focus:ring-2 focus:ring-gold/30"
+                placeholder="Optional English description…"
+              />
             </div>
           </div>
 
@@ -285,23 +320,25 @@ export function ProductForm({
 
           <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-4 shadow-soft">
             <h2 className="font-serif text-lg text-charcoal">סיווג</h2>
-            {/* CATEGORIES_DISABLED: category dropdown removed
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="category" className="text-xs uppercase tracking-wider2 text-charcoal/70 font-medium">קטגוריה (אופציונלי)</label>
-              <Dropdown id="category" ariaLabel="קטגוריה" variant="field" placeholder="ללא קטגוריה"
-                value={values.category ?? ""}
-                options={[{ value: "", label: "ללא קטגוריה" }, ...CATEGORIES.map((c) => ({ value: c.slug, label: c.label }))]}
-                onChange={(v) => set("category", v || null)}
+            {/* CATEGORIES_DISABLED: category dropdown removed */}
+            <div className="grid sm:grid-cols-2 gap-3">
+              <LocalizedInput
+                id="tags-he"
+                locale="he"
+                label="תגיות (מופרדות בפסיק)"
+                value={values.tags_he}
+                onChange={(e) => set("tags_he", e.target.value)}
+                placeholder="כסף, מינימלי, יומיומי"
+              />
+              <LocalizedInput
+                id="tags-en"
+                locale="en"
+                label="Tags (comma-separated)"
+                value={values.tags_en}
+                onChange={(e) => set("tags_en", e.target.value)}
+                placeholder="silver, minimal, everyday"
               />
             </div>
-            */}
-            <Input
-              id="tags"
-              label="תגיות (מופרדות בפסיק)"
-              value={values.tags}
-              onChange={(e) => set("tags", e.target.value)}
-              placeholder="כסף, מינימלי, יומיומי"
-            />
           </div>
 
           <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-3 shadow-soft">

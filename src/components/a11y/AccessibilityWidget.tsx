@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence, useMotionValue } from "motion/react";
 import {
   XMarkIcon,
@@ -157,25 +158,24 @@ function toggleKey(s: Settings, key: ToggleKey): Settings {
 
 const TOGGLE_OPTIONS: ReadonlyArray<{
   key: ToggleKey;
-  label: string;
   Icon: React.ComponentType<{ className?: string }>;
 }> = [
-  { key: "contrast", label: "ניגודיות גבוהה", Icon: SunIcon },
-  { key: "dark", label: "מצב כהה", Icon: MoonIcon },
-  { key: "sepia", label: "גוון חם", Icon: PaintBrushIcon },
-  { key: "grayscale", label: "גווני אפור", Icon: SwatchIcon },
-  { key: "links", label: "הדגשת קישורים", Icon: LinkIcon },
-  { key: "underlineHeadings", label: "קו תחת כותרות", Icon: H1Icon },
-  { key: "readable", label: "גופן קריא", Icon: BookOpenIcon },
-  { key: "bold", label: "טקסט מודגש", Icon: BoldIcon },
-  { key: "letterSpacing", label: "ריווח אותיות", Icon: LanguageIcon },
-  { key: "lineSpacing", label: "ריווח שורות", Icon: Bars3BottomLeftIcon },
-  { key: "cursor", label: "סמן מוגדל", Icon: CursorArrowRaysIcon },
-  { key: "focus", label: "הדגשת מיקוד", Icon: ViewfinderCircleIcon },
-  { key: "readingGuide", label: "קו הקראה", Icon: MinusSmallIcon },
-  { key: "noMotion", label: "עצירת אנימציות", Icon: PauseIcon },
-  { key: "pauseMedia", label: "עצירת מדיה", Icon: FilmIcon },
-  { key: "hideImages", label: "הסתרת תמונות", Icon: EyeSlashIcon },
+  { key: "contrast", Icon: SunIcon },
+  { key: "dark", Icon: MoonIcon },
+  { key: "sepia", Icon: PaintBrushIcon },
+  { key: "grayscale", Icon: SwatchIcon },
+  { key: "links", Icon: LinkIcon },
+  { key: "underlineHeadings", Icon: H1Icon },
+  { key: "readable", Icon: BookOpenIcon },
+  { key: "bold", Icon: BoldIcon },
+  { key: "letterSpacing", Icon: LanguageIcon },
+  { key: "lineSpacing", Icon: Bars3BottomLeftIcon },
+  { key: "cursor", Icon: CursorArrowRaysIcon },
+  { key: "focus", Icon: ViewfinderCircleIcon },
+  { key: "readingGuide", Icon: MinusSmallIcon },
+  { key: "noMotion", Icon: PauseIcon },
+  { key: "pauseMedia", Icon: FilmIcon },
+  { key: "hideImages", Icon: EyeSlashIcon },
 ];
 
 /** Horizontal ruler that follows the cursor — helps focus a line of text. */
@@ -203,6 +203,7 @@ function clampPos(x: number, y: number): Pos {
 }
 
 export function AccessibilityWidget() {
+  const t = useTranslations("a11y");
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin") ?? false;
   const [open, setOpen] = useState(false);
@@ -374,7 +375,7 @@ export function AccessibilityWidget() {
         onTap={() => { if (!isDragging) setOpen((v) => !v); }}
         aria-expanded={open}
         aria-haspopup="dialog"
-        aria-label="אפשרויות נגישות"
+        aria-label={t("trigger")}
         style={pos ? { left: pos.x, top: pos.y, x: dragX, y: dragY } : undefined}
         className={[
           "fixed z-[85] flex h-14 items-center justify-center rounded-full bg-charcoal text-cream shadow-lift outline-none touch-none",
@@ -417,7 +418,7 @@ export function AccessibilityWidget() {
               ref={drawerRef}
               role="dialog"
               aria-modal="true"
-              aria-label="תפריט נגישות"
+              aria-label={t("dialog")}
               initial={isMobile ? { y: "100%" } : { x: "-100%" }}
               animate={isMobile ? { y: 0 } : { x: 0 }}
               exit={isMobile ? { y: "100%" } : { x: "-100%" }}
@@ -437,11 +438,11 @@ export function AccessibilityWidget() {
               <header className="flex items-center justify-between border-b border-charcoal/15 px-5 py-4">
                 <h2 className="flex items-center gap-2 font-serif text-xl text-ink">
                   <AccessIcon className="h-5 w-5 text-copper" />
-                  נגישות
+                  {t("heading")}
                 </h2>
                 <button
                   onClick={() => setOpen(false)}
-                  aria-label="סגירה"
+                  aria-label={t("close")}
                   className="rounded-full p-1.5 text-charcoal transition hover:bg-sand"
                 >
                   <XMarkIcon className="h-5 w-5" />
@@ -452,7 +453,7 @@ export function AccessibilityWidget() {
                 {/* Font size stepper */}
                 <section className="mb-5">
                   <p className="mb-2 text-sm font-medium text-charcoal">
-                    גודל הטקסט
+                    {t("fontSize")}
                   </p>
                   <div className="flex items-center justify-between rounded-xl border border-charcoal/20 p-1.5">
                     <button
@@ -463,7 +464,7 @@ export function AccessibilityWidget() {
                         })
                       }
                       disabled={settings.fontStep <= 0}
-                      aria-label="הקטנת טקסט"
+                      aria-label={t("decreaseFontSize")}
                       className="rounded-lg p-2 text-charcoal transition hover:bg-sand disabled:opacity-30"
                     >
                       <MinusIcon className="h-5 w-5" />
@@ -488,7 +489,7 @@ export function AccessibilityWidget() {
                         })
                       }
                       disabled={settings.fontStep >= MAX_FONT}
-                      aria-label="הגדלת טקסט"
+                      aria-label={t("increaseFontSize")}
                       className="rounded-lg p-2 text-charcoal transition hover:bg-sand disabled:opacity-30"
                     >
                       <PlusIcon className="h-5 w-5" />
@@ -498,14 +499,14 @@ export function AccessibilityWidget() {
 
                 <section>
                   <p className="mb-2 text-sm font-medium text-charcoal">
-                    התאמות תצוגה
+                    {t("displayAdjustments")}
                   </p>
                   <div
                     role="group"
-                    aria-label="התאמות נגישות"
+                    aria-label={t("adjustmentsGroup")}
                     className="grid grid-cols-2 gap-2.5"
                   >
-                    {TOGGLE_OPTIONS.map(({ key, label, Icon }, i) => {
+                    {TOGGLE_OPTIONS.map(({ key, Icon }, i) => {
                       const checked = settings[key] as boolean;
                       const isFocusTarget = i === focusIdx;
                       return (
@@ -535,7 +536,7 @@ export function AccessibilityWidget() {
                             }`}
                           />
                           <span className="flex-1 truncate text-[0.78rem] font-medium leading-tight">
-                            {label}
+                            {t(key)}
                           </span>
                           {checked && (
                             <span
@@ -560,7 +561,7 @@ export function AccessibilityWidget() {
                     })}
                   </div>
                   <p className="mt-2 text-[0.8rem] text-charcoal/50">
-                    טיפ: ניתן לנווט בין האפשרויות באמצעות מקשי החיצים.
+                    {t("keyboardTip")}
                   </p>
                 </section>
               </div>
@@ -572,7 +573,7 @@ export function AccessibilityWidget() {
                   className="flex w-full items-center justify-center gap-2 rounded-xl border border-charcoal/25 py-2.5 text-sm text-charcoal transition hover:bg-sand disabled:opacity-40"
                 >
                   <ArrowPathIcon className="h-4 w-4" />
-                  איפוס הגדרות
+                  {t("reset")}
                 </button>
                 <div className="mt-3 flex items-center justify-between text-xs text-charcoal/55">
                   <Link
@@ -580,9 +581,9 @@ export function AccessibilityWidget() {
                     onClick={() => setOpen(false)}
                     className="underline-offset-2 transition hover:text-copper hover:underline"
                   >
-                    הצהרת נגישות
+                    {t("statement")}
                   </Link>
-                  <span>ההגדרות נשמרות במכשיר שלך</span>
+                  <span>{t("savedNote")}</span>
                 </div>
               </footer>
             </motion.div>

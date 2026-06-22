@@ -9,10 +9,13 @@ export const dynamic = "force-dynamic";
 type ImageInput = { url: string; alt?: string | null };
 
 type Payload = {
-  title?: string;
+  title_he?: string;
+  title_en?: string | null;
   slug?: string;
-  excerpt?: string;
-  body?: string;
+  excerpt_he?: string;
+  excerpt_en?: string | null;
+  body_he?: string;
+  body_en?: string | null;
   images?: ImageInput[];
   author?: string;
   status?: string;
@@ -36,7 +39,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const title = (body.title ?? existing.title).trim();
+  const title_he = (body.title_he ?? existing.title_he).trim();
   const status =
     body.status === "published"
       ? "published"
@@ -53,10 +56,13 @@ export async function PATCH(
       : null;
 
   const data = {
-    title,
-    slug: body.slug?.trim() || existing.slug || makeSlug(title),
-    excerpt: body.excerpt ?? existing.excerpt,
-    body: body.body ?? existing.body,
+    title_he,
+    title_en: body.title_en !== undefined ? (body.title_en?.trim() || null) : existing.title_en,
+    slug: body.slug?.trim() || existing.slug || makeSlug(title_he),
+    excerpt_he: body.excerpt_he !== undefined ? (body.excerpt_he ?? existing.excerpt_he) : existing.excerpt_he,
+    excerpt_en: body.excerpt_en !== undefined ? (body.excerpt_en?.trim() || null) : existing.excerpt_en,
+    body_he: body.body_he !== undefined ? (body.body_he ?? existing.body_he) : existing.body_he,
+    body_en: body.body_en !== undefined ? (body.body_en || null) : existing.body_en,
     author: (body.author ?? existing.author).trim() || "אלון בראל",
     status,
     publishedAt,
@@ -82,7 +88,7 @@ export async function PATCH(
           .filter((i) => i && typeof i.url === "string" && i.url.trim())
           .map((i, idx) => ({
             url: i.url.trim(),
-            alt: i.alt?.toString().trim() || null,
+            alt_he: i.alt?.toString().trim() || null,
             order: idx,
             postId: params.id,
           }));
@@ -92,7 +98,6 @@ export async function PATCH(
       }
       return updated;
     });
-    // If the images list was replaced, drop the removed ones from storage.
     if (Array.isArray(body.images)) {
       await deleteRemovedImages(
         existing.images.map((img) => img.url),

@@ -1,27 +1,29 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
 import { ShoppingBagIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useTranslations } from "next-intl";
 import { useCart, cartCount } from "@/lib/cart";
 import { cn } from "@/lib/utils";
-
-const links = [
-  { href: "/", label: "בית" },
-  { href: "/shop", label: "החנות" },
-  { href: "/blog", label: "בלוג" },
-  { href: "/about", label: "הסיפור" },
-];
+import { LanguageSwitcher } from "@/components/storefront/LanguageSwitcher";
 
 export function Navbar() {
+  const t = useTranslations("nav");
   const pathname = usePathname();
   const items = useCart((s) => s.items);
   const openCart = useCart((s) => s.openCart);
   const [count, setCount] = useState(0);
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const links = [
+    { href: "/", label: t("home") },
+    { href: "/shop", label: t("shop") },
+    { href: "/blog", label: t("blog") },
+    { href: "/about", label: t("about") },
+  ];
 
   // Avoid hydration mismatch — cart is persisted client-side.
   useEffect(() => setCount(cartCount(items)), [items]);
@@ -47,7 +49,7 @@ export function Navbar() {
       <nav className="mx-auto flex max-w-editorial items-center justify-between px-5 py-4 md:px-8 lg:py-5">
         <button
           className="md:hidden -ms-2 p-2 text-charcoal"
-          aria-label="תפריט"
+          aria-label={t("menu")}
           onClick={() => setMobileOpen((v) => !v)}
         >
           {mobileOpen ? (
@@ -85,7 +87,7 @@ export function Navbar() {
         >
           <Image
             src="/logo-2169x1282-black.png"
-            alt="סטודיו אורות וכלים"
+            alt={t("logoAlt")}
             width={120}
             height={71}
             className="h-8 w-auto sm:h-9 md:h-10"
@@ -93,18 +95,21 @@ export function Navbar() {
           />
         </Link>
 
-        <button
-          onClick={openCart}
-          className="group relative -me-2 p-2 text-charcoal"
-          aria-label="עגלת הקניות"
-        >
-          <ShoppingBagIcon className="h-6 w-6 transition-transform group-hover:scale-110" />
-          {count > 0 && (
-            <span className="absolute -top-0.5 -end-0.5 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-copper px-1 text-[0.65rem] font-semibold text-cream">
-              {count}
-            </span>
-          )}
-        </button>
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher />
+          <button
+            onClick={openCart}
+            className="group relative -me-2 p-2 text-charcoal"
+            aria-label={t("cartLabel")}
+          >
+            <ShoppingBagIcon className="h-6 w-6 transition-transform group-hover:scale-110" />
+            {count > 0 && (
+              <span className="absolute -top-0.5 -end-0.5 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-copper px-1 text-[0.65rem] font-semibold text-cream">
+                {count}
+              </span>
+            )}
+          </button>
+        </div>
       </nav>
 
       {/* Mobile menu */}
@@ -124,6 +129,9 @@ export function Navbar() {
                 </Link>
               </li>
             ))}
+            <li className="py-3">
+              <LanguageSwitcher />
+            </li>
           </ul>
         </div>
       )}

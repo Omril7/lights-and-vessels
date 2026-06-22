@@ -23,25 +23,28 @@ export default async function EditProductPage({
           מוצרים
         </p>
         <h1 className="mt-1 font-serif text-3xl text-charcoal">
-          עריכה · {product.name}
+          עריכה · {product.name_he}
         </h1>
       </header>
       <ProductForm
         mode="edit"
         initial={{
           id: product.id,
-          name: product.name,
+          name_he: product.name_he,
+          name_en: product.name_en ?? "",
           slug: product.slug,
-          description: product.description,
+          description_he: product.description_he,
+          description_en: product.description_en ?? "",
           price: product.price,
           comparePrice: product.comparePrice,
           category: product.category ?? "",
-          tags: product.tags ?? "",
+          tags_he: product.tags_he ?? "",
+          tags_en: product.tags_en ?? "",
           stockCount: product.stockCount,
           inStock: product.inStock,
           featured: product.featured,
           published: product.published,
-          images: product.images.map((i) => ({ url: i.url, alt: i.alt })),
+          images: product.images.map((i) => ({ url: i.url, alt: i.alt_he })),
         }}
       />
     </div>

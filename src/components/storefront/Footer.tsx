@@ -1,33 +1,39 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { type SocialLink } from "@/lib/content";
 import { getPlatform } from "@/lib/social";
+import { LanguageSwitcher } from "@/components/storefront/LanguageSwitcher";
 
-const NAV_LINKS = [
-  { href: "/", label: "בית" },
-  { href: "/shop", label: "החנות" },
-  { href: "/about", label: "הסיפור שלי" },
-  { href: "/cart", label: "עגלת הקניות" },
-];
-
-const LEGAL_LINKS = [
-  { href: "/legal/terms", label: "תקנון" },
-  { href: "/legal/privacy", label: "פרטיות" },
-  { href: "/legal/returns", label: "החזרות וביטולים" },
-  { href: "/legal/shipping", label: "משלוחים" },
-  { href: "/legal/accessibility", label: "נגישות" },
-];
-
-export function Footer({
+export async function Footer({
   footerText,
   socialLinks,
 }: {
   footerText: string;
   socialLinks: SocialLink[];
 }) {
+  const [t, tNav] = await Promise.all([
+    getTranslations("footer"),
+    getTranslations("nav"),
+  ]);
   const year = new Date().getFullYear();
   const items = socialLinks
     .map((l) => ({ ...l, platform: getPlatform(l.platform) }))
     .filter((l): l is { platform: NonNullable<ReturnType<typeof getPlatform>>; url: string } => !!l.platform);
+
+  const NAV_LINKS = [
+    { href: "/", label: tNav("home") },
+    { href: "/shop", label: tNav("shop") },
+    { href: "/about", label: t("aboutLink") },
+    { href: "/cart", label: t("cartLink") },
+  ];
+
+  const LEGAL_LINKS = [
+    { href: "/legal/terms", label: t("terms") },
+    { href: "/legal/privacy", label: t("privacy") },
+    { href: "/legal/returns", label: t("returns") },
+    { href: "/legal/shipping", label: t("shipping") },
+    { href: "/legal/accessibility", label: t("accessibility") },
+  ];
 
   return (
     <footer className="mt-24 border-t border-charcoal/10 bg-linen paper-grain">
@@ -35,7 +41,7 @@ export function Footer({
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="min-w-0">
             <p className="font-serif text-xl text-ink">
-              סטודיו <span className="text-copper">·</span> אורות וכלים
+              {t("studioName")}
             </p>
             <p className="mt-1 text-sm text-charcoal/65">{footerText}</p>
           </div>
@@ -59,15 +65,15 @@ export function Footer({
         </div>
 
         <div className="mt-6 grid gap-4 border-t border-charcoal/10 pt-5 text-xs text-charcoal/70 md:grid-cols-2 md:gap-10">
-          <nav aria-label="ניווט">
+          <nav aria-label={t("navLabel")}>
             <p className="mb-2 text-[0.65rem] uppercase tracking-wider2 text-charcoal/45">
-              ניווט
+              {t("navLabel")}
             </p>
             <InlineLinks links={NAV_LINKS} />
           </nav>
-          <nav aria-label="מסמכים משפטיים">
+          <nav aria-label={t("legalLabel")}>
             <p className="mb-2 text-[0.65rem] uppercase tracking-wider2 text-charcoal/45">
-              מסמכים משפטיים
+              {t("legalLabel")}
             </p>
             <InlineLinks links={LEGAL_LINKS} />
           </nav>
@@ -75,9 +81,12 @@ export function Footer({
       </div>
 
       <div className="border-t border-charcoal/10">
-        <div className="mx-auto flex max-w-editorial flex-col items-center justify-between gap-1 px-5 py-3 text-[0.7rem] text-charcoal/55 md:flex-row md:px-8">
-          <p>© {year} סטודיו אורות וכלים. כל הזכויות שמורות.</p>
-          <p>נוצר באהבה, פריט אחר פריט.</p>
+        <div className="mx-auto flex max-w-editorial flex-col items-center justify-between gap-2 px-5 py-3 text-[0.7rem] text-charcoal/55 md:flex-row md:px-8">
+          <p>{t("copyright", { year })}</p>
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher />
+            <p>{t("tagline")}</p>
+          </div>
         </div>
       </div>
     </footer>

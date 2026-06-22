@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
+import heMessages from "../../messages/he.json";
+
+const m = heMessages.errors;
 
 export default function GlobalError({
   error,
@@ -30,10 +33,8 @@ export default function GlobalError({
           textAlign: "center",
         }}
       >
-        <h1 style={{ fontSize: "1.5rem", margin: 0 }}>אירעה שגיאה חמורה</h1>
-        <p style={{ color: "#6b675f", margin: 0 }}>
-          נסו לרענן את הדף. אם הבעיה נמשכת, פנו אלינו.
-        </p>
+        <h1 style={{ fontSize: "1.5rem", margin: 0 }}>{m.globalError}</h1>
+        <p style={{ color: "#6b675f", margin: 0 }}>{m.globalMessage}</p>
         <button
           onClick={() => reset()}
           style={{
@@ -46,7 +47,7 @@ export default function GlobalError({
             fontSize: "0.875rem",
           }}
         >
-          נסו שוב
+          {m.retry}
         </button>
         {error.digest && (
           <p style={{ fontSize: "0.75rem", color: "#a39e93", direction: "ltr" }}>

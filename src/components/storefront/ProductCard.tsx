@@ -1,16 +1,24 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { motion } from "motion/react";
+import { useTranslations, useLocale } from "next-intl";
 import { useCart } from "@/lib/cart";
 import { useShouldReduceMotion } from "@/lib/motion-prefs";
 import { Badge } from "@/components/ui/Badge";
-import { formatPrice } from "@/lib/utils";
-import { categoryLabel } from "@/types";
+import { formatPrice, localize } from "@/lib/utils";
 import type { ProductWithImages } from "@/types";
+
+const CATEGORY_KEYS: Record<string, "rings" | "necklaces" | "bracelets" | "earrings" | "homeDecor"> = {
+  rings: "rings",
+  necklaces: "necklaces",
+  bracelets: "bracelets",
+  earrings: "earrings",
+  "home-decor": "homeDecor",
+};
 
 export function ProductCard({
   product,
@@ -19,15 +27,23 @@ export function ProductCard({
   product: ProductWithImages;
   priority?: boolean;
 }) {
+  const t = useTranslations("product");
+  const tCat = useTranslations("categories");
+  const locale = useLocale();
   const addItem = useCart((s) => s.addItem);
   const [hover, setHover] = useState(false);
   const reduceMotion = useShouldReduceMotion();
 
+  const name = localize(product, "name", locale);
   const primary = product.images[0]?.url;
   const secondary = product.images[1]?.url;
   const onSale =
     product.comparePrice != null && product.comparePrice > product.price;
   const soldOut = !product.inStock || product.stockCount <= 0;
+
+  const categoryLabel = product.category
+    ? (tCat(CATEGORY_KEYS[product.category] ?? (product.category as never)) as string)
+    : null;
 
   const quickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -35,12 +51,12 @@ export function ProductCard({
     addItem({
       productId: product.id,
       slug: product.slug,
-      name: product.name,
+      name,
       price: product.price,
       image: primary ?? "",
       stockCount: product.stockCount,
     });
-    toast.success("נוסף לעגלה");
+    toast.success(t("addedToCart"));
   };
 
   return (
@@ -54,7 +70,7 @@ export function ProductCard({
         {primary && (
           <Image
             src={primary}
-            alt={product.images[0]?.alt ?? product.name}
+            alt={localize(product.images[0], "alt", locale) || name}
             fill
             priority={priority}
             sizes="(max-width: 768px) 50vw, 25vw"
@@ -66,7 +82,7 @@ export function ProductCard({
         {secondary && (
           <Image
             src={secondary}
-            alt={product.images[1]?.alt ?? product.name}
+            alt={localize(product.images[1], "alt", locale) || name}
             fill
             sizes="(max-width: 768px) 50vw, 25vw"
             className={`object-cover transition-all duration-700 ease-grace ${
@@ -84,7 +100,7 @@ export function ProductCard({
         <div className="absolute start-3 top-3 flex flex-col items-start gap-1.5">
           {soldOut && (
             <Badge tone="soldout" className="shadow-lift">
-              אזל מהמלאי
+              {t("soldOut")}
             </Badge>
           )}
           {!soldOut && onSale && (
@@ -109,7 +125,7 @@ export function ProductCard({
               className="rounded-full"
             >
               <Badge tone="sale" className="shadow-lift">
-                במבצע
+                {t("sale")}
               </Badge>
             </motion.div>
           )}
@@ -121,19 +137,19 @@ export function ProductCard({
             onClick={quickAdd}
             className="absolute inset-x-3 bottom-3 translate-y-3 rounded-full bg-cream/95 py-2.5 text-xs font-medium tracking-wide text-charcoal opacity-0 shadow-soft transition-all duration-300 ease-grace hover:bg-cream group-hover:translate-y-0 group-hover:opacity-100"
           >
-            הוספה מהירה לעגלה
+            {t("quickAdd")}
           </button>
         )}
       </div>
 
       <div className="mt-3 px-0.5">
-        {product.category && (
+        {categoryLabel && (
           <p className="text-[0.7rem] uppercase tracking-wider2 text-charcoal/50">
-            {categoryLabel(product.category)}
+            {categoryLabel}
           </p>
         )}
         <h2 className="mt-1 font-serif text-lg leading-snug text-ink transition-colors group-hover:text-copper">
-          {product.name}
+          {name}
         </h2>
         <div className="mt-1 flex items-baseline gap-2">
           <span className="text-sm font-medium text-charcoal">

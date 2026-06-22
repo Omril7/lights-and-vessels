@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { formatDate } from "@/lib/utils";
 
@@ -12,7 +13,9 @@ export type BlogCardData = {
   tags: { name: string; slug: string }[];
 };
 
-export function BlogCard({ post }: { post: BlogCardData }) {
+export async function BlogCard({ post }: { post: BlogCardData }) {
+  const [locale, t] = await Promise.all([getLocale(), getTranslations("blog")]);
+
   return (
     <article className="group overflow-hidden rounded-2xl border border-charcoal/10 bg-cream shadow-soft transition hover:shadow-lift">
       <Link href={`/blog/${post.slug}`} className="block">
@@ -30,9 +33,9 @@ export function BlogCard({ post }: { post: BlogCardData }) {
       </Link>
       <div className="p-6 md:p-8 space-y-3">
         <div className="flex flex-wrap items-center gap-2 text-xs text-charcoal/60">
-          {post.publishedAt && <time>{formatDate(post.publishedAt)}</time>}
+          {post.publishedAt && <time>{formatDate(post.publishedAt, locale)}</time>}
           <span className="text-charcoal/30">·</span>
-          <span>מאת {post.author}</span>
+          <span>{t("by", { author: post.author })}</span>
         </div>
         <Link href={`/blog/${post.slug}`}>
           <h2 className="font-serif text-2xl md:text-3xl text-charcoal hover:text-copper transition-colors">

@@ -1,9 +1,9 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-export function Markdown({ source }: { source: string }) {
+export function Markdown({ source, className = "blog-prose" }: { source: string; className?: string }) {
   return (
-    <div className="blog-prose">
+    <div className={className}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{

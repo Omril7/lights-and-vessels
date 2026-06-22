@@ -26,7 +26,7 @@ export default async function EditBlogPostPage({
     }),
     prisma.blogTag.findMany({
       orderBy: [{ order: "asc" }, { createdAt: "asc" }],
-      select: { id: true, name: true },
+      select: { id: true, name_he: true },
     }),
   ]);
   if (!post) notFound();
@@ -35,18 +35,21 @@ export default async function EditBlogPostPage({
     <div className="space-y-6">
       <header>
         <p className="text-xs uppercase tracking-wider2 text-charcoal/50">בלוג</p>
-        <h1 className="mt-1 font-serif text-3xl text-charcoal">{post.title}</h1>
+        <h1 className="mt-1 font-serif text-3xl text-charcoal">{post.title_he}</h1>
       </header>
       <BlogForm
         mode="edit"
-        tags={tags}
+        tags={tags.map((t) => ({ id: t.id, name: t.name_he }))}
         initial={{
           id: post.id,
-          title: post.title,
+          title_he: post.title_he,
+          title_en: post.title_en ?? "",
           slug: post.slug,
-          excerpt: post.excerpt,
-          body: post.body,
-          images: post.images.map((i) => ({ url: i.url, alt: i.alt })),
+          excerpt_he: post.excerpt_he,
+          excerpt_en: post.excerpt_en ?? "",
+          body_he: post.body_he,
+          body_en: post.body_en ?? "",
+          images: post.images.map((i) => ({ url: i.url, alt: i.alt_he })),
           author: post.author,
           status: post.status === "published" ? "published" : "draft",
           publishedAt: toLocalInput(post.publishedAt),

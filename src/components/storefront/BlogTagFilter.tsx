@@ -1,7 +1,8 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
-export function BlogTagFilter({
+export async function BlogTagFilter({
   tags,
   active,
 }: {
@@ -9,6 +10,8 @@ export function BlogTagFilter({
   active: string | null;
 }) {
   if (tags.length === 0) return null;
+  const t = await getTranslations("blog");
+
   return (
     <ul className="flex flex-wrap gap-2">
       <li>
@@ -21,15 +24,15 @@ export function BlogTagFilter({
               : "border-charcoal/25 text-charcoal hover:border-charcoal"
           )}
         >
-          הכול
+          {t("filterAll")}
         </Link>
       </li>
-      {tags.map((t) => {
-        const on = active === t.slug;
+      {tags.map((tag) => {
+        const on = active === tag.slug;
         return (
-          <li key={t.slug}>
+          <li key={tag.slug}>
             <Link
-              href={`/blog?tag=${encodeURIComponent(t.slug)}`}
+              href={`/blog?tag=${encodeURIComponent(tag.slug)}`}
               className={cn(
                 "rounded-full border px-4 py-1.5 text-sm transition-colors",
                 on
@@ -37,7 +40,7 @@ export function BlogTagFilter({
                   : "border-charcoal/25 text-charcoal hover:border-charcoal"
               )}
             >
-              {t.name}
+              {tag.name}
             </Link>
           </li>
         );

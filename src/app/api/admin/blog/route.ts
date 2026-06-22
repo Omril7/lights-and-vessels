@@ -8,10 +8,13 @@ export const dynamic = "force-dynamic";
 type ImageInput = { url: string; alt?: string | null };
 
 type Payload = {
-  title?: string;
+  title_he?: string;
+  title_en?: string | null;
   slug?: string;
-  excerpt?: string;
-  body?: string;
+  excerpt_he?: string;
+  excerpt_en?: string | null;
+  body_he?: string;
+  body_en?: string | null;
   images?: ImageInput[];
   author?: string;
   status?: string;
@@ -20,12 +23,15 @@ type Payload = {
 };
 
 function normalize(payload: Payload) {
-  const title = (payload.title ?? "").trim();
-  const excerpt = (payload.excerpt ?? "").trim();
-  const body = payload.body ?? "";
+  const title_he = (payload.title_he ?? "").trim();
+  const title_en = payload.title_en?.trim() || null;
+  const excerpt_he = (payload.excerpt_he ?? "").trim();
+  const excerpt_en = payload.excerpt_en?.trim() || null;
+  const body_he = payload.body_he ?? "";
+  const body_en = payload.body_en || null;
   const author = (payload.author ?? "").trim() || "אלון בראל";
   const status = payload.status === "published" ? "published" : "draft";
-  const slug = (payload.slug?.trim() || makeSlug(title)) || `post-${Date.now()}`;
+  const slug = (payload.slug?.trim() || makeSlug(title_he)) || `post-${Date.now()}`;
   const publishedAt = payload.publishedAt
     ? new Date(payload.publishedAt)
     : status === "published"
@@ -36,14 +42,17 @@ function normalize(payload: Payload) {
         .filter((i) => i && typeof i.url === "string" && i.url.trim())
         .map((i, idx) => ({
           url: i.url.trim(),
-          alt: i.alt?.toString().trim() || null,
+          alt_he: i.alt?.toString().trim() || null,
           order: idx,
         }))
     : [];
   return {
-    title,
-    excerpt,
-    body,
+    title_he,
+    title_en,
+    excerpt_he,
+    excerpt_en,
+    body_he,
+    body_en,
     author,
     status,
     slug,
@@ -58,7 +67,7 @@ export async function POST(req: Request) {
   if (!auth.ok) return auth.response;
 
   const data = normalize((await req.json().catch(() => ({}))) as Payload);
-  if (!data.title) {
+  if (!data.title_he) {
     return NextResponse.json({ error: "כותרת חובה" }, { status: 400 });
   }
   if (data.images.length === 0) {
@@ -71,10 +80,13 @@ export async function POST(req: Request) {
   try {
     const post = await prisma.blogPost.create({
       data: {
-        title: data.title,
+        title_he: data.title_he,
+        title_en: data.title_en,
         slug: data.slug,
-        excerpt: data.excerpt,
-        body: data.body,
+        excerpt_he: data.excerpt_he,
+        excerpt_en: data.excerpt_en,
+        body_he: data.body_he,
+        body_en: data.body_en,
         author: data.author,
         status: data.status,
         publishedAt: data.publishedAt,

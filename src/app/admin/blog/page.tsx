@@ -39,9 +39,9 @@ export default async function AdminBlogPage({
   if (status && status !== "all") where.status = status;
   if (q) {
     where.OR = [
-      { title: { contains: q } },
+      { title_he: { contains: q } },
       { slug: { contains: q } },
-      { excerpt: { contains: q } },
+      { excerpt_he: { contains: q } },
     ];
   }
 
@@ -101,12 +101,12 @@ export default async function AdminBlogPage({
               <li key={p.id} className="flex items-center gap-4 px-5 py-3">
                 <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-md bg-linen">
                   {p.images[0]?.url && (
-                    <Image src={p.images[0].url} alt={p.title} fill className="object-cover" sizes="80px" />
+                    <Image src={p.images[0].url} alt={p.title_he} fill className="object-cover" sizes="80px" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <Link href={`/admin/blog/${p.id}/edit`} className="font-medium text-charcoal hover:text-copper">
-                    {p.title}
+                    {p.title_he}
                   </Link>
                   <p className="text-xs text-charcoal/50" dir="ltr">/{p.slug}</p>
                   <div className="mt-1 flex flex-wrap items-center gap-1.5">
@@ -117,7 +117,7 @@ export default async function AdminBlogPage({
                     )}
                     {p.tags.map((t) => (
                       <span key={t.tagId} className="rounded-full bg-linen/80 px-2 py-0.5 text-[0.65rem] text-charcoal/70">
-                        {t.tag.name}
+                        {t.tag.name_he}
                       </span>
                     ))}
                   </div>

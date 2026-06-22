@@ -7,13 +7,16 @@ import { makeSlug } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 const productSchema = z.object({
-  name: z.string().min(1),
+  name_he: z.string().min(1),
+  name_en: z.string().nullable().optional(),
   slug: z.string().min(1).optional(),
-  description: z.string().default(""),
+  description_he: z.string().default(""),
+  description_en: z.string().nullable().optional(),
   price: z.number().nonnegative(),
   comparePrice: z.number().nonnegative().nullable().optional(),
   category: z.string().min(1).nullable().optional(),
-  tags: z.string().nullable().optional(),
+  tags_he: z.string().nullable().optional(),
+  tags_en: z.string().nullable().optional(),
   stockCount: z.number().int().nonnegative().default(0),
   inStock: z.boolean().default(true),
   featured: z.boolean().default(false),
@@ -63,9 +66,8 @@ export async function POST(req: Request) {
   }
 
   const data = parsed.data;
-  const slug = data.slug?.trim() || makeSlug(data.name);
+  const slug = data.slug?.trim() || makeSlug(data.name_he);
 
-  // Ensure slug is unique
   const existing = await prisma.product.findUnique({ where: { slug } });
   if (existing) {
     return NextResponse.json(
@@ -76,13 +78,16 @@ export async function POST(req: Request) {
 
   const product = await prisma.product.create({
     data: {
-      name: data.name,
+      name_he: data.name_he,
+      name_en: data.name_en ?? null,
       slug,
-      description: data.description,
+      description_he: data.description_he,
+      description_en: data.description_en ?? null,
       price: data.price,
       comparePrice: data.comparePrice ?? null,
       category: data.category ?? null,
-      tags: data.tags ?? null,
+      tags_he: data.tags_he ?? null,
+      tags_en: data.tags_en ?? null,
       stockCount: data.stockCount,
       inStock: data.inStock,
       featured: data.featured,
@@ -90,7 +95,7 @@ export async function POST(req: Request) {
       images: {
         create: data.images.map((img, i) => ({
           url: img.url,
-          alt: img.alt ?? null,
+          alt_he: img.alt ?? null,
           order: i,
         })),
       },
