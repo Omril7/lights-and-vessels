@@ -475,15 +475,16 @@ Build `messages/he.json` and `messages/en.json` in parallel as you go. Suggested
 
 ### 11a — Capture locale at checkout
 
-- [ ] `src/app/api/checkout/route.ts` — read locale from request (from cookie or `Accept-Language` header), save as `Order.locale`
+- [x] `CheckoutForm.tsx` — sends `locale` in POST body via `useLocale()`
+- [x] `src/app/api/checkout/route.ts` — validates and saves `locale` to `Order`
 
 ### 11b — Email templates
 
-- [ ] `src/lib/email.ts` — all send functions accept `locale: string` param
-- [ ] Create English versions of all email templates:
-  - Order confirmation email
-  - Any other transactional emails
-- [ ] Switch template based on `order.locale`
+- [x] `src/lib/email.ts` — `sendOrderConfirmationEmail` accepts `locale` param (default "he")
+- [x] English confirmation email: subject, greeting, body, delivery labels, receipt button, footer note
+- [x] `emailShell` — locale-aware `lang`, `dir`, brand name, tagline
+- [x] `summaryTable` — locale-aware labels (Subtotal/Shipping/Free/Total) + localized product names
+- [x] `renderConfirmationHtml` — fully bilingual
 
 ### 11c — Test
 
