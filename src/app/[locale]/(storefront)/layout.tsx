@@ -5,6 +5,7 @@ import { NavbarBanner } from "@/components/storefront/NavbarBanner";
 import { Footer } from "@/components/storefront/Footer";
 import { CartDrawer } from "@/components/storefront/CartDrawer";
 import { WhatsAppButton } from "@/components/storefront/WhatsAppButton";
+import { AccessibilityWidget } from "@/components/a11y/AccessibilityWidget";
 import { draftMode } from "next/headers";
 import { getSiteContent, parseSocialLinks } from "@/lib/content";
 import { PreviewBanner } from "@/components/storefront/PreviewBanner";
@@ -67,6 +68,7 @@ export default async function StorefrontLayout({
       <Suspense fallback={null}>
         <WhatsAppSlot />
       </Suspense>
+      <AccessibilityWidget />
       {isPreview && <PreviewBanner />}
     </div>
   );

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Frank_Ruhl_Libre, Assistant } from "next/font/google";
 import { Toaster } from "react-hot-toast";
-import { AccessibilityWidget } from "@/components/a11y/AccessibilityWidget";
 import { MotionPrefsProvider } from "@/lib/motion-prefs";
 import "./globals.css";
 
@@ -100,7 +99,6 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: a11yBootScript }} />
         <MotionPrefsProvider>
           {children}
-          <AccessibilityWidget />
         </MotionPrefsProvider>
         <Toaster
           position="bottom-center"
