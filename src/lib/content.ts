@@ -1,5 +1,18 @@
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { draftMode } from "next/headers";
 import { prisma } from "@/lib/prisma";
+
+// Cross-request cache: site content rows are cached for 60s so the layout doesn't
+// hit Supabase on every navigation. Tagged so the admin API can revalidate instantly.
+const getCachedContentRows = unstable_cache(
+  () => prisma.siteContent.findMany(),
+  ["site-content-rows"],
+  { revalidate: 60, tags: ["site-content"] }
+);
+
+// Within a single render pass, deduplicate draft row reads (draft mode only).
+const fetchDraftRows = cache(async () => prisma.siteContentDraft.findMany());
 
 /** Fallback copy so the storefront still renders if a key is missing. */
 const FALLBACKS: Record<string, string> = {
@@ -134,13 +147,16 @@ export async function getSiteContent(
   opts: { allowDraft?: boolean; locale?: string } = {}
 ): Promise<SiteContentMap> {
   const { allowDraft = true, locale = "he" } = opts;
+  const inDraftMode = allowDraft && draftMode().isEnabled;
   const map: SiteContentMap = { ...FALLBACKS };
-  const rows = await prisma.siteContent.findMany();
+  // In normal mode, rows come from the 60s cross-request cache (no DB hit per nav).
+  // In draft mode, bypass the cache so edits appear immediately.
+  const rows = inDraftMode ? await prisma.siteContent.findMany() : await getCachedContentRows();
   for (const row of rows) {
     map[row.key] = (locale !== "he" && row.value_en) ? row.value_en : row.value_he;
   }
-  if (allowDraft && draftMode().isEnabled) {
-    const drafts = await prisma.siteContentDraft.findMany();
+  if (inDraftMode) {
+    const drafts = await fetchDraftRows();
     for (const row of drafts) {
       map[row.key] = (locale !== "he" && row.value_en) ? row.value_en : row.value_he;
     }

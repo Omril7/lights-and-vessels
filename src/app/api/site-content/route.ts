@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
@@ -67,6 +68,8 @@ export async function PUT(req: Request) {
     oldRows.map((r) => r.value_he),
     entries.map((e) => e.value_he)
   );
+
+  revalidateTag("site-content");
 
   return NextResponse.json({ ok: true });
 }

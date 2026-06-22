@@ -21,7 +21,7 @@ async function resolveProvider(): Promise<"resend" | "gmail"> {
 }
 
 type OrderWithItems = Order & {
-  items: (OrderItem & { product: Pick<Product, "name_he" | "slug"> })[];
+  items: (OrderItem & { product: Pick<Product, "name_he" | "name_en" | "slug"> })[];
 };
 
 type SendArgs = { to: string; subject: string; html: string };
@@ -70,11 +70,13 @@ export async function sendViaGmail(args: SendArgs): Promise<boolean> {
 export async function sendOrderConfirmationEmail(
   order: OrderWithItems,
   ctx: { pickupAddress?: string; pickupHours?: string; shippingEta?: string },
+  locale = "he",
 ): Promise<void> {
+  const l = getLang(locale);
   const args: SendArgs = {
     to: order.customerEmail,
-    subject: `הזמנה ${order.orderNumber} התקבלה — אורות וכלים`,
-    html: renderConfirmationHtml(order, ctx),
+    subject: l.subject(order.orderNumber),
+    html: renderConfirmationHtml(order, ctx, locale),
   };
   const provider = await resolveProvider();
   const sent =
@@ -130,19 +132,61 @@ const C = {
 const SERIF = "'Frank Ruhl Libre', 'Times New Roman', Georgia, serif";
 const SANS = "'Assistant', 'Segoe UI', Arial, sans-serif";
 
-/** Wraps inner card content in a full, responsive, RTL email document. */
-function emailShell(opts: { preheader: string; content: string }): string {
+const L = {
+  he: {
+    lang: "he", dir: "rtl",
+    brand: "אורות וכלים",
+    tagline: "נוצר ביד במנות קטנות · אורות וכלים",
+    subtotal: "סכום ביניים", shipping: "משלוח", free: "חינם", total: "סך הכול",
+    subject: (n: string) => `הזמנה ${n} התקבלה — אורות וכלים`,
+    preheader: (n: string) => `הזמנה ${n} התקבלה — מתחיל להכין`,
+    greeting: (name: string) => `תודה, ${name}`,
+    body: (n: string, ink: string) => `קיבלתי את הזמנתך <strong style="color:${ink};">${n}</strong>. כל פריט נוצר ביד — אתחיל להכין עכשיו.`,
+    pickup: "איסוף עצמי", shippingLabel: "משלוח",
+    pickupAddrFallback: "כתובת תיאום באמצעות וואטסאפ",
+    pickupHoursFallback: "ניצור איתך קשר לתיאום שעה",
+    postSub: (eta: string) => `דואר ישראל · ${eta}`,
+    postEtaDefault: "עד 7 ימי עסקים",
+    receiptBtn: "הורד קבלה (PDF)",
+    footerNote: "לכל שאלה אפשר פשוט להשיב למייל הזה — אני קורא כל הודעה בעצמי.",
+  },
+  en: {
+    lang: "en", dir: "ltr",
+    brand: "Lights and Vessels",
+    tagline: "Handcrafted in small batches · Lights and Vessels",
+    subtotal: "Subtotal", shipping: "Shipping", free: "Free", total: "Total",
+    subject: (n: string) => `Order ${n} received — Lights and Vessels`,
+    preheader: (n: string) => `Order ${n} received — starting to prepare`,
+    greeting: (name: string) => `Thank you, ${name}`,
+    body: (n: string, ink: string) => `I received your order <strong style="color:${ink};">${n}</strong>. Each piece is handcrafted — I'll start preparing yours now.`,
+    pickup: "Pickup", shippingLabel: "Shipping",
+    pickupAddrFallback: "Address to be coordinated via WhatsApp",
+    pickupHoursFallback: "We'll contact you to arrange a time",
+    postSub: (eta: string) => `Israel Post · ${eta}`,
+    postEtaDefault: "Up to 7 business days",
+    receiptBtn: "Download receipt (PDF)",
+    footerNote: "For any question, simply reply to this email — I read every message myself.",
+  },
+} as const;
+
+function getLang(loc: string) {
+  return loc === "en" ? L.en : L.he;
+}
+
+/** Wraps inner card content in a full, responsive email document. */
+function emailShell(opts: { preheader: string; content: string; locale?: string }): string {
+  const l = getLang(opts.locale ?? "he");
   const site = STUDIO_URL.replace(/\/$/, "");
   const siteLabel = site.replace(/^https?:\/\//, "");
   return `<!doctype html>
-<html lang="he" dir="rtl" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="${l.lang}" dir="${l.dir}" xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
-<title>אורות וכלים</title>
+<title>${escapeHtml(l.brand)}</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Frank+Ruhl+Libre:wght@500;700&display=swap');
   body, table, td { -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%; }
@@ -158,32 +202,32 @@ function emailShell(opts: { preheader: string; content: string }): string {
 </style>
 </head>
 <body style="margin:0;padding:0;background:${C.page};">
-  <div dir="rtl" style="display:none;max-height:0;max-width:0;overflow:hidden;opacity:0;font-size:1px;line-height:1px;color:${C.page};">${escapeHtml(opts.preheader)}</div>
-  <table role="presentation" dir="rtl" width="100%" cellpadding="0" cellspacing="0" style="background:${C.page};">
+  <div dir="${l.dir}" style="display:none;max-height:0;max-width:0;overflow:hidden;opacity:0;font-size:1px;line-height:1px;color:${C.page};">${escapeHtml(opts.preheader)}</div>
+  <table role="presentation" dir="${l.dir}" width="100%" cellpadding="0" cellspacing="0" style="background:${C.page};">
     <tr>
       <td align="center" style="padding:30px 12px;">
 
         <!-- masthead -->
-        <table role="presentation" dir="rtl" class="container" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;">
+        <table role="presentation" dir="${l.dir}" class="container" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;">
           <tr>
             <td align="center" style="padding:4px 0 24px;">
-              <div style="font-family:${SERIF};font-size:23px;font-weight:500;letter-spacing:1px;color:${C.heading};">אורות וכלים</div>
+              <div style="font-family:${SERIF};font-size:23px;font-weight:500;letter-spacing:1px;color:${C.heading};">${escapeHtml(l.brand)}</div>
               <div style="width:48px;height:1px;background:${C.accent};margin:13px auto 0;"></div>
             </td>
           </tr>
         </table>
 
         <!-- card -->
-        <table role="presentation" dir="rtl" class="container" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:${C.card};border:1px solid ${C.border};border-radius:18px;">
+        <table role="presentation" dir="${l.dir}" class="container" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:${C.card};border:1px solid ${C.border};border-radius:18px;">
           ${opts.content}
         </table>
 
         <!-- footer -->
-        <table role="presentation" dir="rtl" class="container" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;">
+        <table role="presentation" dir="${l.dir}" class="container" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;">
           <tr>
             <td align="center" style="padding:24px 24px 6px;font-family:${SANS};font-size:12px;line-height:1.8;color:${C.faint};">
               <a href="${site}" style="color:${C.muted};text-decoration:none;">${escapeHtml(siteLabel)}</a><br>
-              נוצר ביד במנות קטנות · אורות וכלים
+              ${escapeHtml(l.tagline)}
             </td>
           </tr>
         </table>
@@ -205,29 +249,32 @@ function infoRow(label: string, value: string, opts?: { top?: boolean }): string
 }
 
 /** Items + subtotal/shipping/total summary table shared by both emails. */
-function summaryTable(order: OrderWithItems): string {
+function summaryTable(order: OrderWithItems, loc = "he"): string {
+  const l = getLang(loc);
+  const priceAlign = l.dir === "rtl" ? "left" : "right";
   const items = order.items
-    .map(
-      (i) => `
+    .map((i) => {
+      const name = (loc === "en" && i.product.name_en) ? i.product.name_en : i.product.name_he;
+      return `
         <tr>
-          <td style="padding:13px 0;border-bottom:1px solid ${C.border};font-family:${SANS};font-size:15px;color:${C.ink};">${escapeHtml(i.product.name_he)} <span style="color:${C.faint};">× ${i.quantity}</span></td>
-          <td align="left" style="padding:13px 0;border-bottom:1px solid ${C.border};font-family:${SANS};font-size:15px;color:${C.ink};white-space:nowrap;">${formatPrice(i.price * i.quantity)}</td>
-        </tr>`,
-    )
+          <td style="padding:13px 0;border-bottom:1px solid ${C.border};font-family:${SANS};font-size:15px;color:${C.ink};">${escapeHtml(name)} <span style="color:${C.faint};">× ${i.quantity}</span></td>
+          <td align="${priceAlign}" style="padding:13px 0;border-bottom:1px solid ${C.border};font-family:${SANS};font-size:15px;color:${C.ink};white-space:nowrap;">${formatPrice(i.price * i.quantity)}</td>
+        </tr>`;
+    })
     .join("");
-  return `<table role="presentation" dir="rtl" width="100%" cellpadding="0" cellspacing="0">
+  return `<table role="presentation" dir="${l.dir}" width="100%" cellpadding="0" cellspacing="0">
     ${items}
     <tr>
-      <td style="padding:14px 0 4px;font-family:${SANS};font-size:14px;color:${C.muted};">סכום ביניים</td>
-      <td align="left" style="padding:14px 0 4px;font-family:${SANS};font-size:14px;color:${C.ink};white-space:nowrap;">${formatPrice(order.subtotal)}</td>
+      <td style="padding:14px 0 4px;font-family:${SANS};font-size:14px;color:${C.muted};">${escapeHtml(l.subtotal)}</td>
+      <td align="${priceAlign}" style="padding:14px 0 4px;font-family:${SANS};font-size:14px;color:${C.ink};white-space:nowrap;">${formatPrice(order.subtotal)}</td>
     </tr>
     <tr>
-      <td style="padding:4px 0;font-family:${SANS};font-size:14px;color:${C.muted};">משלוח</td>
-      <td align="left" style="padding:4px 0;font-family:${SANS};font-size:14px;color:${C.ink};white-space:nowrap;">${order.shippingCost > 0 ? formatPrice(order.shippingCost) : "חינם"}</td>
+      <td style="padding:4px 0;font-family:${SANS};font-size:14px;color:${C.muted};">${escapeHtml(l.shipping)}</td>
+      <td align="${priceAlign}" style="padding:4px 0;font-family:${SANS};font-size:14px;color:${C.ink};white-space:nowrap;">${order.shippingCost > 0 ? formatPrice(order.shippingCost) : escapeHtml(l.free)}</td>
     </tr>
     <tr>
-      <td style="padding:13px 0 0;border-top:2px solid ${C.heading};font-family:${SANS};font-size:17px;font-weight:700;color:${C.heading};">סך הכול</td>
-      <td align="left" style="padding:13px 0 0;border-top:2px solid ${C.heading};font-family:${SANS};font-size:17px;font-weight:700;color:${C.heading};white-space:nowrap;">${formatPrice(order.total)}</td>
+      <td style="padding:13px 0 0;border-top:2px solid ${C.heading};font-family:${SANS};font-size:17px;font-weight:700;color:${C.heading};">${escapeHtml(l.total)}</td>
+      <td align="${priceAlign}" style="padding:13px 0 0;border-top:2px solid ${C.heading};font-family:${SANS};font-size:17px;font-weight:700;color:${C.heading};white-space:nowrap;">${formatPrice(order.total)}</td>
     </tr>
   </table>`;
 }
@@ -323,38 +370,40 @@ export function renderAdminNotificationHtml(order: OrderWithItems): string {
 export function renderConfirmationHtml(
   order: OrderWithItems,
   ctx: { pickupAddress?: string; pickupHours?: string; shippingEta?: string },
+  locale = "he",
 ): string {
+  const l = getLang(locale);
   const isPickup = order.shippingMethod === "pickup";
 
-  const deliveryTitle = isPickup ? "איסוף עצמי" : "משלוח";
+  const deliveryTitle = isPickup ? l.pickup : l.shippingLabel;
   const deliveryMain = isPickup
-    ? escapeHtml(ctx.pickupAddress || "כתובת תיאום באמצעות וואטסאפ")
+    ? escapeHtml(ctx.pickupAddress || l.pickupAddrFallback)
     : escapeHtml(safeAddress(order.shippingAddress));
   const deliverySub = isPickup
-    ? escapeHtml(ctx.pickupHours || "ניצור איתך קשר לתיאום שעה")
-    : `דואר ישראל · ${escapeHtml(ctx.shippingEta || "עד 7 ימי עסקים")}`;
+    ? escapeHtml(ctx.pickupHours || l.pickupHoursFallback)
+    : l.postSub(escapeHtml(ctx.shippingEta || l.postEtaDefault));
 
-  const deliveryBlock = `<table role="presentation" dir="rtl" width="100%" cellpadding="0" cellspacing="0" style="background:${C.soft};border-radius:12px;">
+  const deliveryBlock = `<table role="presentation" dir="${l.dir}" width="100%" cellpadding="0" cellspacing="0" style="background:${C.soft};border-radius:12px;">
     <tr><td style="padding:18px 20px;">
-      <div style="font-family:${SERIF};font-size:16px;color:${C.heading};margin-bottom:6px;">${deliveryTitle}</div>
+      <div style="font-family:${SERIF};font-size:16px;color:${C.heading};margin-bottom:6px;">${escapeHtml(deliveryTitle)}</div>
       <div style="font-family:${SANS};font-size:15px;line-height:1.5;color:${C.ink};">${deliveryMain}</div>
       <div style="font-family:${SANS};font-size:13px;line-height:1.5;color:${C.muted};margin-top:4px;">${deliverySub}</div>
     </td></tr>
   </table>`;
 
   const docBlock = order.morningDocumentUrl
-    ? `<tr><td class="px" align="center" style="padding:26px 40px 0;">${button(order.morningDocumentUrl, "הורד קבלה (PDF)")}</td></tr>`
+    ? `<tr><td class="px" align="center" style="padding:26px 40px 0;">${button(order.morningDocumentUrl, l.receiptBtn)}</td></tr>`
     : "";
 
   const content = `
     <tr>
       <td class="px" style="padding:38px 40px 0;">
-        <h1 class="h1" style="margin:0 0 10px;font-family:${SERIF};font-weight:500;font-size:30px;line-height:1.2;color:${C.heading};">תודה, ${escapeHtml(order.customerName)}</h1>
-        <p style="margin:0;font-family:${SANS};font-size:16px;line-height:1.65;color:${C.muted};">קיבלתי את הזמנתך <strong style="color:${C.ink};">${escapeHtml(order.orderNumber)}</strong>. כל פריט נוצר ביד — אתחיל להכין עכשיו.</p>
+        <h1 class="h1" style="margin:0 0 10px;font-family:${SERIF};font-weight:500;font-size:30px;line-height:1.2;color:${C.heading};">${escapeHtml(l.greeting(order.customerName))}</h1>
+        <p style="margin:0;font-family:${SANS};font-size:16px;line-height:1.65;color:${C.muted};">${l.body(escapeHtml(order.orderNumber), C.ink)}</p>
       </td>
     </tr>
     <tr>
-      <td class="px" style="padding:26px 40px 0;">${summaryTable(order)}</td>
+      <td class="px" style="padding:26px 40px 0;">${summaryTable(order, locale)}</td>
     </tr>
     <tr>
       <td class="px" style="padding:28px 40px 0;">${deliveryBlock}</td>
@@ -362,14 +411,11 @@ export function renderConfirmationHtml(
     ${docBlock}
     <tr>
       <td class="px" style="padding:30px 40px 38px;border-top:1px solid ${C.border};margin-top:8px;">
-        <p style="margin:0;font-family:${SANS};font-size:14px;line-height:1.65;color:${C.muted};">לכל שאלה אפשר פשוט להשיב למייל הזה — אני קורא כל הודעה בעצמי.</p>
+        <p style="margin:0;font-family:${SANS};font-size:14px;line-height:1.65;color:${C.muted};">${escapeHtml(l.footerNote)}</p>
       </td>
     </tr>`;
 
-  return emailShell({
-    preheader: `הזמנה ${order.orderNumber} התקבלה — מתחיל להכין`,
-    content,
-  });
+  return emailShell({ preheader: l.preheader(order.orderNumber), content, locale });
 }
 
 function renderLowStockHtml(products: { name_he: string; slug: string }[]): string {

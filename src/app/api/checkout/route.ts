@@ -24,6 +24,7 @@ const schema = z.object({
       zip: z.string().trim().max(20).optional().default(""),
     })
     .nullable(),
+  locale: z.enum(["he", "en"]).optional().default("he"),
 });
 
 function originFromRequest(req: Request): string {
@@ -106,6 +107,7 @@ export async function POST(req: Request) {
           subtotal,
           shippingCost,
           total,
+          locale: parsed.locale,
           items: {
             create: parsed.items.map((item) => {
               const p = products.find((p) => p.id === item.productId)!;

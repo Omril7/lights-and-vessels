@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import toast from "react-hot-toast";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useCart, cartSubtotal } from "@/lib/cart";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -21,6 +21,7 @@ type ShippingMethod = "post" | "pickup";
 
 export function CheckoutForm({ shipping }: { shipping: ShippingConfig }) {
   const t = useTranslations("checkout");
+  const locale = useLocale();
   const router = useRouter();
   const { items } = useCart();
   const [mounted, setMounted] = useState(false);
@@ -83,6 +84,7 @@ export function CheckoutForm({ shipping }: { shipping: ShippingConfig }) {
             method === "post"
               ? { street: street.trim(), city: city.trim(), zip: zip.trim() }
               : null,
+          locale,
         }),
       });
       const data = await res.json();

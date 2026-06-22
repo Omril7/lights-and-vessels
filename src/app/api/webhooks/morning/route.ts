@@ -134,7 +134,7 @@ export async function POST(req: Request) {
       morningDocumentNumber: documentNumber,
       morningDocumentUrl: documentUrl,
     },
-    include: { items: { include: { product: { select: { name_he: true, slug: true } } } } },
+    include: { items: { include: { product: { select: { name_he: true, name_en: true, slug: true } } } } },
   });
 
   if (documentId) {
@@ -168,11 +168,15 @@ export async function POST(req: Request) {
   // Order emails — fire and forget, errors logged.
   try {
     const content = await getSiteContent();
-    await sendOrderConfirmationEmail(updated, {
-      pickupAddress: content.shipping_pickup_address,
-      pickupHours: content.shipping_pickup_hours,
-      shippingEta: content.shipping_post_eta,
-    });
+    await sendOrderConfirmationEmail(
+      updated,
+      {
+        pickupAddress: content.shipping_pickup_address,
+        pickupHours: content.shipping_pickup_hours,
+        shippingEta: content.shipping_post_eta,
+      },
+      updated.locale,
+    );
     await sendAdminOrderNotificationEmail(updated);
   } catch (err) {
     console.error("[morning/webhook] order emails failed:", err);
