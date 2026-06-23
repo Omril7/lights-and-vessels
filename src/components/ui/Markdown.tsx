@@ -71,7 +71,7 @@ export function MarkdownCheatSheet({ locale = "he" }: { locale?: "he" | "en" }) 
       <ul className="grid gap-1.5 sm:grid-cols-2">
         {rows.map((r) => (
           <li key={r.syntax} className="flex items-baseline gap-2">
-            <code className="rounded bg-cream px-1.5 py-0.5 font-mono text-[0.7rem] text-charcoal" dir="ltr">
+            <code className="rounded bg-cream px-1.5 py-0.5 font-mono text-[0.7rem] text-charcoal" dir={locale === "en" ? "ltr" : "rtl"}>
               {r.syntax}
             </code>
             <span className="text-charcoal/60">{r.result}</span>
