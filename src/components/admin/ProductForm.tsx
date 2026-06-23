@@ -173,7 +173,7 @@ export function ProductForm({
               <LocalizedInput
                 id="name-en"
                 locale="en"
-                label="שם המוצר"
+                label="Product Name"
                 value={values.name_en}
                 onChange={(e) => set("name_en", e.target.value)}
                 placeholder="Name in English"

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useDropzone } from "react-dropzone";
-import { IsraelFlag, UsaFlag } from "@/lib/flags";
 import { Button, Dropdown, LocalizedInput, LocalizedTextarea } from "@/components/ui";
 import { MarkdownEditor } from "@/components/admin/MarkdownEditor";
 import {
@@ -113,8 +112,8 @@ export const SECTIONS: Section[] = [
     page: "home",
     icon: SparklesIcon,
     fields: [
-      { key: "hero_title", label: "כותרת ראשית", label_en: "Main heading", kind: "bilingual_text" },
-      { key: "hero_cta", label: "טקסט כפתור", label_en: "Button text", kind: "bilingual_text" },
+      { key: "hero_title", label: "כותרת ראשית", label_en: "Main heading", kind: "bilingual_text", wide: true },
+      { key: "hero_cta", label: "טקסט כפתור", label_en: "Button text", kind: "bilingual_text", wide: true },
       { key: "hero_subtitle", label: "כותרת משנה", label_en: "Subtitle", kind: "bilingual_textarea", wide: true },
       {
         key: "hero_image",
@@ -1082,9 +1081,6 @@ function TestimonialsField({
     setOpenIndex(items.length);
   };
 
-  const inputBase =
-    "w-full rounded-md border border-charcoal/15 bg-cream px-2.5 py-2 text-sm text-ink placeholder:text-charcoal/35 focus:border-charcoal/50 focus:outline-none focus:ring-2 focus:ring-gold/30";
-
   return (
     <div className="space-y-2">
       <span className="block text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
@@ -1130,63 +1126,59 @@ function TestimonialsField({
                         hint={hint}
                         onChange={(url) => update(i, { image: url })}
                       />
-                      <div className="space-y-2">
-                        <span className="flex items-center gap-1 text-[0.65rem] text-charcoal/45">
-                          <IsraelFlag className="h-3 w-4 rounded-sm" /> עברית
-                        </span>
-                        <textarea
+                      <div className="space-y-3">
+                        <LocalizedTextarea
+                          id={`t${i}-quote-he`}
+                          locale="he"
+                          label="ציטוט"
                           value={item.quote}
                           onChange={(e) => update(i, { quote: e.target.value })}
-                          placeholder="ציטוט"
                           rows={3}
-                          dir="rtl"
-                          className={inputBase}
+                          placeholder="ציטוט"
                         />
                         <div className="grid gap-2 sm:grid-cols-2">
-                          <input
-                            type="text"
+                          <LocalizedInput
+                            id={`t${i}-name-he`}
+                            locale="he"
+                            label="שם"
                             value={item.name}
                             onChange={(e) => update(i, { name: e.target.value })}
                             placeholder="שם"
-                            dir="rtl"
-                            className={inputBase}
                           />
-                          <input
-                            type="text"
+                          <LocalizedInput
+                            id={`t${i}-detail-he`}
+                            locale="he"
+                            label="פירוט"
                             value={item.detail}
                             onChange={(e) => update(i, { detail: e.target.value })}
-                            placeholder="פירוט (עיר / לקוח חוזר וכו')"
-                            dir="rtl"
-                            className={inputBase}
+                            placeholder="עיר / לקוח חוזר וכו'"
                           />
                         </div>
-                        <span className="flex items-center gap-1 text-[0.65rem] text-charcoal/45 mt-1">
-                          <UsaFlag className="h-3 w-4 rounded-sm" /> English (optional)
-                        </span>
-                        <textarea
+                        <LocalizedTextarea
+                          id={`t${i}-quote-en`}
+                          locale="en"
+                          label="Quote"
                           value={item.quote_en}
                           onChange={(e) => update(i, { quote_en: e.target.value })}
-                          placeholder="Quote in English"
                           rows={3}
-                          dir="ltr"
-                          className={inputBase}
+                          placeholder="Quote in English"
                         />
                         <div className="grid gap-2 sm:grid-cols-2">
-                          <input
-                            type="text"
+                          <LocalizedInput
+                            id={`t${i}-name-en`}
+                            locale="en"
+                            label="Name"
                             value={item.name_en}
                             onChange={(e) => update(i, { name_en: e.target.value })}
                             placeholder="Name"
-                            dir="ltr"
-                            className={inputBase}
                           />
-                          <input
-                            type="text"
+                          <LocalizedInput
+                            id={`t${i}-detail-en`}
+                            locale="en"
+                            label="Detail"
                             value={item.detail_en}
                             onChange={(e) => update(i, { detail_en: e.target.value })}
-                            placeholder="Detail (city / returning customer)"
-                            dir="ltr"
-                            className={inputBase}
+                            placeholder="City / returning customer"
                           />
                         </div>
                         <div className="flex items-center justify-between gap-2 pt-1">
