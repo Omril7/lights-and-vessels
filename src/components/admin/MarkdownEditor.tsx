@@ -73,7 +73,7 @@ export function MarkdownEditor({
         </div>
       </div>
 
-      {showHelp && <MarkdownCheatSheet />}
+      {showHelp && <MarkdownCheatSheet locale={locale} />}
 
       {tab === "edit" ? (
         <textarea
