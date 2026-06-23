@@ -1,7 +1,8 @@
 "use client";
 
 import { ImageUploader, type UploadedImage } from "@/components/admin/ImageUploader";
-import { Button, DateTimePicker, Dropdown, Input, LocalizedInput, LocalizedTextarea, Markdown, MarkdownCheatSheet } from "@/components/ui";
+import { MarkdownEditor } from "@/components/admin/MarkdownEditor";
+import { Button, DateTimePicker, Dropdown, Input, LocalizedInput, LocalizedTextarea } from "@/components/ui";
 import { cn, makeSlug } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -50,8 +51,6 @@ export function BlogForm({
   const router = useRouter();
   const [values, setValues] = useState<BlogFormValues>({ ...EMPTY, ...initial });
   const [slugTouched, setSlugTouched] = useState(!!initial?.slug);
-  const [bodyTab, setBodyTab] = useState<"edit" | "preview">("edit");
-  const [showBodyHelp, setShowBodyHelp] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -201,88 +200,23 @@ export function BlogForm({
               />
             </div>
 
-            {/* Body — Hebrew with edit/preview */}
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs uppercase tracking-wider2 text-charcoal/70 font-medium">
-                  תוכן (Markdown · עברית)
-                </span>
-                <div className="flex gap-1 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => setShowBodyHelp((v) => !v)}
-                    className={cn(
-                      "rounded-full px-3 py-1 text-charcoal/60 hover:bg-charcoal/[0.06]",
-                      showBodyHelp && "bg-charcoal/[0.06] text-charcoal"
-                    )}
-                  >
-                    עזרה
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBodyTab("edit")}
-                    className={cn(
-                      "rounded-full px-3 py-1",
-                      bodyTab === "edit"
-                        ? "bg-charcoal text-cream"
-                        : "text-charcoal/60 hover:bg-charcoal/[0.06]"
-                    )}
-                  >
-                    עריכה
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setBodyTab("preview")}
-                    className={cn(
-                      "rounded-full px-3 py-1",
-                      bodyTab === "preview"
-                        ? "bg-charcoal text-cream"
-                        : "text-charcoal/60 hover:bg-charcoal/[0.06]"
-                    )}
-                  >
-                    תצוגה מקדימה
-                  </button>
-                </div>
-              </div>
-              {showBodyHelp && (
-                <div className="mt-2">
-                  <MarkdownCheatSheet />
-                </div>
-              )}
-              {bodyTab === "edit" ? (
-                <textarea
-                  value={values.body_he}
-                  onChange={(e) => set("body_he", e.target.value)}
-                  rows={16}
-                  dir="rtl"
-                  className="mt-1.5 w-full rounded-xl border border-charcoal/20 bg-cream p-3 font-sans text-sm focus:outline-none focus:border-charcoal/60 focus:ring-2 focus:ring-gold/30"
-                  placeholder="כתבו פוסט עשיר…  **מודגש**, *נטוי*, ## כותרת, - רשימה, [קישור](https://…), ![תיאור](url-תמונה)"
-                />
-              ) : (
-                <div className="mt-1.5 min-h-[16rem] rounded-xl border border-charcoal/10 bg-linen/60 p-4">
-                  {values.body_he ? (
-                    <Markdown source={values.body_he} />
-                  ) : (
-                    <p className="text-charcoal/40">אין תוכן עדיין.</p>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Body — English */}
-            <div>
-              <span className="text-xs uppercase tracking-wider2 text-charcoal/70 font-medium">
-                Content in English (Markdown · optional)
-              </span>
-              <textarea
-                value={values.body_en}
-                onChange={(e) => set("body_en", e.target.value)}
-                rows={10}
-                dir="ltr"
-                className="mt-1.5 w-full rounded-xl border border-charcoal/20 bg-cream p-3 font-sans text-sm focus:outline-none focus:border-charcoal/60 focus:ring-2 focus:ring-gold/30"
-                placeholder="Write the full post in English…"
-              />
-            </div>
+            {/* Body — Hebrew + English */}
+            <MarkdownEditor
+              locale="he"
+              label="תוכן"
+              value={values.body_he}
+              onChange={(v) => set("body_he", v)}
+              rows={16}
+              placeholder="כתבו פוסט עשיר…  **מודגש**, *נטוי*, ## כותרת, - רשימה, [קישור](https://…), ![תיאור](url-תמונה)"
+            />
+            <MarkdownEditor
+              locale="en"
+              label="Content"
+              value={values.body_en}
+              onChange={(v) => set("body_en", v)}
+              rows={10}
+              placeholder="Write the full post in English…"
+            />
           </div>
 
           <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-4 shadow-soft">

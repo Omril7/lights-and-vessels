@@ -18,7 +18,7 @@ export function LocalizedInput({
 }) {
   const Flag = locale === "he" ? IsraelFlag : UsaFlag;
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-1.5" dir={locale === "en" ? "ltr" : undefined}>
       <label htmlFor={id} className={labelBase}>
         <span className="flex items-center gap-1.5">
           <Flag className="h-3 w-[1.1rem] shrink-0 rounded-[2px] shadow-sm" />
@@ -47,7 +47,7 @@ export function LocalizedTextarea({
 }) {
   const Flag = locale === "he" ? IsraelFlag : UsaFlag;
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-1.5" dir={locale === "en" ? "ltr" : undefined}>
       <label htmlFor={id} className={labelBase}>
         <span className="flex items-center gap-1.5">
           <Flag className="h-3 w-[1.1rem] shrink-0 rounded-[2px] shadow-sm" />

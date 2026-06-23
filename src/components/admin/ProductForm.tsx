@@ -1,8 +1,9 @@
 "use client";
 
 import { ImageUploader, type UploadedImage } from "@/components/admin/ImageUploader";
+import { MarkdownEditor } from "@/components/admin/MarkdownEditor";
 import { Button, Input, LocalizedInput, LocalizedTextarea } from "@/components/ui";
-import { cn, makeSlug, renderMarkdown } from "@/lib/utils";
+import { makeSlug } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -57,7 +58,6 @@ export function ProductForm({
     ...initial,
   });
   const [slugTouched, setSlugTouched] = useState(!!initial?.slug);
-  const [descTab, setDescTab] = useState<"edit" | "preview">("edit");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -192,72 +192,22 @@ export function ProductForm({
               placeholder="auto-generated-from-name"
             />
 
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs uppercase tracking-wider2 text-charcoal/70 font-medium">
-                  תיאור (Markdown · עברית)
-                </span>
-                <div className="flex gap-1 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => setDescTab("edit")}
-                    className={cn(
-                      "rounded-full px-3 py-1",
-                      descTab === "edit"
-                        ? "bg-charcoal text-cream"
-                        : "text-charcoal/60 hover:bg-charcoal/[0.06]"
-                    )}
-                  >
-                    עריכה
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setDescTab("preview")}
-                    className={cn(
-                      "rounded-full px-3 py-1",
-                      descTab === "preview"
-                        ? "bg-charcoal text-cream"
-                        : "text-charcoal/60 hover:bg-charcoal/[0.06]"
-                    )}
-                  >
-                    תצוגה מקדימה
-                  </button>
-                </div>
-              </div>
-              {descTab === "edit" ? (
-                <textarea
-                  value={values.description_he}
-                  onChange={(e) => set("description_he", e.target.value)}
-                  rows={8}
-                  dir="rtl"
-                  className="mt-1.5 w-full rounded-xl border border-charcoal/20 bg-cream p-3 font-sans text-sm focus:outline-none focus:border-charcoal/60 focus:ring-2 focus:ring-gold/30"
-                  placeholder="כתבו תיאור עשיר…  שורות חדשות, **מודגש**, *נטוי*, ## כותרת, - רשימה"
-                />
-              ) : (
-                <div
-                  className="mt-1.5 min-h-[12rem] rounded-xl border border-charcoal/10 bg-linen/60 p-4 prose-product"
-                  dangerouslySetInnerHTML={{
-                    __html:
-                      renderMarkdown(values.description_he) ||
-                      '<p class="text-charcoal/40">אין תוכן עדיין.</p>',
-                  }}
-                />
-              )}
-            </div>
-
-            <div>
-              <span className="text-xs uppercase tracking-wider2 text-charcoal/70 font-medium">
-                Description (Markdown · English)
-              </span>
-              <textarea
-                value={values.description_en}
-                onChange={(e) => set("description_en", e.target.value)}
-                rows={6}
-                dir="ltr"
-                className="mt-1.5 w-full rounded-xl border border-charcoal/20 bg-cream p-3 font-sans text-sm focus:outline-none focus:border-charcoal/60 focus:ring-2 focus:ring-gold/30"
-                placeholder="Optional English description…"
-              />
-            </div>
+            <MarkdownEditor
+              locale="he"
+              label="תיאור"
+              value={values.description_he}
+              onChange={(v) => set("description_he", v)}
+              rows={8}
+              placeholder="כתבו תיאור עשיר…  שורות חדשות, **מודגש**, *נטוי*, ## כותרת, - רשימה"
+            />
+            <MarkdownEditor
+              locale="en"
+              label="Description"
+              value={values.description_en}
+              onChange={(v) => set("description_en", v)}
+              rows={6}
+              placeholder="Optional English description…"
+            />
           </div>
 
           <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-4 shadow-soft">

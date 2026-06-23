@@ -6,7 +6,8 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useDropzone } from "react-dropzone";
 import { IsraelFlag, UsaFlag } from "@/lib/flags";
-import { Button, Dropdown, LocalizedInput, LocalizedTextarea, Markdown, MarkdownCheatSheet } from "@/components/ui";
+import { Button, Dropdown, LocalizedInput, LocalizedTextarea } from "@/components/ui";
+import { MarkdownEditor } from "@/components/admin/MarkdownEditor";
 import {
   MegaphoneIcon,
   SparklesIcon,
@@ -30,6 +31,8 @@ import { SOCIAL_PLATFORMS } from "@/lib/social";
 type FieldKind =
   | "text"
   | "textarea"
+  | "bilingual_text"
+  | "bilingual_textarea"
   | "richtext"
   | "url"
   | "image"
@@ -42,7 +45,10 @@ type FieldKind =
 type Field = {
   key: string;
   label: string;
+  label_en?: string;
   help?: string;
+  /** Force LTR direction on single-locale text/textarea fields (e.g. email, phone). */
+  ltr?: boolean;
   /** Recommended pixel dimensions, shown inside the upload dropzone. */
   dimensions?: string;
   kind: FieldKind;
@@ -86,7 +92,8 @@ export const SECTIONS: Section[] = [
       {
         key: "banner_text",
         label: "טקסט הבאנר",
-        kind: "text",
+        label_en: "Banner text",
+        kind: "bilingual_text",
         wide: true,
         help: "שינוי הטקסט יציג את הבאנר מחדש לכל מי שסגר אותו.",
       },
@@ -106,9 +113,9 @@ export const SECTIONS: Section[] = [
     page: "home",
     icon: SparklesIcon,
     fields: [
-      { key: "hero_title", label: "כותרת ראשית", kind: "text" },
-      { key: "hero_cta", label: "טקסט כפתור", kind: "text" },
-      { key: "hero_subtitle", label: "כותרת משנה", kind: "textarea", wide: true },
+      { key: "hero_title", label: "כותרת ראשית", label_en: "Main heading", kind: "bilingual_text" },
+      { key: "hero_cta", label: "טקסט כפתור", label_en: "Button text", kind: "bilingual_text" },
+      { key: "hero_subtitle", label: "כותרת משנה", label_en: "Subtitle", kind: "bilingual_textarea", wide: true },
       {
         key: "hero_image",
         label: "תמונת רקע",
@@ -125,7 +132,7 @@ export const SECTIONS: Section[] = [
     page: "home",
     icon: PaintBrushIcon,
     fields: [
-      { key: "story_teaser", label: "תקציר", kind: "textarea", wide: true },
+      { key: "story_teaser", label: "תקציר", label_en: "Studio teaser", kind: "bilingual_textarea", wide: true },
       {
         key: "story_image",
         label: "תמונה",
@@ -142,7 +149,7 @@ export const SECTIONS: Section[] = [
     page: "about",
     icon: UserIcon,
     fields: [
-      { key: "about_text", label: "תוכן מלא", kind: "richtext", wide: true },
+      { key: "about_text", label: "תוכן מלא", label_en: "Full content", kind: "richtext", wide: true },
       {
         key: "about_portrait",
         label: "פורטרט",
@@ -212,14 +219,15 @@ export const SECTIONS: Section[] = [
     page: "site",
     icon: ChatBubbleLeftRightIcon,
     fields: [
-      { key: "contact_heading", label: "כותרת", kind: "text" },
-      { key: "contact_email", label: "אימייל", kind: "text" },
-      { key: "whatsapp_number", label: "מספר וואטסאפ", kind: "text" },
-      { key: "contact_text", label: "טקסט הזמנה", kind: "textarea", wide: true },
+      { key: "contact_heading", label: "כותרת", label_en: "Heading", kind: "bilingual_text" },
+      { key: "contact_email", label: "אימייל", kind: "text", ltr: true },
+      { key: "whatsapp_number", label: "מספר וואטסאפ", kind: "text", ltr: true },
+      { key: "contact_text", label: "טקסט הזמנה", label_en: "Invitation text", kind: "bilingual_textarea", wide: true },
       {
         key: "whatsapp_message",
         label: "הודעה מוכנה לוואטסאפ",
-        kind: "textarea",
+        label_en: "WhatsApp message",
+        kind: "bilingual_textarea",
         wide: true,
       },
     ],
@@ -230,7 +238,7 @@ export const SECTIONS: Section[] = [
     page: "site",
     icon: Square3Stack3DIcon,
     fields: [
-      { key: "footer_text", label: "טקסט הפוטר", kind: "text", wide: true },
+      { key: "footer_text", label: "טקסט הפוטר", label_en: "Footer text", kind: "bilingual_text", wide: true },
       {
         key: "social_links",
         label: "קישורים לרשתות חברתיות",
@@ -540,6 +548,7 @@ function ContentField({
         valueHe={valueHe}
         valueEn={valueEn}
         label={field.label}
+        labelEn={field.label_en}
         help={field.help}
         onChangeHe={onChangeHe}
         onChangeEn={onChangeEn}
@@ -550,7 +559,32 @@ function ContentField({
   const inputBase =
     "w-full rounded-xl border border-charcoal/15 bg-cream px-3 py-2.5 text-sm text-ink placeholder:text-charcoal/30 focus:outline-none focus:border-charcoal/50 focus:ring-2 focus:ring-gold/30 transition-colors";
 
-  // url fields are not translatable — single HE input
+  // bilingual_text / bilingual_textarea — two LocalizedInput / LocalizedTextarea side by side
+  if (field.kind === "bilingual_text" || field.kind === "bilingual_textarea") {
+    const pairs = (
+      <div className="grid sm:grid-cols-2 gap-3">
+        {field.kind === "bilingual_textarea" ? (
+          <>
+            <LocalizedTextarea id={`${field.key}-he`} locale="he" label={field.label} value={valueHe} onChange={(e) => onChangeHe(e.target.value)} rows={3} />
+            <LocalizedTextarea id={`${field.key}-en`} locale="en" label={field.label_en ?? field.label} value={valueEn} onChange={(e) => onChangeEn(e.target.value)} rows={3} />
+          </>
+        ) : (
+          <>
+            <LocalizedInput id={`${field.key}-he`} locale="he" label={field.label} value={valueHe} onChange={(e) => onChangeHe(e.target.value)} />
+            <LocalizedInput id={`${field.key}-en`} locale="en" label={field.label_en ?? field.label} value={valueEn} onChange={(e) => onChangeEn(e.target.value)} />
+          </>
+        )}
+      </div>
+    );
+    return field.help ? (
+      <div className="space-y-1.5">
+        {pairs}
+        <span className="block text-xs text-charcoal/50">{field.help}</span>
+      </div>
+    ) : pairs;
+  }
+
+  // url — single LTR input (links)
   if (field.kind === "url") {
     return (
       <label className="block space-y-1.5">
@@ -571,34 +605,41 @@ function ContentField({
     );
   }
 
-  // text / textarea — bilingual via atomic LocalizedInput / LocalizedTextarea
-  const bilingualPairs = (
-    <div className="grid sm:grid-cols-2 gap-3">
+  // text / textarea — single locale (email, phone, etc.)
+  return (
+    <label className="block space-y-1.5">
+      <span className="text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
+        {field.label}
+      </span>
       {field.kind === "textarea" ? (
-        <>
-          <LocalizedTextarea id={`${field.key}-he`} locale="he" label={field.label} value={valueHe} onChange={(e) => onChangeHe(e.target.value)} rows={3} />
-          <LocalizedTextarea id={`${field.key}-en`} locale="en" label={field.label} value={valueEn} onChange={(e) => onChangeEn(e.target.value)} rows={3} />
-        </>
+        <textarea
+          value={valueHe}
+          onChange={(e) => onChangeHe(e.target.value)}
+          dir={field.ltr ? "ltr" : "rtl"}
+          rows={3}
+          className={inputBase}
+        />
       ) : (
-        <>
-          <LocalizedInput id={`${field.key}-he`} locale="he" label={field.label} value={valueHe} onChange={(e) => onChangeHe(e.target.value)} />
-          <LocalizedInput id={`${field.key}-en`} locale="en" label={field.label} value={valueEn} onChange={(e) => onChangeEn(e.target.value)} />
-        </>
+        <input
+          type="text"
+          value={valueHe}
+          onChange={(e) => onChangeHe(e.target.value)}
+          dir={field.ltr ? "ltr" : "rtl"}
+          className={inputBase}
+        />
       )}
-    </div>
+      {field.help && (
+        <span className="block text-xs text-charcoal/50">{field.help}</span>
+      )}
+    </label>
   );
-  return field.help ? (
-    <div className="space-y-1.5">
-      {bilingualPairs}
-      <span className="block text-xs text-charcoal/50">{field.help}</span>
-    </div>
-  ) : bilingualPairs;
 }
 
 function MarkdownField({
   valueHe,
   valueEn,
   label,
+  labelEn,
   help,
   onChangeHe,
   onChangeEn,
@@ -606,93 +647,15 @@ function MarkdownField({
   valueHe: string;
   valueEn: string;
   label: string;
+  labelEn?: string;
   help?: string;
   onChangeHe: (v: string) => void;
   onChangeEn: (v: string) => void;
 }) {
-  const [tab, setTab] = useState<"edit" | "preview">("edit");
-  const [showHelp, setShowHelp] = useState(false);
-
-  const inputBase = "w-full rounded-xl border border-charcoal/15 bg-cream px-3 py-2.5 text-sm text-ink placeholder:text-charcoal/30 focus:outline-none focus:border-charcoal/50 focus:ring-2 focus:ring-gold/30";
-
   return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between">
-        <span className="text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium flex items-center gap-1.5">
-          <IsraelFlag className="h-3 w-4 rounded-sm" />
-          {label}
-        </span>
-        <div className="flex items-center gap-1 text-xs">
-          <button
-            type="button"
-            onClick={() => setShowHelp((v) => !v)}
-            className={cn(
-              "rounded-full px-3 py-1 text-charcoal/60 hover:bg-charcoal/[0.06]",
-              showHelp && "bg-charcoal/[0.06] text-charcoal"
-            )}
-          >
-            עזרה
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("edit")}
-            className={cn(
-              "rounded-full px-3 py-1",
-              tab === "edit"
-                ? "bg-charcoal text-cream"
-                : "text-charcoal/60 hover:bg-charcoal/[0.06]"
-            )}
-          >
-            עריכה
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("preview")}
-            className={cn(
-              "rounded-full px-3 py-1",
-              tab === "preview"
-                ? "bg-charcoal text-cream"
-                : "text-charcoal/60 hover:bg-charcoal/[0.06]"
-            )}
-          >
-            תצוגה מקדימה
-          </button>
-        </div>
-      </div>
-
-      {showHelp && <MarkdownCheatSheet />}
-
-      {tab === "edit" ? (
-        <textarea
-          value={valueHe}
-          onChange={(e) => onChangeHe(e.target.value)}
-          rows={10}
-          dir="rtl"
-          className={inputBase}
-          placeholder="כתבו כאן… **מודגש**, *נטוי*, ## כותרת, - רשימה, [קישור](https://…)"
-        />
-      ) : (
-        <div className="min-h-[14rem] rounded-xl border border-charcoal/10 bg-linen/60 p-4">
-          {valueHe ? (
-            <Markdown source={valueHe} />
-          ) : (
-            <p className="text-charcoal/40">אין תוכן עדיין.</p>
-          )}
-        </div>
-      )}
-
-      <div className="mt-2">
-        <LocalizedTextarea
-          id={`${label}-en`}
-          locale="en"
-          label={label}
-          value={valueEn}
-          onChange={(e) => onChangeEn(e.target.value)}
-          rows={6}
-          placeholder="English content… **bold**, *italic*, ## heading, - list"
-        />
-      </div>
-
+    <div className="space-y-3">
+      <MarkdownEditor locale="he" label={label} value={valueHe} onChange={onChangeHe} />
+      <MarkdownEditor locale="en" label={labelEn ?? label} value={valueEn} onChange={onChangeEn} />
       {help && <p className="text-xs text-charcoal/50">{help}</p>}
     </div>
   );
