@@ -8,8 +8,13 @@ const intlMiddleware = createIntlMiddleware(routing);
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Admin routes (except login): require a valid session token.
-  if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
+  // Admin routes live outside the [locale] segment, so they must never
+  // fall through to intlMiddleware (which would locale-prefix them).
+  if (pathname.startsWith("/admin")) {
+    if (pathname.startsWith("/admin/login")) {
+      return NextResponse.next();
+    }
+
     const token = await getToken({ req: request });
     if (!token) {
       const loginUrl = new URL("/admin/login", request.url);
