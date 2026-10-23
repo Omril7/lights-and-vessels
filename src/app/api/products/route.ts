@@ -1,35 +1,9 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
-import { makeSlug } from "@/lib/utils";
+import { productSchema, productScalars, resolveSlug } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
-
-const productSchema = z.object({
-  name_he: z.string().min(1),
-  name_en: z.string().nullable().optional(),
-  slug: z.string().min(1).optional(),
-  description_he: z.string().default(""),
-  description_en: z.string().nullable().optional(),
-  price: z.number().nonnegative(),
-  comparePrice: z.number().nonnegative().nullable().optional(),
-  category: z.string().min(1).nullable().optional(),
-  tags_he: z.string().nullable().optional(),
-  tags_en: z.string().nullable().optional(),
-  stockCount: z.number().int().nonnegative().default(0),
-  inStock: z.boolean().default(true),
-  featured: z.boolean().default(false),
-  published: z.boolean().default(false),
-  images: z
-    .array(
-      z.object({
-        url: z.string().min(1),
-        alt: z.string().nullable().optional(),
-      })
-    )
-    .default([]),
-});
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -40,8 +14,11 @@ export async function GET(req: Request) {
 
   const items = await prisma.product.findMany({
     where,
-    include: { images: { orderBy: { order: "asc" } } },
-    orderBy: { createdAt: "desc" },
+    include: {
+      images: { orderBy: { order: "asc" } },
+      tags: { include: { tag: true } },
+    },
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
   });
   return NextResponse.json(items);
 }
@@ -66,41 +43,39 @@ export async function POST(req: Request) {
   }
 
   const data = parsed.data;
-  const slug = data.slug?.trim() || makeSlug(data.name_he);
-
-  const existing = await prisma.product.findUnique({ where: { slug } });
-  if (existing) {
-    return NextResponse.json(
-      { error: "Slug already in use" },
-      { status: 409 }
-    );
+  const { slug, conflict } = await resolveSlug(data);
+  if (conflict) {
+    return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
   }
 
-  const product = await prisma.product.create({
-    data: {
-      name_he: data.name_he,
-      name_en: data.name_en ?? null,
-      slug,
-      description_he: data.description_he,
-      description_en: data.description_en ?? null,
-      price: data.price,
-      comparePrice: data.comparePrice ?? null,
-      category: data.category ?? null,
-      tags_he: data.tags_he ?? null,
-      tags_en: data.tags_en ?? null,
-      stockCount: data.stockCount,
-      inStock: data.inStock,
-      featured: data.featured,
-      published: data.published,
-      images: {
-        create: data.images.map((img, i) => ({
-          url: img.url,
-          alt_he: img.alt ?? null,
-          order: i,
-        })),
+  // New products go to the top of the manual order.
+  const first = await prisma.product.findFirst({
+    orderBy: { sortOrder: "asc" },
+    select: { sortOrder: true },
+  });
+
+  const product = await prisma.$transaction(async (tx) => {
+    const created = await tx.product.create({
+      data: {
+        ...productScalars(data),
+        // Placeholder, replaced by the product ID below when no slug was resolved.
+        slug: slug ?? `pending-${Date.now()}`,
+        sortOrder: (first?.sortOrder ?? 1) - 1,
+        tags: { create: data.tagIds.map((tagId) => ({ tagId })) },
+        images: {
+          create: data.images.map((img, i) => ({
+            url: img.url,
+            alt_he: img.alt ?? null,
+            order: i,
+          })),
+        },
       },
-    },
-    include: { images: true },
+    });
+    if (slug) return created;
+    return tx.product.update({
+      where: { id: created.id },
+      data: { slug: created.id },
+    });
   });
 
   return NextResponse.json(product, { status: 201 });

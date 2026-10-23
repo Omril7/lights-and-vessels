@@ -60,6 +60,9 @@
     "giftNote": "מתנה? נשמח לצרף פתק כתוב ביד",
     "related": "עוד מאותו עולם",
     "breadcrumbHome": "בית",
+    "materials": "חומרים",
+    "dimensions": "מידות",
+    "cm": "ס״מ",
     "breadcrumbShop": "החנות"
   },
   "shop": {
@@ -71,7 +74,7 @@
     "allItemsBtn": "לכל הפריטים",
     "sortLabel": "מיון פריטים",
     "itemCount": "{count} פריטים",
-    "sortNewest": "החדש ביותר",
+    "sortCurated": "מומלצים",
     "sortPriceAsc": "מחיר: מהנמוך לגבוה",
     "sortPriceDesc": "מחיר: מהגבוה לנמוך"
   },

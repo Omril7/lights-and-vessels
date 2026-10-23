@@ -19,14 +19,16 @@ export default function AdminError({
     <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 rounded-2xl border border-terracotta/30 bg-terracotta/5 p-10 text-center">
       <h1 className="font-serif text-2xl text-charcoal">שגיאה בטעינת הדף</h1>
       <p className="max-w-md text-sm text-charcoal/70">
-        משהו השתבש. בדקו את הקונסול לפרטים, ונסו שוב.
+        משהו השתבש. נסו שוב, ואם הבעיה חוזרת פנו אלינו.
       </p>
-      <pre
-        className="max-w-full overflow-auto rounded-lg bg-charcoal/[0.06] px-3 py-2 text-start text-xs text-charcoal/70"
-        dir="ltr"
-      >
-        {error.message}
-      </pre>
+      {process.env.NODE_ENV === "development" && (
+        <pre
+          className="max-w-full overflow-auto rounded-lg bg-charcoal/[0.06] px-3 py-2 text-start text-xs text-charcoal/70"
+          dir="ltr"
+        >
+          {error.message}
+        </pre>
+      )}
       <div className="flex flex-wrap items-center justify-center gap-3">
         <Button onClick={() => reset()}>נסו שוב</Button>
         <Link
@@ -36,11 +38,6 @@ export default function AdminError({
           חזרה לדשבורד
         </Link>
       </div>
-      {error.digest && (
-        <p className="text-xs text-charcoal/40" dir="ltr">
-          ref: {error.digest}
-        </p>
-      )}
     </div>
   );
 }

@@ -1,8 +1,9 @@
+import { getProductFormOptions } from "@/lib/product-options";
 import { ProductForm } from "@/components/admin/ProductForm";
 
 export const metadata = { title: "מוצר חדש" };
 
-export default function NewProductPage() {
+export default async function NewProductPage() {
   return (
     <div className="space-y-6">
       <header>
@@ -11,7 +12,7 @@ export default function NewProductPage() {
         </p>
         <h1 className="mt-1 font-serif text-3xl text-charcoal">מוצר חדש</h1>
       </header>
-      <ProductForm mode="create" />
+      <ProductForm mode="create" options={await getProductFormOptions()} />
     </div>
   );
 }

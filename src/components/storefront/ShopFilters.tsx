@@ -19,7 +19,7 @@ export function ShopFilters({
   const params = useSearchParams();
 
   const SORTS: { key: SortKey; label: string }[] = [
-    { key: "newest", label: t("sortNewest") },
+    { key: "curated", label: t("sortCurated") },
     { key: "price-asc", label: t("sortPriceAsc") },
     { key: "price-desc", label: t("sortPriceDesc") },
   ];

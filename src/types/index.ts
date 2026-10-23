@@ -32,4 +32,4 @@ export function categoryLabel(slug: string): string {
   return CATEGORIES.find((c) => c.slug === slug)?.label ?? slug;
 }
 
-export type SortKey = "newest" | "price-asc" | "price-desc";
+export type SortKey = "curated" | "price-asc" | "price-desc";

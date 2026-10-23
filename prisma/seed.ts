@@ -313,8 +313,6 @@ async function main() {
         price: p.price,
         comparePrice: p.comparePrice ?? null,
         category: p.category,
-        tags_he: p.tags_he,
-        tags_en: p.tags_en,
         inStock: p.stockCount > 0,
         stockCount: p.stockCount,
         featured: p.featured,
@@ -329,8 +327,6 @@ async function main() {
         price: p.price,
         comparePrice: p.comparePrice ?? null,
         category: p.category,
-        tags_he: p.tags_he,
-        tags_en: p.tags_en,
         inStock: p.stockCount > 0,
         stockCount: p.stockCount,
         featured: p.featured,
@@ -349,6 +345,23 @@ async function main() {
     });
   }
   console.log(`  ✓ ${products.length} products`);
+
+  // Tags are shared rows; pair he/en names by position.
+  for (const p of products) {
+    const he = p.tags_he.split(",").map((t) => t.trim()).filter(Boolean);
+    const en = p.tags_en.split(",").map((t) => t.trim());
+    const product = await prisma.product.findUniqueOrThrow({ where: { slug: p.slug } });
+    await prisma.productTagLink.deleteMany({ where: { productId: product.id } });
+    for (let i = 0; i < he.length; i++) {
+      const name_he = he[i];
+      const tag = await prisma.productTag.upsert({
+        where: { name_he },
+        update: { name_en: en[i] || null },
+        create: { name_he, name_en: en[i] || null, slug: `tag-${i}-${p.slug}` },
+      });
+      await prisma.productTagLink.create({ data: { productId: product.id, tagId: tag.id } });
+    }
+  }
 
   for (const c of siteContent) {
     await prisma.siteContent.upsert({

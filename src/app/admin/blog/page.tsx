@@ -108,7 +108,9 @@ export default async function AdminBlogPage({
                   <Link href={`/admin/blog/${p.id}/edit`} className="font-medium text-charcoal hover:text-copper">
                     {p.title_he}
                   </Link>
-                  <p className="text-xs text-charcoal/50" dir="ltr">/{p.slug}</p>
+                  {p.title_en && (
+                    <p className="text-xs text-charcoal/50" dir="ltr">{p.title_en}</p>
+                  )}
                   <div className="mt-1 flex flex-wrap items-center gap-1.5">
                     {p.status === "published" ? (
                       <Badge tone="neutral">מפורסם</Badge>

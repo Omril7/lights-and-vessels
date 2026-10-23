@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { getProductFormOptions } from "@/lib/product-options";
 import { ProductForm } from "@/components/admin/ProductForm";
 
 export const dynamic = "force-dynamic";
@@ -12,9 +13,13 @@ export default async function EditProductPage({
 }) {
   const product = await prisma.product.findUnique({
     where: { id: params.id },
-    include: { images: { orderBy: { order: "asc" } } },
+    include: {
+      images: { orderBy: { order: "asc" } },
+      tags: { select: { tagId: true } },
+    },
   });
   if (!product) notFound();
+  const options = await getProductFormOptions();
 
   return (
     <div className="space-y-6">
@@ -23,11 +28,12 @@ export default async function EditProductPage({
           מוצרים
         </p>
         <h1 className="mt-1 font-serif text-3xl text-charcoal">
-          עריכה · {product.name_he}
+          {product.name_he}
         </h1>
       </header>
       <ProductForm
         mode="edit"
+        options={options}
         initial={{
           id: product.id,
           name_he: product.name_he,
@@ -38,8 +44,12 @@ export default async function EditProductPage({
           price: product.price,
           comparePrice: product.comparePrice,
           category: product.category ?? "",
-          tags_he: product.tags_he ?? "",
-          tags_en: product.tags_en ?? "",
+          tagIds: product.tags.map((t) => t.tagId),
+          materials_he: product.materials_he ?? "",
+          materials_en: product.materials_en ?? "",
+          width: product.width,
+          height: product.height,
+          depth: product.depth,
           stockCount: product.stockCount,
           inStock: product.inStock,
           featured: product.featured,

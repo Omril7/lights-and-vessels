@@ -10,7 +10,7 @@ import {
   ChevronLeftIcon,
 } from "@heroicons/react/24/outline";
 import { formatPrice, cn } from "@/lib/utils";
-import { categoryLabel } from "@/types";
+import { ProductReorderButtons } from "@/components/admin/ProductReorderButtons";
 import { ProductsFilterBar } from "@/components/admin/ProductsFilterBar";
 
 export const dynamic = "force-dynamic";
@@ -47,9 +47,21 @@ export default async function AdminProductsPage({
   const where: Record<string, unknown> = {};
   if (q) {
     where.OR = [
-      { name: { contains: q } },
-      { slug: { contains: q } },
-      { tags: { contains: q } },
+      { name_he: { contains: q, mode: "insensitive" } },
+      { name_en: { contains: q, mode: "insensitive" } },
+      { slug: { contains: q, mode: "insensitive" } },
+      {
+        tags: {
+          some: {
+            tag: {
+              OR: [
+                { name_he: { contains: q, mode: "insensitive" } },
+                { name_en: { contains: q, mode: "insensitive" } },
+              ],
+            },
+          },
+        },
+      },
     ];
   }
   if (category && category !== "all") where.category = category;
@@ -68,13 +80,20 @@ export default async function AdminProductsPage({
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
 
-  const products = await prisma.product.findMany({
-    where,
-    include: { images: { orderBy: { order: "asc" }, take: 1 } },
-    orderBy: { createdAt: "desc" },
-    skip: (safePage - 1) * PAGE_SIZE,
-    take: PAGE_SIZE,
-  });
+  const [products, categories] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      include: { images: { orderBy: { order: "asc" }, take: 1 } },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+      skip: (safePage - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.productCategory.findMany({
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+    }),
+  ]);
+  const categoryName = new Map(categories.map((c) => [c.slug, c.name_he]));
+  const productIds = products.map((p) => p.id);
 
   const filtersActive =
     q !== "" || category !== "all" || status !== "all";
@@ -89,17 +108,26 @@ export default async function AdminProductsPage({
           <h1 className="mt-1 font-serif text-3xl text-charcoal">מוצרים</h1>
           <p className="mt-1 text-sm text-charcoal/60">
             {filtersActive
-              ? `${total} תוצאות`
-              : `סה״כ ${total} פריטים`}
+              ? `${total} תוצאות · הסדר ניתן לשינוי רק ללא סינון`
+              : `סה״כ ${total} פריטים · החצים משנים את סדר ההצגה באתר`}
           </p>
         </div>
-        <Button href="/admin/products/new" size="sm">
-          <PlusIcon className="h-4 w-4" aria-hidden />
-          הוספת מוצר
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button href="/admin/products/categories" variant="outline" size="sm">
+            קטגוריות
+          </Button>
+          <Button href="/admin/products/tags" variant="outline" size="sm">
+            תגיות
+          </Button>
+          <Button href="/admin/products/new" size="sm">
+            <PlusIcon className="h-4 w-4" aria-hidden />
+            הוספת מוצר
+          </Button>
+        </div>
       </header>
 
       <ProductsFilterBar
+        categories={categories.map((c) => ({ slug: c.slug, label: c.name_he }))}
         initialQ={q}
         initialCategory={category}
         initialStatus={status}
@@ -120,6 +148,9 @@ export default async function AdminProductsPage({
             <table className="w-full text-sm">
               <thead className="bg-linen/60 text-xs uppercase tracking-wider2 text-charcoal/60">
                 <tr>
+                  <th className="w-10 px-2 py-3">
+                    <span className="sr-only">סדר</span>
+                  </th>
                   <th className="px-4 py-3 text-start font-medium">תמונה</th>
                   <th className="px-4 py-3 text-start font-medium">שם</th>
                   <th className="px-4 py-3 text-start font-medium">קטגוריה</th>
@@ -130,7 +161,7 @@ export default async function AdminProductsPage({
                 </tr>
               </thead>
               <tbody>
-                {products.map((p) => {
+                {products.map((p, index) => {
                   const img = p.images[0]?.url;
                   const soldOut = !p.inStock || p.stockCount <= 0;
                   return (
@@ -138,6 +169,11 @@ export default async function AdminProductsPage({
                       key={p.id}
                       className="border-t border-charcoal/5 hover:bg-linen/40"
                     >
+                      <td className="px-2 py-3">
+                        {!filtersActive && (
+                          <ProductReorderButtons ids={productIds} index={index} />
+                        )}
+                      </td>
                       <td className="px-4 py-3">
                         <div className="relative h-12 w-12 overflow-hidden rounded-md bg-linen">
                           {img && (
@@ -159,12 +195,14 @@ export default async function AdminProductsPage({
                         >
                           {p.name_he}
                         </Link>
-                        <p className="text-xs text-charcoal/40" dir="ltr">
-                          /{p.slug}
-                        </p>
+                        {p.name_en && (
+                          <p className="text-xs text-charcoal/50" dir="ltr">
+                            {p.name_en}
+                          </p>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-charcoal/80">
-                        {p.category ? categoryLabel(p.category) : "—"}
+                        {p.category ? categoryName.get(p.category) ?? p.category : "—"}
                       </td>
                       <td className="px-4 py-3 text-end text-charcoal">
                         {formatPrice(p.price)}

@@ -14,18 +14,13 @@ import type { ProductWithImages } from "@/types";
 
 export const dynamic = "force-dynamic";
 
-const CATEGORY_KEYS: Record<string, "rings" | "necklaces" | "bracelets" | "earrings" | "homeDecor"> = {
-  rings: "rings",
-  necklaces: "necklaces",
-  bracelets: "bracelets",
-  earrings: "earrings",
-  "home-decor": "homeDecor",
-};
-
 const getProduct = cache(async (slug: string) =>
   prisma.product.findFirst({
     where: { slug, published: true },
-    include: { images: { orderBy: { order: "asc" } } },
+    include: {
+      images: { orderBy: { order: "asc" } },
+      tags: { include: { tag: true } },
+    },
   }),
 );
 
@@ -70,11 +65,10 @@ export default async function ProductPage({
 }: {
   params: { locale: string; slug: string };
 }) {
-  const [product, locale, t, tCat] = await Promise.all([
-    getProduct(params.slug) as Promise<ProductWithImages | null>,
+  const [product, locale, t] = await Promise.all([
+    getProduct(params.slug),
     getLocale(),
     getTranslations("product"),
-    getTranslations("categories"),
   ]);
   if (!product) notFound();
 
@@ -85,19 +79,27 @@ export default async function ProductPage({
       id: { not: product.id },
     },
     include: { images: { orderBy: { order: "asc" } } },
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     take: 4,
   })) as ProductWithImages[];
 
   const name = localize(product, "name", locale);
   const description = localize(product, "description", locale);
-  const tagsRaw = localize(product, "tags", locale);
+  const materials = localize(product, "materials", locale);
   const onSale = product.comparePrice != null && product.comparePrice > product.price;
   const soldOut = !product.inStock || product.stockCount <= 0;
   const lowStock = !soldOut && product.stockCount <= 5;
-  const tags = tagsRaw ? tagsRaw.split(",").map((tag) => tag.trim()).filter(Boolean) : [];
+  const tags = product.tags.map((l) => localize(l.tag, "name", locale));
+  const dimensions = [product.width, product.height, product.depth]
+    .filter((d): d is number => d != null)
+    .join(" × ");
 
-  const catKey = product.category ? CATEGORY_KEYS[product.category] : undefined;
-  const catLabel = catKey ? tCat(catKey) : product.category ?? "";
+  const category = product.category
+    ? await prisma.productCategory.findUnique({
+        where: { slug: product.category },
+      })
+    : null;
+  const catLabel = category ? localize(category, "name", locale) : "";
 
   const productJsonLd = {
     "@context": "https://schema.org",
@@ -133,7 +135,7 @@ export default async function ProductPage({
           {t("breadcrumbShop")}
         </Link>
         <span>/</span>
-        {product.category && (
+        {category && (
           <Link
             href={`/shop?category=${product.category}`}
             className="hover:text-charcoal"
@@ -151,7 +153,7 @@ export default async function ProductPage({
         <FadeIn delay={0.1}>
           <div className="lg:sticky lg:top-28">
             <div className="flex flex-wrap items-center gap-2">
-              {product.category && (
+              {category && (
                 <Badge tone="accent">{catLabel}</Badge>
               )}
               {soldOut && <Badge tone="soldout">{t("soldOut")}</Badge>}
@@ -189,6 +191,23 @@ export default async function ProductPage({
               className="prose-art mt-6 text-[0.95rem] text-charcoal/85"
               dangerouslySetInnerHTML={{ __html: renderMarkdown(description) }}
             />
+
+            {(materials || dimensions) && (
+              <dl className="mt-6 space-y-1 text-sm text-charcoal/80">
+                {materials && (
+                  <div className="flex gap-2">
+                    <dt className="text-charcoal/50">{t("materials")}:</dt>
+                    <dd>{materials}</dd>
+                  </div>
+                )}
+                {dimensions && (
+                  <div className="flex gap-2">
+                    <dt className="text-charcoal/50">{t("dimensions")}:</dt>
+                    <dd dir="ltr">{dimensions} {t("cm")}</dd>
+                  </div>
+                )}
+              </dl>
+            )}
 
             {tags.length > 0 && (
               <div className="mt-6 flex flex-wrap gap-2">

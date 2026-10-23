@@ -28,8 +28,11 @@ export async function generateMetadata({
   };
 }
 
-const SORT_MAP: Record<SortKey, Prisma.ProductOrderByWithRelationInput> = {
-  newest: { createdAt: "desc" },
+const SORT_MAP: Record<
+  SortKey,
+  Prisma.ProductOrderByWithRelationInput | Prisma.ProductOrderByWithRelationInput[]
+> = {
+  curated: [{ sortOrder: "asc" }, { createdAt: "desc" }],
   "price-asc": { price: "asc" },
   "price-desc": { price: "desc" },
 };
@@ -42,10 +45,10 @@ export default async function ShopPage({
   const t = await getTranslations("shop");
   const category = "";
   const sort: SortKey = (
-    ["newest", "price-asc", "price-desc"] as const
+    ["curated", "price-asc", "price-desc"] as const
   ).includes(searchParams.sort as SortKey)
     ? (searchParams.sort as SortKey)
-    : "newest";
+    : "curated";
 
   const products = (await prisma.product.findMany({
     where: { published: true, ...(category ? { category } : {}) },

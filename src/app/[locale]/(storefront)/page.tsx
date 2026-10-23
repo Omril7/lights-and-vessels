@@ -37,7 +37,7 @@ export default async function HomePage() {
   const featured = (await prisma.product.findMany({
     where: { published: true, featured: true },
     include: { images: { orderBy: { order: "asc" } } },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     take: 8,
   })) as ProductWithImages[];
 

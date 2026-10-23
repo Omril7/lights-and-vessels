@@ -2,8 +2,10 @@
 
 import { ImageUploader, type UploadedImage } from "@/components/admin/ImageUploader";
 import { MarkdownEditor } from "@/components/admin/MarkdownEditor";
-import { Button, Input, LocalizedInput, LocalizedTextarea } from "@/components/ui";
-import { makeSlug } from "@/lib/utils";
+import { Button, Dropdown, Input, LocalizedInput } from "@/components/ui";
+import type { ProductFormOptions } from "@/lib/product-options";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -18,8 +20,12 @@ export type ProductFormValues = {
   price: number;
   comparePrice: number | null;
   category: string | null;
-  tags_he: string;
-  tags_en: string;
+  tagIds: string[];
+  materials_he: string;
+  materials_en: string;
+  width: number | null;
+  height: number | null;
+  depth: number | null;
   stockCount: number;
   inStock: boolean;
   featured: boolean;
@@ -36,8 +42,12 @@ const EMPTY: ProductFormValues = {
   price: 0,
   comparePrice: null,
   category: null,
-  tags_he: "",
-  tags_en: "",
+  tagIds: [],
+  materials_he: "",
+  materials_en: "",
+  width: null,
+  height: null,
+  depth: null,
   stockCount: 0,
   inStock: true,
   featured: false,
@@ -45,19 +55,25 @@ const EMPTY: ProductFormValues = {
   images: [],
 };
 
+const card =
+  "rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-4 shadow-soft";
+const fieldLabel =
+  "text-xs uppercase tracking-wider2 text-charcoal/70 font-medium";
+
 export function ProductForm({
   initial,
   mode,
+  options,
 }: {
   initial?: Partial<ProductFormValues>;
   mode: "create" | "edit";
+  options: ProductFormOptions;
 }) {
   const router = useRouter();
   const [values, setValues] = useState<ProductFormValues>({
     ...EMPTY,
     ...initial,
   });
-  const [slugTouched, setSlugTouched] = useState(!!initial?.slug);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -66,18 +82,26 @@ export function ProductForm({
     v: ProductFormValues[K]
   ) => setValues((prev) => ({ ...prev, [k]: v }));
 
-  const onNameChange = (name_he: string) => {
-    setValues((prev) => ({
-      ...prev,
-      name_he,
-      slug: slugTouched ? prev.slug : makeSlug(name_he),
-    }));
-  };
+  const toggleTag = (id: string) =>
+    set(
+      "tagIds",
+      values.tagIds.includes(id)
+        ? values.tagIds.filter((t) => t !== id)
+        : [...values.tagIds, id]
+    );
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!values.name_he.trim()) {
-      toast.error("שם המוצר חובה");
+    const missing = (
+      [
+        [values.name_he, "שם המוצר בעברית"],
+        [values.name_en, "שם המוצר באנגלית"],
+        [values.description_he, "תיאור בעברית"],
+        [values.description_en, "תיאור באנגלית"],
+      ] as const
+    ).find(([v]) => !v.trim());
+    if (missing) {
+      toast.error(`חסר: ${missing[1]}`);
       return;
     }
     if (values.price < 0) {
@@ -88,18 +112,23 @@ export function ProductForm({
     setSaving(true);
     const payload = {
       name_he: values.name_he.trim(),
-      name_en: values.name_en.trim() || null,
-      slug: values.slug.trim() || makeSlug(values.name_he),
-      description_he: values.description_he,
-      description_en: values.description_en || null,
+      name_en: values.name_en.trim(),
+      // Empty slug: the server derives it from the English name, or the product ID.
+      slug: values.slug.trim() || undefined,
+      description_he: values.description_he.trim(),
+      description_en: values.description_en.trim(),
       price: Number(values.price),
       comparePrice:
         values.comparePrice == null || Number.isNaN(values.comparePrice)
           ? null
           : Number(values.comparePrice),
       category: values.category || null,
-      tags_he: values.tags_he || null,
-      tags_en: values.tags_en || null,
+      tagIds: values.tagIds,
+      materials_he: values.materials_he.trim() || null,
+      materials_en: values.materials_en.trim() || null,
+      width: values.width,
+      height: values.height,
+      depth: values.depth,
       stockCount: Number(values.stockCount) | 0,
       inStock: values.inStock,
       featured: values.featured,
@@ -119,7 +148,11 @@ export function ProductForm({
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "שגיאה בשמירה");
+        const detail =
+          res.status === 409
+            ? "כתובת הדף כבר בשימוש במוצר אחר"
+            : err.error || "שגיאה בשמירה";
+        throw new Error(detail);
       }
       toast.success(mode === "create" ? "המוצר נוצר" : "המוצר עודכן");
       router.push("/admin/products");
@@ -157,44 +190,45 @@ export function ProductForm({
     <form onSubmit={onSubmit} className="space-y-8">
       <div className="grid lg:grid-cols-3 gap-6">
         <section className="lg:col-span-2 space-y-6">
-          <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-4 shadow-soft">
+          <div className={card}>
             <h2 className="font-serif text-lg text-charcoal">פרטי המוצר</h2>
+            <p className="text-xs text-charcoal/50">
+              שדות המסומנים ב-* חובה בשתי השפות.
+            </p>
 
             <div className="grid sm:grid-cols-2 gap-3">
               <LocalizedInput
                 id="name-he"
                 locale="he"
-                label="שם המוצר"
+                label="שם המוצר *"
                 value={values.name_he}
-                onChange={(e) => onNameChange(e.target.value)}
+                onChange={(e) => set("name_he", e.target.value)}
                 placeholder="שם בעברית"
                 required
               />
               <LocalizedInput
                 id="name-en"
                 locale="en"
-                label="Product Name"
+                label="Product Name *"
                 value={values.name_en}
                 onChange={(e) => set("name_en", e.target.value)}
                 placeholder="Name in English"
+                required
               />
             </div>
 
             <Input
               id="slug"
-              label="כתובת (slug)"
+              label="כתובת הדף באתר"
               value={values.slug}
-              onChange={(e) => {
-                setSlugTouched(true);
-                set("slug", e.target.value);
-              }}
+              onChange={(e) => set("slug", e.target.value)}
               dir="ltr"
-              placeholder="auto-generated-from-name"
+              placeholder="ריק = נוצר אוטומטית מהשם באנגלית"
             />
 
             <MarkdownEditor
               locale="he"
-              label="תיאור"
+              label="תיאור *"
               value={values.description_he}
               onChange={(v) => set("description_he", v)}
               rows={8}
@@ -202,15 +236,15 @@ export function ProductForm({
             />
             <MarkdownEditor
               locale="en"
-              label="Description"
+              label="Description *"
               value={values.description_en}
               onChange={(v) => set("description_en", v)}
               rows={6}
-              placeholder="Optional English description…"
+              placeholder="Write the English description…"
             />
           </div>
 
-          <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-4 shadow-soft">
+          <div className={card}>
             <h2 className="font-serif text-lg text-charcoal">תמונות</h2>
             <ImageUploader
               images={values.images}
@@ -218,10 +252,54 @@ export function ProductForm({
               hint="מומלץ: 1200×1500 פיקסל (יחס 4:5, לאורך)"
             />
           </div>
+
+          <div className={card}>
+            <h2 className="font-serif text-lg text-charcoal">מידות וחומרים</h2>
+            <div className="grid grid-cols-3 gap-3">
+              {(
+                [
+                  ["width", "רוחב (ס״מ)"],
+                  ["height", "גובה (ס״מ)"],
+                  ["depth", "עומק (ס״מ)"],
+                ] as const
+              ).map(([key, label]) => (
+                <Input
+                  key={key}
+                  id={key}
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  label={label}
+                  value={values[key] ?? ""}
+                  onChange={(e) =>
+                    set(key, e.target.value === "" ? null : Number(e.target.value))
+                  }
+                />
+              ))}
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <LocalizedInput
+                id="materials-he"
+                locale="he"
+                label="חומרים"
+                value={values.materials_he}
+                onChange={(e) => set("materials_he", e.target.value)}
+                placeholder="קרמיקה, זכוכית, כסף 925"
+              />
+              <LocalizedInput
+                id="materials-en"
+                locale="en"
+                label="Materials"
+                value={values.materials_en}
+                onChange={(e) => set("materials_en", e.target.value)}
+                placeholder="Ceramic, glass, sterling silver"
+              />
+            </div>
+          </div>
         </section>
 
         <aside className="space-y-6">
-          <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-4 shadow-soft">
+          <div className={card}>
             <h2 className="font-serif text-lg text-charcoal">מחיר ומלאי</h2>
             <Input
               id="price"
@@ -238,7 +316,7 @@ export function ProductForm({
               type="number"
               step="0.01"
               min="0"
-              label="מחיר מקורי (לבדיקות מבצע)"
+              label="מחיר לפני הנחה (₪)"
               value={values.comparePrice ?? ""}
               onChange={(e) =>
                 set(
@@ -268,26 +346,74 @@ export function ProductForm({
             </label>
           </div>
 
-          <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-4 shadow-soft">
-            <h2 className="font-serif text-lg text-charcoal">סיווג</h2>
-            {/* CATEGORIES_DISABLED: category dropdown removed */}
-            <div className="grid sm:grid-cols-2 gap-3">
-              <LocalizedInput
-                id="tags-he"
-                locale="he"
-                label="תגיות (מופרדות בפסיק)"
-                value={values.tags_he}
-                onChange={(e) => set("tags_he", e.target.value)}
-                placeholder="כסף, מינימלי, יומיומי"
+          <div className={card}>
+            <h2 className="font-serif text-lg text-charcoal">קטגוריה ותגיות</h2>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className={fieldLabel}>קטגוריה</span>
+                <Link
+                  href="/admin/products/categories"
+                  className="text-xs text-copper hover:underline"
+                >
+                  ניהול קטגוריות
+                </Link>
+              </div>
+              <Dropdown
+                variant="field"
+                ariaLabel="קטגוריה"
+                value={values.category ?? ""}
+                onChange={(v) => set("category", v || null)}
+                options={[
+                  { value: "", label: "ללא קטגוריה" },
+                  ...options.categories.map((c) => ({
+                    value: c.slug,
+                    label: c.name_en ? `${c.name_he} · ${c.name_en}` : c.name_he,
+                  })),
+                ]}
               />
-              <LocalizedInput
-                id="tags-en"
-                locale="en"
-                label="Tags (comma-separated)"
-                value={values.tags_en}
-                onChange={(e) => set("tags_en", e.target.value)}
-                placeholder="silver, minimal, everyday"
-              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className={fieldLabel}>תגיות</span>
+                <Link
+                  href="/admin/products/tags"
+                  className="text-xs text-copper hover:underline"
+                >
+                  ניהול תגיות
+                </Link>
+              </div>
+              {options.tags.length === 0 ? (
+                <p className="text-sm text-charcoal/50">
+                  אין עדיין תגיות. אפשר להוסיף בדף ניהול התגיות.
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {options.tags.map((tag) => {
+                    const on = values.tagIds.includes(tag.id);
+                    return (
+                      <button
+                        key={tag.id}
+                        type="button"
+                        onClick={() => toggleTag(tag.id)}
+                        aria-pressed={on}
+                        className={cn(
+                          "rounded-full border px-3 py-1 text-sm transition-colors",
+                          on
+                            ? "border-charcoal bg-charcoal text-cream"
+                            : "border-charcoal/20 text-charcoal/80 hover:bg-charcoal/[0.06]"
+                        )}
+                      >
+                        {tag.name_he}
+                        {tag.name_en && (
+                          <span className="opacity-60"> · {tag.name_en}</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
 
@@ -309,7 +435,7 @@ export function ProductForm({
                 onChange={(e) => set("featured", e.target.checked)}
                 className="accent-charcoal"
               />
-              מוצג בדף הבית (Featured)
+              מוצג בדף הבית
             </label>
           </div>
         </aside>

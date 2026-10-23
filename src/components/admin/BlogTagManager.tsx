@@ -110,7 +110,7 @@ export function BlogTagManager({ initial }: { initial: BlogTagRow[] }) {
         </div>
         <Input
           id="tag-slug"
-          label="slug (אופציונלי)"
+          label="כתובת (אופציונלי)"
           value={slug}
           onChange={(e) => setSlug(e.target.value)}
           dir="ltr"

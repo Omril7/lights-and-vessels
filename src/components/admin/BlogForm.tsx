@@ -169,7 +169,7 @@ export function BlogForm({
 
             <Input
               id="slug"
-              label="כתובת (slug)"
+              label="כתובת הדף באתר"
               value={values.slug}
               dir="ltr"
               onChange={(e) => {

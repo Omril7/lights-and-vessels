@@ -60,6 +60,9 @@
     "giftNote": "A gift? We'll gladly add a handwritten note",
     "related": "More from the Same World",
     "breadcrumbHome": "Home",
+    "materials": "Materials",
+    "dimensions": "Dimensions",
+    "cm": "cm",
     "breadcrumbShop": "Shop"
   },
   "shop": {
@@ -71,7 +74,7 @@
     "allItemsBtn": "All Items",
     "sortLabel": "Sort items",
     "itemCount": "{count} items",
-    "sortNewest": "Newest",
+    "sortCurated": "Our picks",
     "sortPriceAsc": "Price: Low to High",
     "sortPriceDesc": "Price: High to Low"
   },

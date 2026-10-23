@@ -1,7 +1,6 @@
 "use client";
 
 import { Dropdown } from "@/components/ui";
-import { CATEGORIES } from "@/types";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,11 +12,6 @@ const STATUS_OPTIONS = [
   { value: "draft", label: "טיוטה" },
   { value: "featured", label: "מומלץ" },
   { value: "soldout", label: "אזל מהמלאי" },
-];
-
-const CATEGORY_OPTIONS = [
-  { value: "all", label: "כל הקטגוריות" },
-  ...CATEGORIES.map((c) => ({ value: c.slug, label: c.label })),
 ];
 
 function buildHref(params: {
@@ -35,17 +29,23 @@ function buildHref(params: {
 }
 
 export function ProductsFilterBar({
+  categories,
   initialQ,
   initialCategory,
   initialStatus,
   filtersActive,
 }: {
+  categories: { slug: string; label: string }[];
   initialQ: string;
   initialCategory: string;
   initialStatus: string;
   filtersActive: boolean;
 }) {
   const router = useRouter();
+  const categoryOptions = [
+    { value: "all", label: "כל הקטגוריות" },
+    ...categories.map((c) => ({ value: c.slug, label: c.label })),
+  ];
   const [q, setQ] = useState(initialQ);
   const [category, setCategory] = useState(initialCategory);
   const [status, setStatus] = useState(initialStatus);
@@ -77,14 +77,14 @@ export function ProductsFilterBar({
           type="text"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="חיפוש שם, slug או תגית…"
+          placeholder="חיפוש לפי שם או תגית…"
           className="w-full rounded-xl border border-charcoal/15 bg-cream py-2.5 ps-9 pe-3 text-sm focus:outline-none focus:border-charcoal/50 focus:ring-2 focus:ring-gold/30"
         />
       </label>
 
       <Dropdown
         value={category}
-        options={CATEGORY_OPTIONS}
+        options={categoryOptions}
         onChange={(v) => {
           setCategory(v);
           go({ category: v });
