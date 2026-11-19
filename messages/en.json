@@ -62,6 +62,9 @@
     "materials": "Materials",
     "dimensions": "Dimensions",
     "cm": "cm",
+    "shippingReturns": "Shipping & returns",
+    "shippingPolicyLink": "Shipping policy",
+    "returnsPolicyLink": "Returns policy",
     "breadcrumbShop": "Shop"
   },
   "shop": {

@@ -80,7 +80,7 @@ export default async function ProductPage({
     },
     include: { images: { orderBy: { order: "asc" } } },
     orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-    take: 4,
+    take: 3,
   })) as ProductWithImages[];
 
   const name = localize(product, "name", locale);
@@ -152,15 +152,15 @@ export default async function ProductPage({
 
         <FadeIn delay={0.1}>
           <div className="lg:sticky lg:top-28">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-3">
               {category && (
-                <Badge tone="accent">{catLabel}</Badge>
+                <span className="text-sm text-charcoal/60">{catLabel}</span>
               )}
               {soldOut && <Badge tone="soldout">{t("soldOut")}</Badge>}
               {onSale && !soldOut && <Badge tone="sale">{t("sale")}</Badge>}
             </div>
 
-            <h1 className="mt-4 font-serif text-4xl leading-tight text-ink md:text-5xl">
+            <h1 className="mt-3 font-serif text-4xl leading-tight text-ink md:text-5xl">
               {name}
             </h1>
 
@@ -192,40 +192,42 @@ export default async function ProductPage({
               dangerouslySetInnerHTML={{ __html: renderMarkdown(description) }}
             />
 
-            {(materials || dimensions) && (
-              <dl className="mt-6 space-y-1 text-sm text-charcoal/80">
-                {materials && (
-                  <div className="flex gap-2">
-                    <dt className="text-charcoal/50">{t("materials")}:</dt>
-                    <dd>{materials}</dd>
-                  </div>
-                )}
-                {dimensions && (
-                  <div className="flex gap-2">
-                    <dt className="text-charcoal/50">{t("dimensions")}:</dt>
-                    <dd dir="ltr">{dimensions} {t("cm")}</dd>
-                  </div>
-                )}
-              </dl>
-            )}
-
             {tags.length > 0 && (
-              <div className="mt-6 flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <Badge key={tag}>{tag}</Badge>
-                ))}
-              </div>
+              <p className="mt-5 text-sm text-charcoal/60">{tags.join(" · ")}</p>
             )}
 
             <div className="mt-8">
               <AddToCartButton product={product} withQuantity />
             </div>
 
-            <ul className="mt-8 space-y-2 border-t border-charcoal/10 pt-6 text-sm text-charcoal/70">
-              <li>· {t("handcrafted")}</li>
-              <li>· {t("shippingDetail")}</li>
-              <li>· {t("giftNote")}</li>
-            </ul>
+            {/* Details — native <details> so it works without JS */}
+            <div className="mt-10 border-b border-charcoal/20">
+              {materials && (
+                <DetailRow title={t("materials")} open>
+                  <p>{materials}</p>
+                  <p className="mt-1 text-charcoal/60">{t("handcrafted")}</p>
+                </DetailRow>
+              )}
+              {dimensions && (
+                <DetailRow title={t("dimensions")}>
+                  <p>
+                    <bdi dir="ltr">{dimensions}</bdi> {t("cm")}
+                  </p>
+                </DetailRow>
+              )}
+              <DetailRow title={t("shippingReturns")}>
+                <p>{t("shippingDetail")}</p>
+                <p className="mt-1">{t("giftNote")}</p>
+                <p className="mt-3 flex gap-4">
+                  <Link href="/legal/shipping" className="underline underline-offset-4 hover:text-copper">
+                    {t("shippingPolicyLink")}
+                  </Link>
+                  <Link href="/legal/returns" className="underline underline-offset-4 hover:text-copper">
+                    {t("returnsPolicyLink")}
+                  </Link>
+                </p>
+              </DetailRow>
+            </div>
           </div>
         </FadeIn>
       </div>
@@ -238,7 +240,7 @@ export default async function ProductPage({
               {t("related")}
             </h2>
           </FadeIn>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-5 md:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-12 sm:gap-x-6 md:grid-cols-3 md:gap-y-20">
             {related.map((p, i) => (
               <FadeIn key={p.id} delay={i * 0.06}>
                 <ProductCard product={p} />
@@ -248,5 +250,30 @@ export default async function ProductPage({
         </section>
       )}
     </div>
+  );
+}
+
+function DetailRow({
+  title,
+  open = false,
+  children,
+}: {
+  title: string;
+  open?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <details open={open} className="group border-t border-charcoal/20">
+      <summary className="flex cursor-pointer list-none items-center justify-between py-4 text-base text-ink [&::-webkit-details-marker]:hidden">
+        {title}
+        <span
+          aria-hidden
+          className="text-xl leading-none text-charcoal/60 transition-transform duration-300 group-open:rotate-45"
+        >
+          +
+        </span>
+      </summary>
+      <div className="pb-5 text-sm leading-relaxed text-charcoal/80">{children}</div>
+    </details>
   );
 }
