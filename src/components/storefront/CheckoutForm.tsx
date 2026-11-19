@@ -49,7 +49,7 @@ export function CheckoutForm({ shipping }: { shipping: ShippingConfig }) {
 
   if (items.length === 0) {
     return (
-      <div className="rounded-2xl border border-charcoal/15 bg-linen p-10 text-center">
+      <div className="border border-charcoal/15 bg-linen p-10 text-center">
         <p className="text-charcoal/70">{t("cartEmpty")}</p>
         <Button href="/shop" className="mt-4">
           {t("browse")}
@@ -147,7 +147,7 @@ export function CheckoutForm({ shipping }: { shipping: ShippingConfig }) {
         )}
       </div>
 
-      <aside className="h-fit rounded-2xl border border-charcoal/15 bg-linen p-6 lg:sticky lg:top-28">
+      <aside className="h-fit border border-charcoal/15 bg-linen p-6 lg:sticky lg:top-28">
         <h2 className="font-serif text-2xl text-ink">{t("summary")}</h2>
         <ul className="mt-4 space-y-2 text-sm">
           {items.map((i) => (
@@ -205,7 +205,7 @@ function ShippingOption({
 }) {
   return (
     <label
-      className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${
+      className={`flex cursor-pointer items-start gap-3 border p-4 transition ${
         checked ? "border-copper bg-cream" : "border-charcoal/20 bg-cream/40 hover:border-charcoal/40"
       }`}
     >

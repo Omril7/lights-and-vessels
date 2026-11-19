@@ -43,7 +43,7 @@ export function NavbarBanner({
   };
 
   const Inner = (
-    <span className="text-center text-[0.78rem] font-medium tracking-wide sm:text-sm">
+    <span className="text-center text-[0.78rem] font-medium sm:text-sm">
       {text}
     </span>
   );

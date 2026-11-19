@@ -17,7 +17,7 @@ export async function BlogCard({ post }: { post: BlogCardData }) {
   const [locale, t] = await Promise.all([getLocale(), getTranslations("blog")]);
 
   return (
-    <article className="group overflow-hidden rounded-2xl border border-charcoal/10 bg-cream shadow-soft transition hover:shadow-lift">
+    <article className="group overflow-hidden border border-charcoal/10 bg-cream transition">
       <Link href={`/blog/${post.slug}`} className="block">
         <div className="relative aspect-[16/9] bg-linen">
           {post.image && (
@@ -51,7 +51,7 @@ export async function BlogCard({ post }: { post: BlogCardData }) {
               <li key={t.slug}>
                 <Link
                   href={`/blog?tag=${encodeURIComponent(t.slug)}`}
-                  className="rounded-full border border-charcoal/15 bg-linen/60 px-3 py-1 text-xs text-charcoal/75 hover:border-charcoal/40 hover:text-charcoal"
+                  className="border border-charcoal/15 bg-linen/60 px-3 py-1 text-xs text-charcoal/75 hover:border-charcoal/40 hover:text-charcoal"
                 >
                   {t.name}
                 </Link>

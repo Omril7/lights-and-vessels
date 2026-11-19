@@ -11,20 +11,20 @@ export default function BlogLoading() {
 
       <div className="mb-10 flex justify-center gap-2">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-8 w-20 rounded-full" />
+          <Skeleton key={i} className="h-8 w-20" />
         ))}
       </div>
 
       <div className="grid gap-10 md:grid-cols-2 lg:gap-12">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="space-y-4">
-            <Skeleton className="aspect-video w-full rounded-xl" />
+            <Skeleton className="aspect-video w-full" />
             <Skeleton className="h-5 w-3/4" />
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-5/6" />
             <div className="flex gap-2">
-              <Skeleton className="h-6 w-16 rounded-full" />
-              <Skeleton className="h-6 w-20 rounded-full" />
+              <Skeleton className="h-6 w-16" />
+              <Skeleton className="h-6 w-20" />
             </div>
           </div>
         ))}

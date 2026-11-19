@@ -72,7 +72,7 @@ export function CartDrawer() {
                       <Link
                         href={`/shop/${item.slug}`}
                         onClick={closeCart}
-                        className="relative h-24 w-20 shrink-0 overflow-hidden rounded-lg bg-sand"
+                        className="relative h-24 w-20 shrink-0 overflow-hidden bg-sand"
                       >
                         {item.image && (
                           <Image
@@ -105,7 +105,7 @@ export function CartDrawer() {
                           {formatPrice(item.price)}
                         </p>
                         <div className="mt-auto flex items-center justify-between">
-                          <div className="flex items-center rounded-full border border-charcoal/20">
+                          <div className="flex items-center border border-charcoal/20">
                             <button
                               onClick={() =>
                                 setQuantity(item.productId, item.quantity - 1)

@@ -17,7 +17,7 @@ export async function LegalPage({
   return (
     <main className="mx-auto max-w-3xl px-5 py-16 sm:py-24">
       <FadeIn>
-        <p className="text-xs uppercase tracking-wider2 text-charcoal/55">
+        <p className="text-xs text-charcoal/55">
           {t("document")}
         </p>
         <h1 className="mt-2 font-serif text-4xl text-ink sm:text-5xl">{title}</h1>

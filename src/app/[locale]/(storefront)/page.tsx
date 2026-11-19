@@ -72,7 +72,7 @@ export default async function HomePage() {
       <section className="bg-linen paper-grain">
         <div className="mx-auto grid max-w-editorial items-center gap-10 px-5 py-20 md:grid-cols-2 md:px-8 md:py-28">
           <FadeIn>
-            <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-sand md:aspect-[5/6]">
+            <div className="relative aspect-[4/5] overflow-hidden bg-sand md:aspect-[5/6]">
               <Image
                 src={content.story_image}
                 alt={t("storyImageAlt")}
@@ -83,7 +83,7 @@ export default async function HomePage() {
             </div>
           </FadeIn>
           <FadeIn delay={0.12}>
-            <p className="text-xs uppercase tracking-wider2 text-copper">
+            <p className="text-xs text-copper">
               {t("storyLabel")}
             </p>
             <h2 className="mt-3 font-serif text-3xl leading-tight text-ink md:text-4xl">

@@ -1,10 +1,10 @@
 import { cn } from "@/lib/utils";
 
 const fieldBase =
-  "w-full bg-cream border border-charcoal/20 rounded-xl px-4 py-3 text-sm text-ink font-sans placeholder:text-charcoal/40 focus:outline-none focus:border-charcoal/60 focus:ring-2 focus:ring-gold/30 transition-colors resize-y";
+  "w-full bg-cream border border-charcoal/20 px-4 py-3 text-sm text-ink font-sans placeholder:text-charcoal/40 focus:outline-none focus:border-charcoal/60 focus:ring-2 focus:ring-gold/30 transition-colors resize-y";
 
 const labelBase =
-  "text-xs uppercase tracking-wider2 text-charcoal/70 font-medium";
+  "text-xs text-charcoal/70 font-medium";
 
 export function Textarea({
   label,

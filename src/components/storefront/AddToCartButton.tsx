@@ -47,7 +47,7 @@ export function AddToCartButton({
   return (
     <div className="flex flex-col gap-3 sm:flex-row">
       {withQuantity && (
-        <div className="flex items-center justify-between rounded-full border border-charcoal/25 px-2 sm:w-36">
+        <div className="flex items-center justify-between border border-charcoal/25 px-2 sm:w-36">
           <button
             onClick={() => setQty((q) => Math.max(1, q - 1))}
             aria-label={t("decreaseQty")}

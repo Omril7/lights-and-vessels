@@ -58,7 +58,7 @@ export default function CartPage() {
             <li key={item.productId} className="flex gap-5 py-6">
               <Link
                 href={`/shop/${item.slug}`}
-                className="relative h-32 w-28 shrink-0 overflow-hidden rounded-xl bg-sand"
+                className="relative h-32 w-28 shrink-0 overflow-hidden bg-sand"
               >
                 {item.image && (
                   <Image
@@ -95,7 +95,7 @@ export default function CartPage() {
                 </p>
 
                 <div className="mt-auto flex items-center justify-between pt-3">
-                  <div className="flex items-center rounded-full border border-charcoal/25">
+                  <div className="flex items-center border border-charcoal/25">
                     <button
                       onClick={() =>
                         setQuantity(item.productId, item.quantity - 1)
@@ -129,7 +129,7 @@ export default function CartPage() {
         </ul>
 
         {/* Summary */}
-        <aside className="h-fit rounded-2xl border border-charcoal/15 bg-linen p-6 lg:sticky lg:top-28">
+        <aside className="h-fit border border-charcoal/15 bg-linen p-6 lg:sticky lg:top-28">
           <h2 className="font-serif text-2xl text-ink">{t("summary")}</h2>
 
           <dl className="mt-5 space-y-3 text-sm">

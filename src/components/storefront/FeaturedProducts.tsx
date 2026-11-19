@@ -16,7 +16,7 @@ export async function FeaturedProducts({
     <section className="mx-auto max-w-editorial px-5 py-20 md:px-8 md:py-28">
       <FadeIn className="mb-10 flex items-end justify-between gap-6">
         <div>
-          <p className="text-xs uppercase tracking-wider2 text-copper">
+          <p className="text-xs text-copper">
             {t("handpickedLabel")}
           </p>
           <h2 className="mt-2 font-serif text-3xl text-ink md:text-4xl">

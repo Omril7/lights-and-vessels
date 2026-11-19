@@ -44,7 +44,7 @@ export default async function AboutPage() {
       <section className="mx-auto max-w-editorial px-5 md:px-8">
         <div className="grid items-center gap-10 md:grid-cols-2 md:gap-16">
           <FadeIn>
-            <p className="text-xs uppercase tracking-wider2 text-copper">
+            <p className="text-xs text-copper">
               {t("label")}
             </p>
             <h1 className="mt-3 font-serif text-4xl leading-tight text-ink md:text-5xl lg:text-6xl">
@@ -55,7 +55,7 @@ export default async function AboutPage() {
             </p>
           </FadeIn>
           <FadeIn delay={0.12}>
-            <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-sand">
+            <div className="relative aspect-[4/5] overflow-hidden bg-sand">
               <Image
                 src={content.about_portrait}
                 alt={t("portraitAlt")}
@@ -94,7 +94,7 @@ export default async function AboutPage() {
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             {gallery.map((img, i) => (
               <FadeIn key={`${img.url}-${i}`} delay={(i % 3) * 0.07}>
-                <div className="relative aspect-square overflow-hidden rounded-xl bg-sand">
+                <div className="relative aspect-square overflow-hidden bg-sand">
                   <Image
                     src={img.url}
                     alt={img.alt || t("galleryAlt")}

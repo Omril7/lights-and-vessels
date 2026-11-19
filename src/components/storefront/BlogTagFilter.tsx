@@ -18,7 +18,7 @@ export async function BlogTagFilter({
         <Link
           href="/blog"
           className={cn(
-            "rounded-full border px-4 py-1.5 text-sm transition-colors",
+            " border px-4 py-1.5 text-sm transition-colors",
             active === null
               ? "border-charcoal bg-charcoal text-cream"
               : "border-charcoal/25 text-charcoal hover:border-charcoal"
@@ -34,7 +34,7 @@ export async function BlogTagFilter({
             <Link
               href={`/blog?tag=${encodeURIComponent(tag.slug)}`}
               className={cn(
-                "rounded-full border px-4 py-1.5 text-sm transition-colors",
+                " border px-4 py-1.5 text-sm transition-colors",
                 on
                   ? "border-charcoal bg-charcoal text-cream"
                   : "border-charcoal/25 text-charcoal hover:border-charcoal"

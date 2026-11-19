@@ -102,7 +102,7 @@ export default async function BlogPostPage({
               <li key={pt.tagId}>
                 <Link
                   href={`/blog?tag=${encodeURIComponent(pt.tag.slug)}`}
-                  className="rounded-full border border-charcoal/15 bg-linen/60 px-3 py-1 text-xs text-charcoal/75 hover:border-charcoal/40 hover:text-charcoal"
+                  className="border border-charcoal/15 bg-linen/60 px-3 py-1 text-xs text-charcoal/75 hover:border-charcoal/40 hover:text-charcoal"
                 >
                   {localize(pt.tag, "name", locale)}
                 </Link>

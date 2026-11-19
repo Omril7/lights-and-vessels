@@ -58,7 +58,7 @@ export default async function BlogIndexPage({
   return (
     <main className="mx-auto max-w-editorial px-5 py-12 md:px-8 md:py-20">
       <header className="mb-10 md:mb-14 text-center">
-        <p className="text-xs uppercase tracking-wider2 text-charcoal/50">
+        <p className="text-xs text-charcoal/50">
           {t("studioLabel")}
         </p>
         <h1 className="mt-2 font-serif text-4xl md:text-5xl text-charcoal">

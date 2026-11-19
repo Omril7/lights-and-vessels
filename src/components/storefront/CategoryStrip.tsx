@@ -29,7 +29,7 @@ export async function CategoryStrip() {
     <section className="wash border-y border-charcoal/10 py-20 md:py-28">
       <div className="mx-auto max-w-editorial px-5 md:px-8">
         <FadeIn className="mb-10 text-center">
-          <p className="text-xs uppercase tracking-wider2 text-copper">
+          <p className="text-xs text-copper">
             {t("categoryLabel")}
           </p>
           <h2 className="mt-2 font-serif text-3xl text-ink md:text-4xl">
@@ -44,7 +44,7 @@ export async function CategoryStrip() {
                 href={`/shop?category=${c.slug}`}
                 className="group block"
               >
-                <div className="relative aspect-[5/6] overflow-hidden rounded-xl bg-sand">
+                <div className="relative aspect-[5/6] overflow-hidden bg-sand">
                   <Image
                     src={images[c.slug]}
                     alt={tCat(CATEGORY_KEYS[c.slug] ?? (c.slug as never))}

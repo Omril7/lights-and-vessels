@@ -42,7 +42,7 @@ export function Navbar() {
       className={cn(
         "sticky top-0 z-50 transition-all duration-500 ease-grace",
         scrolled
-          ? "bg-cream/90 backdrop-blur-md border-b border-charcoal/10 shadow-soft"
+          ? "bg-cream/90 backdrop-blur-md border-b border-charcoal/10"
           : "bg-transparent"
       )}
     >
@@ -66,7 +66,7 @@ export function Navbar() {
                 href={l.href}
                 aria-current={pathname === l.href ? "page" : undefined}
                 className={cn(
-                  "relative text-sm tracking-wide transition-colors hover:text-ink",
+                  "relative text-sm transition-colors hover:text-ink",
                   pathname === l.href
                     ? "text-ink"
                     : "text-charcoal/70"

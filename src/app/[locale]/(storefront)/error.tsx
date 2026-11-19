@@ -29,7 +29,7 @@ export default function StorefrontError({
         <Button onClick={() => reset()}>{t("retry")}</Button>
         <Link
           href="/"
-          className="rounded-full border border-charcoal/20 px-5 py-2 text-sm text-charcoal transition-colors hover:bg-charcoal/[0.06]"
+          className="border border-charcoal/20 px-5 py-2 text-sm text-charcoal transition-colors hover:bg-charcoal/[0.06]"
         >
           {t("backHome")}
         </Link>

@@ -34,13 +34,13 @@ export function Dropdown({
 
   const triggerClass =
     variant === "field"
-      ? "flex w-full items-center justify-between gap-2 rounded-xl border border-charcoal/20 bg-cream px-4 py-3 text-sm text-charcoal transition hover:border-charcoal/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
-      : "flex items-center gap-2 rounded-full border border-charcoal/25 bg-cream px-4 py-1.5 text-sm text-charcoal transition hover:border-charcoal focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40";
+      ? "flex w-full items-center justify-between gap-2 border border-charcoal/20 bg-cream px-4 py-3 text-sm text-charcoal transition hover:border-charcoal/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
+      : "flex items-center gap-2 border border-charcoal/25 bg-cream px-4 py-1.5 text-sm text-charcoal transition hover:border-charcoal focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40";
 
   const menuClass =
     variant === "field"
-      ? "absolute start-0 end-0 z-40 mt-2 overflow-hidden rounded-xl border border-charcoal/15 bg-cream py-1 shadow-lift"
-      : "absolute end-0 z-40 mt-2 min-w-full overflow-hidden rounded-xl border border-charcoal/15 bg-cream py-1 shadow-lift";
+      ? "absolute start-0 end-0 z-40 mt-2 overflow-hidden border border-charcoal/15 bg-cream py-1 shadow-lift"
+      : "absolute end-0 z-40 mt-2 min-w-full overflow-hidden border border-charcoal/15 bg-cream py-1 shadow-lift";
 
   useEffect(() => {
     if (!open) return;

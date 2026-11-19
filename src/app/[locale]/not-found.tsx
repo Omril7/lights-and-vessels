@@ -13,7 +13,7 @@ export default async function NotFound() {
       </p>
       <Link
         href="/"
-        className="rounded-full bg-charcoal px-6 py-3 text-sm text-cream transition hover:bg-ink"
+        className="bg-charcoal px-6 py-3 text-sm text-cream transition hover:bg-ink"
       >
         {t("notFoundBack")}
       </Link>

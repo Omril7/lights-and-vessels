@@ -66,7 +66,7 @@ export function ProductCard({
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-sand">
+      <div className="relative aspect-[4/5] overflow-hidden bg-sand">
         {primary && (
           <Image
             src={primary}
@@ -99,7 +99,7 @@ export function ProductCard({
         {/* Badges */}
         <div className="absolute start-3 top-3 flex flex-col items-start gap-1.5">
           {soldOut && (
-            <Badge tone="soldout" className="shadow-lift">
+            <Badge tone="soldout" className="">
               {t("soldOut")}
             </Badge>
           )}
@@ -122,9 +122,9 @@ export function ProductCard({
                 repeat: Infinity,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="rounded-full"
+              className=""
             >
-              <Badge tone="sale" className="shadow-lift">
+              <Badge tone="sale" className="">
                 {t("sale")}
               </Badge>
             </motion.div>
@@ -135,7 +135,7 @@ export function ProductCard({
         {!soldOut && (
           <button
             onClick={quickAdd}
-            className="absolute inset-x-3 bottom-3 translate-y-3 rounded-full bg-cream/95 py-2.5 text-xs font-medium tracking-wide text-charcoal opacity-0 shadow-soft transition-all duration-300 ease-grace hover:bg-cream group-hover:translate-y-0 group-hover:opacity-100"
+            className="absolute inset-x-3 bottom-3 translate-y-3 bg-cream/95 py-2.5 text-xs font-medium text-charcoal opacity-0 transition-all duration-300 ease-grace hover:bg-cream group-hover:translate-y-0 group-hover:opacity-100"
           >
             {t("quickAdd")}
           </button>
@@ -144,7 +144,7 @@ export function ProductCard({
 
       <div className="mt-3 px-0.5">
         {categoryLabel && (
-          <p className="text-[0.7rem] uppercase tracking-wider2 text-charcoal/50">
+          <p className="text-[0.7rem] text-charcoal/50">
             {categoryLabel}
           </p>
         )}

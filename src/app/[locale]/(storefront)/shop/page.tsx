@@ -59,7 +59,7 @@ export default async function ShopPage({
   return (
     <div className="mx-auto max-w-editorial px-5 pb-10 pt-28 md:px-8 md:pt-32">
       <FadeIn className="mb-10 text-center">
-        <p className="text-xs uppercase tracking-wider2 text-copper">
+        <p className="text-xs text-copper">
           {t("collectionLabel")}
         </p>
         <h1 className="mt-2 font-serif text-4xl text-ink md:text-5xl">

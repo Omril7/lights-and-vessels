@@ -20,7 +20,7 @@ export function BlogGallery({
   const touchStartX = useRef<number | null>(null);
 
   if (!images.length) {
-    return <div className="aspect-[16/9] rounded-2xl bg-sand" aria-hidden />;
+    return <div className="aspect-[16/9] bg-sand" aria-hidden />;
   }
 
   const current = images[active];
@@ -39,7 +39,7 @@ export function BlogGallery({
   return (
     <div className="flex flex-col gap-3">
       <div
-        className="group relative aspect-[16/9] touch-pan-y overflow-hidden rounded-2xl bg-sand"
+        className="group relative aspect-[16/9] touch-pan-y overflow-hidden bg-sand"
         onTouchStart={(e) =>
           (touchStartX.current = e.touches[0]?.clientX ?? null)
         }
@@ -70,14 +70,14 @@ export function BlogGallery({
             <button
               onClick={() => go(1)}
               aria-label="הבא"
-              className="absolute start-3 top-1/2 -translate-y-1/2 rounded-full bg-cream/90 p-2 text-charcoal shadow-soft transition hover:bg-cream"
+              className="absolute start-3 top-1/2 -translate-y-1/2 rounded-full bg-cream/90 p-2 text-charcoal transition hover:bg-cream"
             >
               <ChevronRightIcon className="h-5 w-5" />
             </button>
             <button
               onClick={() => go(-1)}
               aria-label="הקודם"
-              className="absolute end-3 top-1/2 -translate-y-1/2 rounded-full bg-cream/90 p-2 text-charcoal shadow-soft transition hover:bg-cream"
+              className="absolute end-3 top-1/2 -translate-y-1/2 rounded-full bg-cream/90 p-2 text-charcoal transition hover:bg-cream"
             >
               <ChevronLeftIcon className="h-5 w-5" />
             </button>
@@ -104,9 +104,9 @@ export function BlogGallery({
               onClick={() => setActive(i)}
               aria-label={`תצוגה ${i + 1}`}
               className={cn(
-                "relative h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-sand transition-all duration-300 ease-grace",
+                "relative h-16 w-24 shrink-0 overflow-hidden bg-sand transition-all duration-300 ease-grace",
                 i === active
-                  ? "scale-105 shadow-soft ring-2 ring-copper"
+                  ? "scale-105 ring-2 ring-copper"
                   : "opacity-55 ring-1 ring-charcoal/15 hover:opacity-100"
               )}
             >

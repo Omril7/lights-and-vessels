@@ -44,8 +44,8 @@ export default async function CheckoutSuccessPage({
   return (
     <div className="mx-auto max-w-editorial px-5 pb-20 pt-28 md:px-8 md:pt-32">
       <ClearCartOnMount />
-      <div className="rounded-2xl border border-charcoal/15 bg-linen p-8 md:p-10">
-        <p className="text-sm uppercase tracking-wider2 text-copper">{isPaid ? t("confirmed") : t("received")}</p>
+      <div className="border border-charcoal/15 bg-linen p-8 md:p-10">
+        <p className="text-sm text-copper">{isPaid ? t("confirmed") : t("received")}</p>
         <h1 className="mt-2 font-serif text-4xl text-ink">{t("thanks", { name: order.customerName })}</h1>
         <p className="mt-2 text-charcoal/70">
           {t("orderConfirmation", { number: order.orderNumber, email: order.customerEmail })}

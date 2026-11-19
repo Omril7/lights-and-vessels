@@ -66,13 +66,13 @@ export async function Footer({
 
         <div className="mt-6 grid gap-4 border-t border-charcoal/10 pt-5 text-xs text-charcoal/70 md:grid-cols-2 md:gap-10">
           <nav aria-label={t("navLabel")}>
-            <p className="mb-2 text-[0.65rem] uppercase tracking-wider2 text-charcoal/45">
+            <p className="mb-2 text-[0.65rem] text-charcoal/45">
               {t("navLabel")}
             </p>
             <InlineLinks links={NAV_LINKS} />
           </nav>
           <nav aria-label={t("legalLabel")}>
-            <p className="mb-2 text-[0.65rem] uppercase tracking-wider2 text-charcoal/45">
+            <p className="mb-2 text-[0.65rem] text-charcoal/45">
               {t("legalLabel")}
             </p>
             <InlineLinks links={LEGAL_LINKS} />

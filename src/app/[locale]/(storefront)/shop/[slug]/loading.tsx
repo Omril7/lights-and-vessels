@@ -6,10 +6,10 @@ export default function ProductLoading() {
       <Skeleton className="mb-8 h-3 w-64" />
 
       <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-        <Skeleton className="aspect-square w-full rounded-2xl" />
+        <Skeleton className="aspect-square w-full" />
 
         <div className="space-y-5">
-          <Skeleton className="h-6 w-24 rounded-full" />
+          <Skeleton className="h-6 w-24" />
           <Skeleton className="h-12 w-3/4" />
           <Skeleton className="h-9 w-32" />
           <Skeleton className="h-4 w-40" />
@@ -19,7 +19,7 @@ export default function ProductLoading() {
             <Skeleton className="h-4 w-5/6" />
             <Skeleton className="h-4 w-4/6" />
           </div>
-          <Skeleton className="mt-6 h-12 w-full rounded-full" />
+          <Skeleton className="mt-6 h-12 w-full" />
         </div>
       </div>
     </div>

@@ -47,7 +47,7 @@ export function Modal({
             role="dialog"
             aria-modal="true"
             aria-label={label}
-            className="relative z-10 max-h-[90vh] w-full max-w-3xl overflow-auto rounded-2xl bg-cream shadow-lift"
+            className="relative z-10 max-h-[90vh] w-full max-w-3xl overflow-auto bg-cream shadow-lift"
             initial={{ opacity: 0, scale: 0.96, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
@@ -56,7 +56,7 @@ export function Modal({
             <button
               onClick={onClose}
               aria-label="סגירה"
-              className="absolute end-3 top-3 z-20 rounded-full bg-cream/90 p-2 text-charcoal shadow-soft transition hover:bg-sand"
+              className="absolute end-3 top-3 z-20 rounded-full bg-cream/90 p-2 text-charcoal transition hover:bg-sand"
             >
               <XMarkIcon className="h-5 w-5" />
             </button>
