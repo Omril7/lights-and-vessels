@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { useCart, cartCount } from "@/lib/cart";
 import { cn } from "@/lib/utils";
 import { LanguageSwitcher } from "@/components/storefront/LanguageSwitcher";
+import { EveningToggle } from "@/components/storefront/EveningToggle";
 
 export function Navbar() {
   const t = useTranslations("nav");
@@ -90,12 +91,13 @@ export function Navbar() {
             alt={t("logoAlt")}
             width={120}
             height={71}
-            className="h-8 w-auto sm:h-9 md:h-10"
+            className="brand-logo h-8 w-auto sm:h-9 md:h-10"
             priority
           />
         </Link>
 
         <div className="flex items-center gap-2">
+          <EveningToggle />
           <LanguageSwitcher />
           <button
             onClick={openCart}
