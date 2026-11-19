@@ -194,7 +194,9 @@
     "heading": "היד שמאחורי האוסף",
     "portraitAlt": "דיוקן האמן",
     "galleryHeading": "מתוך הסטודיו",
-    "galleryAlt": "רגע מהסטודיו"
+    "galleryAlt": "רגע מהסטודיו",
+    "materialsHeading": "חומרים",
+    "processHeading": "התהליך"
   },
   "errors": {
     "notFound": "הדף לא נמצא",

@@ -24,6 +24,9 @@ const FALLBACKS: Record<string, string> = {
   story_image: "https://picsum.photos/seed/studio-bench/900/1100",
   about_text: "## הסיפור שלי\n\nתוכן בקרוב.",
   about_portrait: "https://picsum.photos/seed/artist-portrait/900/1100",
+  // About → two short lists, one item per line. Empty = list hidden.
+  about_materials: "",
+  about_process: "",
   whatsapp_number: "972500000000",
   whatsapp_message: "היי! הגעתי דרך האתר ואשמח לשמוע עוד על העבודות.",
   contact_email: "studio@example.com",

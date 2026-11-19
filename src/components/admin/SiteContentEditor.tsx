@@ -150,6 +150,20 @@ export const SECTIONS: Section[] = [
     fields: [
       { key: "about_text", label: "תוכן מלא", label_en: "Full content", kind: "richtext", wide: true },
       {
+        key: "about_materials",
+        label: "חומרים (שורה לכל פריט)",
+        label_en: "Materials (one per line)",
+        kind: "bilingual_textarea",
+        help: "רשימה קצרה שמוצגת בדף 'אודות'. אם ריק — הרשימה מוסתרת.",
+      },
+      {
+        key: "about_process",
+        label: "תהליך העבודה (שורה לכל שלב)",
+        label_en: "Process (one step per line)",
+        kind: "bilingual_textarea",
+        help: "השלבים מוצגים ממוספרים בדף 'אודות'. אם ריק — הרשימה מוסתרת.",
+      },
+      {
         key: "about_portrait",
         label: "פורטרט",
         kind: "image",

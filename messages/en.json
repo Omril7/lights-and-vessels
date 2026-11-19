@@ -194,7 +194,9 @@
     "heading": "The Hand Behind the Collection",
     "portraitAlt": "Portrait of the artist",
     "galleryHeading": "From the Studio",
-    "galleryAlt": "A moment from the studio"
+    "galleryAlt": "A moment from the studio",
+    "materialsHeading": "Materials",
+    "processHeading": "Process"
   },
   "errors": {
     "notFound": "Page Not Found",
