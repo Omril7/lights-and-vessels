@@ -8,7 +8,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Warm, earthy palette — defined as CSS variables in globals.css
+        // Brand palette — defined as CSS variables in globals.css (see .claude/STYLE.md)
+        paper: { DEFAULT: "var(--paper)", 2: "var(--paper-2)" },
+        stone: { DEFAULT: "var(--stone)", 2: "var(--stone-2)" },
+        "ink-2": "var(--ink-2)",
+        cobalt: "var(--cobalt)",
+        moss: "var(--moss)",
+        ember: "var(--ember)",
+        beeswax: "var(--beeswax)",
+        // Legacy names — aliases of the brand palette until components migrate
         clay: "var(--clay)",
         sand: "var(--sand)",
         linen: "var(--linen)",
@@ -28,8 +36,8 @@ const config: Config = {
         organic: "62% 38% 46% 54% / 60% 56% 44% 40%",
       },
       boxShadow: {
-        soft: "0 12px 40px -16px rgba(60, 47, 35, 0.28)",
-        lift: "0 24px 60px -24px rgba(60, 47, 35, 0.35)",
+        soft: "0 12px 40px -16px rgba(27, 23, 18, 0.28)",
+        lift: "0 24px 60px -24px rgba(27, 23, 18, 0.35)",
       },
       letterSpacing: {
         wider2: "0.18em",

@@ -3,17 +3,33 @@
 @tailwind utilities;
 
 :root {
-  /* Warm, earthy palette */
-  --cream: #f7f1e6;
-  --linen: #efe6d6;
-  --sand: #e3d4bd;
-  --clay: #c9a98a;
-  --terracotta: #9c5a36;
-  --olive: #6b6a4b;
-  --charcoal: #3b352d;
-  --ink: #2a251f;
-  --gold: #b08a4b;
-  --copper: #93582d;
+  /* Brand palette — quiet paper & ink, loud studio backdrops (see .claude/STYLE.md) */
+  --paper: #f2efe8;
+  --paper-2: #e9e5dc;
+  --stone: #dbd5c8;
+  --stone-2: #b8b1a2;
+  --ink: #1b1712;
+  --ink-2: #2e2a24;
+  --cobalt: #1d4f9c;
+  --moss: #3d6a2c;
+  --ember: #b54f18;
+  --beeswax: #d8b46a;
+
+  /* Legacy names still used across components — aliases until they're migrated */
+  --cream: var(--paper);
+  --linen: var(--paper-2);
+  --sand: var(--stone);
+  --clay: var(--stone-2);
+  --charcoal: var(--ink-2);
+  --copper: var(--cobalt);
+  --olive: var(--moss);
+  --terracotta: var(--ember);
+  --gold: var(--beeswax);
+}
+
+/* Storefront type: one serif for reading, plain sans for form controls */
+.storefront :is(input, select, textarea, button) {
+  font-family: var(--font-assistant), system-ui, sans-serif;
 }
 
 * {
@@ -57,7 +73,7 @@ body {
 /* Subtle paper-grain texture overlay */
 .paper-grain {
   background-image: radial-gradient(
-    rgba(60, 47, 35, 0.045) 1px,
+    rgba(27, 23, 18, 0.045) 1px,
     transparent 1px
   );
   background-size: 4px 4px;
@@ -66,8 +82,8 @@ body {
 /* Watercolor-style soft wash */
 .wash {
   background:
-    radial-gradient(ellipse at 20% 10%, rgba(181, 112, 78, 0.12), transparent 55%),
-    radial-gradient(ellipse at 85% 30%, rgba(107, 106, 75, 0.1), transparent 50%);
+    radial-gradient(ellipse at 20% 10%, rgba(181, 79, 24, 0.1), transparent 55%),
+    radial-gradient(ellipse at 85% 30%, rgba(61, 106, 44, 0.09), transparent 50%);
 }
 
 ::selection {
@@ -216,7 +232,7 @@ body {
 .blog-prose hr {
   margin: 2rem 0;
   border: 0;
-  border-top: 1px solid rgba(60, 47, 35, 0.15);
+  border-top: 1px solid rgba(27, 23, 18, 0.15);
 }
 
 /* Keyboard key — small typographic chip used in instructions */
@@ -233,12 +249,12 @@ kbd {
   line-height: 1.4;
   color: var(--ink);
   background: linear-gradient(to bottom, var(--cream), var(--linen));
-  border: 1px solid rgba(60, 47, 35, 0.22);
+  border: 1px solid rgba(27, 23, 18, 0.22);
   border-bottom-width: 2px;
   border-radius: 0.4rem;
   box-shadow:
     inset 0 -1px 0 rgba(255, 255, 255, 0.6),
-    0 1px 0 rgba(60, 47, 35, 0.08);
+    0 1px 0 rgba(27, 23, 18, 0.08);
   vertical-align: baseline;
   white-space: nowrap;
 }
@@ -262,16 +278,16 @@ html.a11y-font-3 {
 
 /* High contrast — black background, white text, yellow accents */
 html.a11y-contrast {
-  --cream: #000000;
-  --linen: #0a0a0a;
-  --sand: #1c1c1c;
-  --clay: #ffd400;
-  --terracotta: #ffd400;
-  --olive: #ffd400;
-  --charcoal: #ffffff;
+  --paper: #000000;
+  --paper-2: #0a0a0a;
+  --stone: #1c1c1c;
+  --stone-2: #ffd400;
+  --ember: #ffd400;
+  --moss: #ffd400;
+  --ink-2: #ffffff;
   --ink: #ffffff;
-  --gold: #ffd400;
-  --copper: #ffd400;
+  --beeswax: #ffd400;
+  --cobalt: #ffd400;
 }
 html.a11y-contrast img {
   filter: contrast(1.15);
@@ -279,16 +295,16 @@ html.a11y-contrast img {
 
 /* Grayscale — desaturated palette + desaturated images */
 html.a11y-grayscale {
-  --cream: #f4f4f4;
-  --linen: #ececec;
-  --sand: #dadada;
-  --clay: #b0b0b0;
-  --terracotta: #7a7a7a;
-  --olive: #737373;
-  --charcoal: #3a3a3a;
+  --paper: #f4f4f4;
+  --paper-2: #ececec;
+  --stone: #dadada;
+  --stone-2: #b0b0b0;
+  --ember: #7a7a7a;
+  --moss: #737373;
+  --ink-2: #3a3a3a;
   --ink: #232323;
-  --gold: #8a8a8a;
-  --copper: #6f6f6f;
+  --beeswax: #8a8a8a;
+  --cobalt: #6f6f6f;
 }
 html.a11y-grayscale img {
   filter: grayscale(100%);
@@ -329,16 +345,16 @@ html.a11y-no-motion *::after {
 
 /* Dark mode — softer than high-contrast, warmer dark palette */
 html.a11y-dark {
-  --cream: #1a1714;
-  --linen: #221d18;
-  --sand: #2b2520;
-  --clay: #6b5a48;
-  --terracotta: #d18a64;
-  --olive: #9a9a73;
-  --charcoal: #ece4d4;
+  --paper: #1a1714;
+  --paper-2: #221d18;
+  --stone: #2b2520;
+  --stone-2: #6b5a48;
+  --ember: #e98a5a;
+  --moss: #9cbf86;
+  --ink-2: #ece4d4;
   --ink: #f3ecdc;
-  --gold: #d4ad6e;
-  --copper: #d18a64;
+  --beeswax: #e4c27e;
+  --cobalt: #8fb0ee;
 }
 html.a11y-dark img {
   filter: brightness(0.92);
@@ -400,16 +416,16 @@ html.a11y-focus *:focus-visible {
 
 /* Sepia / warm tone — eases eye strain */
 html.a11y-sepia {
-  --cream: #f5ecd9;
-  --linen: #ede1c8;
-  --sand: #e3cfa9;
-  --clay: #b78a5f;
-  --terracotta: #9a5b3b;
-  --olive: #807454;
-  --charcoal: #4a3a26;
+  --paper: #f5ecd9;
+  --paper-2: #ede1c8;
+  --stone: #e3cfa9;
+  --stone-2: #b78a5f;
+  --ember: #9a5b3b;
+  --moss: #807454;
+  --ink-2: #4a3a26;
   --ink: #2f2515;
-  --gold: #9a7536;
-  --copper: #9a5b3b;
+  --beeswax: #9a7536;
+  --cobalt: #9a5b3b;
 }
 html.a11y-sepia img {
   filter: sepia(0.35) saturate(0.85);

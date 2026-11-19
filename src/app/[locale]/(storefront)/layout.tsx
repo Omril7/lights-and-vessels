@@ -50,7 +50,7 @@ export default async function StorefrontLayout({
   const t = await getTranslations("layout");
   const skipToContent = t("skipToContent");
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="storefront flex min-h-screen flex-col font-serif">
       <a href="#main-content" className="skip-link">
         {skipToContent}
       </a>
