@@ -3,8 +3,7 @@ import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { getSiteContent } from "@/lib/content";
-import { HeroBanner } from "@/components/storefront/HeroBanner";
-import { FeaturedProducts } from "@/components/storefront/FeaturedProducts";
+import { HomeSplit } from "@/components/storefront/HomeSplit";
 // import { CategoryStrip } from "@/components/storefront/CategoryStrip"; // CATEGORIES_DISABLED
 import { Testimonials } from "@/components/storefront/Testimonials";
 import { FadeIn } from "@/components/ui/FadeIn";
@@ -59,14 +58,13 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
       />
-      <HeroBanner
+      <HomeSplit
         title={content.hero_title}
         subtitle={content.hero_subtitle}
-        image={content.hero_image}
         cta={content.hero_cta}
+        image={content.hero_image}
+        products={featured}
       />
-
-      <FeaturedProducts products={featured} />
 
       {/* Artist story teaser */}
       <section className="bg-linen paper-grain">
