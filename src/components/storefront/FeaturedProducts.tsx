@@ -31,10 +31,10 @@ export async function FeaturedProducts({
         </Link>
       </FadeIn>
 
-      <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-5 md:grid-cols-3 lg:grid-cols-4">
-        {products.slice(0, 8).map((p, i) => (
+      <div className="grid grid-cols-2 gap-x-4 gap-y-12 sm:gap-x-6 md:grid-cols-3 md:gap-y-20">
+        {products.slice(0, 6).map((p, i) => (
           <FadeIn key={p.id} delay={i * 0.06}>
-            <ProductCard product={p} priority={i < 4} />
+            <ProductCard product={p} priority={i < 3} />
           </FadeIn>
         ))}
       </div>

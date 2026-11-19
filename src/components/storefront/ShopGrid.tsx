@@ -6,7 +6,7 @@ import { FadeIn } from "@/components/ui/FadeIn";
 import { Button } from "@/components/ui/Button";
 import type { ProductWithImages } from "@/types";
 
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 9;
 
 export function ShopGrid({ products }: { products: ProductWithImages[] }) {
   const [visible, setVisible] = useState(PAGE_SIZE);
@@ -19,10 +19,10 @@ export function ShopGrid({ products }: { products: ProductWithImages[] }) {
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-5 md:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-12 sm:gap-x-6 md:grid-cols-3 md:gap-y-20">
         {shown.map((p, i) => (
-          <FadeIn key={p.id} delay={(i % 4) * 0.06}>
-            <ProductCard product={p} priority={i < 4} />
+          <FadeIn key={p.id} delay={(i % 3) * 0.06}>
+            <ProductCard product={p} priority={i < 3} />
           </FadeIn>
         ))}
       </div>
