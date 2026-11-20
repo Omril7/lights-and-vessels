@@ -110,14 +110,20 @@ export default function RootLayout({
         <Toaster
           position="bottom-center"
           toastOptions={{
+            // Square, ink-dark notice — matches the site; used for errors and admin saves.
             style: {
-              background: "var(--charcoal)",
-              color: "var(--cream)",
+              background: "#1c1612",
+              color: "#efe7d8",
               fontFamily: "var(--font-heebo)",
-              borderRadius: "999px",
+              borderRadius: "0",
+              border: "1px solid #3a2e26",
+              boxShadow: "none",
               fontSize: "0.875rem",
-              padding: "0.6rem 1.1rem",
+              fontWeight: 300,
+              padding: "0.7rem 1rem",
             },
+            success: { iconTheme: { primary: "#a7c48f", secondary: "#1c1612" } },
+            error: { iconTheme: { primary: "#e0704f", secondary: "#1c1612" } },
           }}
         />
       </body>

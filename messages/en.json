@@ -52,7 +52,6 @@
     "continueShopping": "Continue Shopping"
   },
   "product": {
-    "addedToCart": "Added to cart",
     "soldOut": "Sold",
     "handcrafted": "Handcrafted in the studio",
     "shippingDetail": "Carefully packaged, ships within 3–5 business days",
@@ -72,7 +71,9 @@
     "brand": "Lights & Vessels",
     "comingSoon": "Coming soon",
     "morePhotos": "More photos",
-    "photoN": "Photo {n}"
+    "photoN": "Photo {n}",
+    "inCart": "In cart ✓",
+    "viewCart": "View cart"
   },
   "shop": {
     "subtitle": "Handmade, in small batches.",

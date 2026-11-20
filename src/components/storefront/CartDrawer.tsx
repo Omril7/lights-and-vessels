@@ -2,6 +2,7 @@
 
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { XMarkIcon, MinusIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useTranslations } from "next-intl";
@@ -14,6 +15,14 @@ export function CartDrawer() {
   const { items, isOpen, closeCart, setQuantity, removeItem } = useCart();
   const subtotal = cartSubtotal(items);
   const count = cartCount(items);
+
+  // Escape closes the drawer (keyboard users have no other way out).
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && closeCart();
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [isOpen, closeCart]);
 
   return (
     <AnimatePresence>

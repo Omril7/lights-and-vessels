@@ -52,7 +52,6 @@
     "continueShopping": "המשך קנייה"
   },
   "product": {
-    "addedToCart": "נוסף לעגלה",
     "soldOut": "נמכר",
     "handcrafted": "נוצר בעבודת יד בסטודיו",
     "shippingDetail": "משלוח עטוף בקפידה תוך 3–5 ימי עסקים",
@@ -72,7 +71,9 @@
     "brand": "אורות וכלים",
     "comingSoon": "בקרוב",
     "morePhotos": "תמונות נוספות",
-    "photoN": "תמונה {n}"
+    "photoN": "תמונה {n}",
+    "inCart": "בעגלה ✓",
+    "viewCart": "לצפייה בעגלה"
   },
   "shop": {
     "subtitle": "עבודת יד, במנות קטנות.",

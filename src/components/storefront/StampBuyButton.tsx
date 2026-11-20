@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import toast from "react-hot-toast";
 import { useLocale, useTranslations } from "next-intl";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/utils";
@@ -28,7 +27,7 @@ export function StampBuyButton({ product }: { product: ProductWithImages }) {
     : !buyable
       ? t("soldOut")
       : added
-        ? t("addedToCart")
+        ? t("inCart")
         : t("buy");
 
   const onClick = () => {
@@ -45,8 +44,8 @@ export function StampBuyButton({ product }: { product: ProductWithImages }) {
       image: product.images[0]?.url ?? "",
       stockCount: product.stockCount,
     });
+    // No popup: the stamp itself turns into "in cart", and the header count updates.
     setAdded(true);
-    toast.success(t("addedToCart"));
   };
 
   return (
@@ -54,8 +53,12 @@ export function StampBuyButton({ product }: { product: ProductWithImages }) {
       type="button"
       onClick={onClick}
       disabled={!buyable}
-      aria-label={buyable ? `${label} — ${formatPrice(product.price)}` : label}
-      className="ink flex h-[72px] w-full items-stretch border-2 border-stamp bg-transparent text-stamp transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-60"
+      aria-label={
+        added ? `${label} — ${t("viewCart")}` : buyable ? `${label} — ${formatPrice(product.price)}` : label
+      }
+      className={`ink flex h-[72px] w-full items-stretch border-2 border-stamp text-stamp transition-[opacity,background-color] hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-60 ${
+        added ? "bg-stamp/[0.07] motion-safe:animate-stamp" : "bg-transparent"
+      }`}
     >
       <span className="flex flex-col justify-center gap-0.5 whitespace-nowrap border-e-2 border-stamp px-4 text-start text-sm font-bold">
         {t("brand")}
@@ -68,7 +71,11 @@ export function StampBuyButton({ product }: { product: ProductWithImages }) {
       </span>
       <span className="flex flex-col justify-center gap-0.5 whitespace-nowrap px-4 text-start text-base font-bold">
         {label}
-        {!comingSoon && <span className="font-medium">{formatPrice(product.price)}</span>}
+        {added ? (
+          <span className="text-sm font-medium">{t("viewCart")}</span>
+        ) : (
+          !comingSoon && <span className="font-medium">{formatPrice(product.price)}</span>
+        )}
       </span>
     </button>
   );

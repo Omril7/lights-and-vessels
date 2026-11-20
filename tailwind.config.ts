@@ -69,10 +69,17 @@ const config: Config = {
         shimmer: {
           "100%": { transform: "translateX(100%)" },
         },
+        // Rubber-stamp press: a quick push down and back.
+        stamp: {
+          "0%": { transform: "scale(1)" },
+          "35%": { transform: "scale(0.965)" },
+          "100%": { transform: "scale(1)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.8s cubic-bezier(0.22,1,0.36,1) forwards",
         shimmer: "shimmer 1.6s infinite",
+        stamp: "stamp 0.32s cubic-bezier(0.22,1,0.36,1)",
       },
     },
   },
