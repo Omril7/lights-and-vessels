@@ -56,7 +56,7 @@ export default async function StorePage({
   return (
     <>
       {/* Banner */}
-      <section className="relative h-[clamp(320px,52vh,560px)] overflow-hidden bg-[#1c1612]">
+      <section className="on-dark relative h-[clamp(320px,52vh,560px)] overflow-hidden bg-[#1c1612]">
         {heroImage && (
           <Image
             src={heroImage}

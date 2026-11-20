@@ -38,7 +38,7 @@ export function Entry({ line, images }: { line: string; images: EntryImages }) {
   const otherLocale = locale === "he" ? "en" : "he";
 
   return (
-    <div className="relative min-h-[100svh] overflow-hidden bg-[#1c1612] text-[#e6ddbf]">
+    <div className="on-dark relative min-h-[100svh] overflow-hidden bg-[#1c1612] text-[#e6ddbf]">
       {/* Background layers, crossfaded */}
       {layers.map((k) => (
         <Image

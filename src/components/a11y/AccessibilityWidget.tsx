@@ -4,7 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { motion, AnimatePresence, useMotionValue } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   XMarkIcon,
   MinusIcon,
@@ -26,7 +26,6 @@ import {
   ViewfinderCircleIcon,
   PaintBrushIcon,
   MinusSmallIcon,
-  ArrowsPointingOutIcon,
 } from "@heroicons/react/24/outline";
 
 type Settings = {
@@ -50,8 +49,8 @@ type Settings = {
 };
 
 const KEY = "a11y-settings";
-const POS_KEY = "a11y-pos";
-const BTN_SIZE = 56; // h-14 w-14 in px
+/** Legacy key from when the button could be dragged — cleared on load. */
+const LEGACY_POS_KEY = "a11y-pos";
 const MAX_FONT = 3;
 const GRID_COLS = 2;
 
@@ -193,15 +192,6 @@ function ReadingGuide() {
   return <div ref={ref} className="a11y-reading-guide" aria-hidden />;
 }
 
-type Pos = { x: number; y: number };
-
-function clampPos(x: number, y: number): Pos {
-  return {
-    x: Math.max(0, Math.min(x, window.innerWidth - BTN_SIZE)),
-    y: Math.max(0, Math.min(y, window.innerHeight - BTN_SIZE)),
-  };
-}
-
 export function AccessibilityWidget() {
   const t = useTranslations("a11y");
   const pathname = usePathname();
@@ -210,8 +200,6 @@ export function AccessibilityWidget() {
   const [settings, setSettings] = useState<Settings>(DEFAULTS);
   const [focusIdx, setFocusIdx] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  const [pos, setPos] = useState<Pos | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 640px)");
@@ -221,31 +209,14 @@ export function AccessibilityWidget() {
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  // Load saved drag position or default to bottom-left
+  // The button no longer moves — drop any position saved by the old drag feature.
   useEffect(() => {
-    const defaultPos = { x: 20, y: window.innerHeight - 20 - BTN_SIZE };
     try {
-      const raw = localStorage.getItem(POS_KEY);
-      if (raw) {
-        const p = JSON.parse(raw) as Pos;
-        setPos(clampPos(p.x, p.y));
-        return;
-      }
-    } catch { /* ignore */ }
-    setPos(defaultPos);
+      localStorage.removeItem(LEGACY_POS_KEY);
+    } catch {
+      /* ignore */
+    }
   }, []);
-
-  // Clamp position on resize
-  useEffect(() => {
-    const onResize = () => {
-      setPos((p) => p ? clampPos(p.x, p.y) : p);
-    };
-    window.addEventListener("resize", onResize, { passive: true });
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  const dragX = useMotionValue(0);
-  const dragY = useMotionValue(0);
 
   const drawerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -274,16 +245,9 @@ export function AccessibilityWidget() {
     }
   }, []);
 
-  const resetPos = () => {
-    const defaultPos = { x: 20, y: window.innerHeight - 20 - BTN_SIZE };
-    setPos(defaultPos);
-    try { localStorage.removeItem(POS_KEY); } catch { /* ignore */ }
-  };
-
   const reset = () => {
     update(DEFAULTS);
     setFocusIdx(0);
-    resetPos();
   };
 
   // Escape closes; lock body scroll while open.
@@ -350,54 +314,26 @@ export function AccessibilityWidget() {
 
   return (
     <>
-      {/* Floating trigger — Framer Motion drag handles mouse + touch */}
-      <motion.button
+      {/* Fixed trigger — bottom-left (the WhatsApp button sits bottom-right) */}
+      <button
         ref={buttonRef}
-        drag
-        dragMomentum={false}
-        dragElastic={0}
-        dragConstraints={{
-          left: pos ? -pos.x : 0,
-          right: pos ? window.innerWidth - BTN_SIZE - pos.x : 0,
-          top: pos ? -pos.y : 0,
-          bottom: pos ? window.innerHeight - BTN_SIZE - pos.y : 0,
-        }}
-        onDragStart={() => setIsDragging(true)}
-        onDragEnd={(_, info) => {
-          setIsDragging(false);
-          if (!pos) return;
-          const next = clampPos(pos.x + info.offset.x, pos.y + info.offset.y);
-          setPos(next);
-          dragX.set(0);
-          dragY.set(0);
-          try { localStorage.setItem(POS_KEY, JSON.stringify(next)); } catch { /* ignore */ }
-        }}
-        onTap={() => { if (!isDragging) setOpen((v) => !v); }}
+        type="button"
+        onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="dialog"
         aria-label={t("trigger")}
-        style={pos ? { left: pos.x, top: pos.y, x: dragX, y: dragY } : undefined}
-        className={[
-          "fixed z-[85] flex h-14 items-center justify-center rounded-full bg-charcoal text-cream shadow-lift outline-none touch-none",
-          "focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-cream",
-          "transition-[width] duration-200",
-          isDragging ? "w-24 cursor-grabbing gap-2 px-3 shadow-2xl" : "w-14 cursor-grab",
-          !pos ? "opacity-0 pointer-events-none" : "",
-        ].join(" ")}
+        className="fixed bottom-4 left-4 z-[85] flex h-11 w-11 items-center justify-center bg-ink text-cream transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
       >
-        {isDragging && (
-          <ArrowsPointingOutIcon className="h-5 w-5 shrink-0 opacity-70" aria-hidden />
-        )}
-        <AccessIcon className="h-7 w-7 shrink-0" />
+        <AccessIcon className="h-6 w-6" />
         {active && (
           <span
             aria-hidden
-            className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-charcoal bg-copper px-1 text-[0.65rem] font-semibold text-cream"
+            className="absolute -right-1.5 -top-1.5 flex h-[1.1rem] min-w-[1.1rem] items-center justify-center bg-accent px-1 text-[0.62rem] font-semibold text-cream"
           >
             {activeCount}
           </span>
         )}
-      </motion.button>
+      </button>
 
       {/* Reading guide overlay — outside the drawer so it shows everywhere */}
       {settings.readingGuide && <ReadingGuide />}
@@ -425,7 +361,7 @@ export function AccessibilityWidget() {
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               className={
                 isMobile
-                  ? "fixed inset-x-0 bottom-0 z-[90] flex max-h-[88vh] w-full flex-col rounded-t-3xl bg-cream shadow-lift"
+                  ? "fixed inset-x-0 bottom-0 z-[90] flex max-h-[88vh] w-full flex-col bg-cream shadow-lift"
                   : "fixed inset-y-0 left-0 z-[90] flex h-full w-[min(24rem,100vw)] flex-col bg-cream shadow-lift"
               }
             >
@@ -443,7 +379,7 @@ export function AccessibilityWidget() {
                 <button
                   onClick={() => setOpen(false)}
                   aria-label={t("close")}
-                  className="rounded-full p-1.5 text-charcoal transition hover:bg-sand"
+                  className="p-1.5 text-charcoal transition hover:bg-sand"
                 >
                   <XMarkIcon className="h-5 w-5" />
                 </button>
@@ -455,7 +391,7 @@ export function AccessibilityWidget() {
                   <p className="mb-2 text-sm font-medium text-charcoal">
                     {t("fontSize")}
                   </p>
-                  <div className="flex items-center justify-between rounded-xl border border-charcoal/20 p-1.5">
+                  <div className="flex items-center justify-between border border-charcoal/20 p-1.5">
                     <button
                       onClick={() =>
                         update({
@@ -465,7 +401,7 @@ export function AccessibilityWidget() {
                       }
                       disabled={settings.fontStep <= 0}
                       aria-label={t("decreaseFontSize")}
-                      className="rounded-lg p-2 text-charcoal transition hover:bg-sand disabled:opacity-30"
+                      className=" p-2 text-charcoal transition hover:bg-sand disabled:opacity-30"
                     >
                       <MinusIcon className="h-5 w-5" />
                     </button>
@@ -490,7 +426,7 @@ export function AccessibilityWidget() {
                       }
                       disabled={settings.fontStep >= MAX_FONT}
                       aria-label={t("increaseFontSize")}
-                      className="rounded-lg p-2 text-charcoal transition hover:bg-sand disabled:opacity-30"
+                      className=" p-2 text-charcoal transition hover:bg-sand disabled:opacity-30"
                     >
                       <PlusIcon className="h-5 w-5" />
                     </button>
@@ -524,9 +460,9 @@ export function AccessibilityWidget() {
                           onClick={() =>
                             update(toggleKey(settings, key))
                           }
-                          className={`group relative flex items-center gap-2 rounded-xl border px-2.5 py-3.5 text-start transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-1 focus-visible:ring-offset-cream ${
+                          className={`group relative flex items-center gap-2 border px-2.5 py-3.5 text-start transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-1 focus-visible:ring-offset-cream ${
                             checked
-                              ? "border-copper bg-copper/10 text-ink shadow-soft"
+                              ? "border-copper bg-copper/10 text-ink"
                               : "border-charcoal/15 bg-cream text-charcoal hover:border-charcoal/35 hover:bg-sand/40"
                           }`}
                         >
@@ -570,7 +506,7 @@ export function AccessibilityWidget() {
                 <button
                   onClick={reset}
                   disabled={!active}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-charcoal/25 py-2.5 text-sm text-charcoal transition hover:bg-sand disabled:opacity-40"
+                  className="flex w-full items-center justify-center gap-2 border border-charcoal/25 py-2.5 text-sm text-charcoal transition hover:bg-sand disabled:opacity-40"
                 >
                   <ArrowPathIcon className="h-4 w-4" />
                   {t("reset")}

@@ -42,7 +42,7 @@ export async function Footer({
   ];
 
   return (
-    <footer className="mt-24 bg-[#120e0b] text-[#8c8270]">
+    <footer className="on-dark mt-24 bg-[#120e0b] text-[#8c8270]">
       <div className="flex flex-col gap-10 px-5 pb-10 pt-16 sm:px-[5vw]">
         <div className="flex flex-wrap items-start justify-between gap-8">
           <div className="flex flex-col gap-3">

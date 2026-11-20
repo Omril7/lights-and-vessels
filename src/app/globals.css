@@ -381,6 +381,8 @@ html.a11y-contrast {
   --ink: #ffffff;
   --beeswax: #ffd400;
   --cobalt: #ffd400;
+  --accent: #ffd400;
+  --stamp: #ffd400;
 }
 html.a11y-contrast img {
   filter: contrast(1.15);
@@ -398,9 +400,31 @@ html.a11y-grayscale {
   --ink: #232323;
   --beeswax: #8a8a8a;
   --cobalt: #6f6f6f;
+  --accent: #3a3a3a;
+  --stamp: #3a3a3a;
 }
 html.a11y-grayscale img {
   filter: grayscale(100%);
+}
+
+/* Fixed-colour dark sections (entry page, footer, photo banners) carry
+   .on-dark — the palette modes can't reach their hard-coded colours, so
+   they're adjusted here. Filters are safe: none of these contain fixed
+   elements. */
+html.a11y-grayscale .on-dark {
+  filter: grayscale(100%);
+}
+html.a11y-sepia .on-dark {
+  filter: sepia(0.35) saturate(0.85);
+}
+html.a11y-contrast .on-dark {
+  background-color: #000000 !important;
+}
+html.a11y-contrast .on-dark :is(p, span, h1, h2, a, button, li) {
+  color: #ffffff !important;
+}
+html.a11y-contrast .on-dark :is(a, button):hover {
+  color: #ffd400 !important;
 }
 
 /* Highlight links */
@@ -448,6 +472,8 @@ html.a11y-dark {
   --ink: #f3ecdc;
   --beeswax: #e4c27e;
   --cobalt: #8fb0ee;
+  --accent: #e0704f;
+  --stamp: #e5553f;
 }
 html.a11y-dark img {
   filter: brightness(0.92);
@@ -519,6 +545,8 @@ html.a11y-sepia {
   --ink: #2f2515;
   --beeswax: #9a7536;
   --cobalt: #9a5b3b;
+  --accent: #8a4a2b;
+  --stamp: #8a3b2b;
 }
 html.a11y-sepia img {
   filter: sepia(0.35) saturate(0.85);

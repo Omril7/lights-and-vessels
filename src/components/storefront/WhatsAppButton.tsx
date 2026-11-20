@@ -8,7 +8,11 @@ function WhatsAppGlyph({ className }: { className?: string }) {
   );
 }
 
-/** Fixed floating WhatsApp button — bottom-right, opposite the a11y widget. */
+/**
+ * Fixed WhatsApp button — bottom-right, opposite the accessibility button.
+ * Same small ink square as that button (follows the colour theme); the label
+ * slides out on hover / keyboard focus.
+ */
 export function WhatsAppButton({
   number,
   message,
@@ -23,14 +27,13 @@ export function WhatsAppButton({
       target="_blank"
       rel="noopener noreferrer"
       aria-label="פתיחת שיחה בוואטסאפ"
-      className="group fixed bottom-5 right-5 z-[80] flex items-center gap-0 rounded-full bg-[#25D366] text-white shadow-lift outline-none transition-all duration-300 ease-grace hover:gap-2 hover:pe-5 focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
+      className="group fixed bottom-4 right-4 z-[80] flex h-11 items-center bg-ink text-cream transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-cream"
     >
-      <span className="relative flex h-14 w-14 items-center justify-center">
-        <span className="absolute inset-0 animate-ping rounded-full bg-[#25D366] opacity-30" />
-        <WhatsAppGlyph className="relative h-7 w-7" />
-      </span>
-      <span className="max-w-0 overflow-hidden whitespace-nowrap text-sm font-medium transition-all duration-300 ease-grace group-hover:max-w-[10rem]">
+      <span className="max-w-0 overflow-hidden whitespace-nowrap text-sm font-light transition-all duration-300 ease-grace group-hover:max-w-[10rem] group-hover:ps-4 group-focus-visible:max-w-[10rem] group-focus-visible:ps-4">
         כתבו לי בוואטסאפ
+      </span>
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center">
+        <WhatsAppGlyph className="h-[1.3rem] w-[1.3rem]" />
       </span>
     </a>
   );
