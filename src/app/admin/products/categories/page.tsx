@@ -9,9 +9,9 @@ export default async function ProductCategoriesPage() {
     prisma.productCategory.findMany({
       orderBy: [{ order: "asc" }, { createdAt: "asc" }],
     }),
-    prisma.product.groupBy({ by: ["category"], _count: { _all: true } }),
+    prisma.product.groupBy({ by: ["categoryId"], _count: { _all: true } }),
   ]);
-  const countBySlug = new Map(counts.map((c) => [c.category, c._count._all]));
+  const countById = new Map(counts.map((c) => [c.categoryId, c._count._all]));
 
   return (
     <div className="space-y-6">
@@ -30,7 +30,7 @@ export default async function ProductCategoriesPage() {
           id: c.id,
           name_he: c.name_he,
           name_en: c.name_en,
-          count: countBySlug.get(c.slug) ?? 0,
+          count: countById.get(c.id) ?? 0,
         }))}
       />
     </div>

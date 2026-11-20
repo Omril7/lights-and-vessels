@@ -12,6 +12,14 @@ import {
 import { formatPrice, cn } from "@/lib/utils";
 import { ProductReorderButtons } from "@/components/admin/ProductReorderButtons";
 import { ProductsFilterBar } from "@/components/admin/ProductsFilterBar";
+import { isSoldOut, pieceLabel } from "@/lib/product-status";
+
+const STATUS_LABEL = {
+  AVAILABLE: "זמין",
+  COMING_SOON: "בקרוב",
+  SOLD: "נמכר",
+  HIDDEN: "מוסתר",
+} as const;
 
 export const dynamic = "force-dynamic";
 
@@ -64,16 +72,15 @@ export default async function AdminProductsPage({
       },
     ];
   }
-  if (category && category !== "all") where.category = category;
-  if (status === "published") where.published = true;
-  if (status === "draft") where.published = false;
+  if (category && category !== "all") where.category = { slug: category };
+  if (status === "available") where.status = "AVAILABLE";
+  if (status === "coming-soon") where.status = "COMING_SOON";
+  if (status === "sold") where.status = "SOLD";
+  if (status === "hidden") where.status = "HIDDEN";
   if (status === "featured") where.featured = true;
   if (status === "soldout") {
-    where.OR = [
-      ...(Array.isArray(where.OR) ? (where.OR as object[]) : []),
-      { inStock: false },
-      { stockCount: { lte: 0 } },
-    ];
+    where.status = "AVAILABLE";
+    where.stockCount = { lte: 0 };
   }
 
   const total = await prisma.product.count({ where });
@@ -83,7 +90,7 @@ export default async function AdminProductsPage({
   const [products, categories] = await Promise.all([
     prisma.product.findMany({
       where,
-      include: { images: { orderBy: { order: "asc" }, take: 1 } },
+      include: { images: { orderBy: { order: "asc" }, take: 1 }, category: true },
       orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
       skip: (safePage - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
@@ -92,7 +99,6 @@ export default async function AdminProductsPage({
       orderBy: [{ order: "asc" }, { createdAt: "asc" }],
     }),
   ]);
-  const categoryName = new Map(categories.map((c) => [c.slug, c.name_he]));
   const productIds = products.map((p) => p.id);
 
   const filtersActive =
@@ -163,7 +169,7 @@ export default async function AdminProductsPage({
               <tbody>
                 {products.map((p, index) => {
                   const img = p.images[0]?.url;
-                  const soldOut = !p.inStock || p.stockCount <= 0;
+                  const soldOut = isSoldOut(p);
                   return (
                     <tr
                       key={p.id}
@@ -194,6 +200,9 @@ export default async function AdminProductsPage({
                           className="font-medium text-charcoal hover:text-copper"
                         >
                           {p.name_he}
+                          {p.isUnique && p.pieceNumber != null && (
+                            <span className="text-charcoal/50"> {pieceLabel(p.pieceNumber)}</span>
+                          )}
                         </Link>
                         {p.name_en && (
                           <p className="text-xs text-charcoal/50" dir="ltr">
@@ -202,7 +211,7 @@ export default async function AdminProductsPage({
                         )}
                       </td>
                       <td className="px-4 py-3 text-charcoal/80">
-                        {p.category ? categoryName.get(p.category) ?? p.category : "—"}
+                        {p.category?.name_he ?? "—"}
                       </td>
                       <td className="px-4 py-3 text-end text-charcoal">
                         {formatPrice(p.price)}
@@ -216,11 +225,10 @@ export default async function AdminProductsPage({
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-1">
-                          {p.published ? (
-                            <Badge tone="neutral">פעיל</Badge>
-                          ) : (
-                            <Badge tone="accent">טיוטה</Badge>
-                          )}
+                          <Badge tone={p.status === "AVAILABLE" ? "neutral" : "accent"}>
+                            {STATUS_LABEL[p.status]}
+                          </Badge>
+                          {p.isUnique && <Badge tone="neutral">יחיד</Badge>}
                           {p.featured && <Badge tone="accent">מומלץ</Badge>}
                         </div>
                       </td>

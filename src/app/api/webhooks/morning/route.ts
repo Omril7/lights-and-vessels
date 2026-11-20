@@ -137,6 +137,20 @@ export async function POST(req: Request) {
     include: { items: { include: { product: { select: { name_he: true, name_en: true, slug: true } } } } },
   });
 
+  // One-of-a-kind pieces that just sold leave the store and move to the gallery.
+  try {
+    await prisma.product.updateMany({
+      where: {
+        id: { in: updated.items.map((i) => i.productId) },
+        isUnique: true,
+        stockCount: { lte: 0 },
+      },
+      data: { status: "SOLD" },
+    });
+  } catch (err) {
+    console.warn("[morning/webhook] marking unique pieces sold failed:", err);
+  }
+
   if (documentId) {
     try {
       await prisma.morningDocument.upsert({

@@ -19,7 +19,7 @@ export type ProductFormValues = {
   description_en: string;
   price: number;
   comparePrice: number | null;
-  category: string | null;
+  categoryId: string | null;
   tagIds: string[];
   materials_he: string;
   materials_en: string;
@@ -27,11 +27,22 @@ export type ProductFormValues = {
   height: number | null;
   depth: number | null;
   stockCount: number;
-  inStock: boolean;
+  status: ProductStatusValue;
+  isUnique: boolean;
+  pieceNumber: number | null;
+  year: number | null;
   featured: boolean;
-  published: boolean;
   images: UploadedImage[];
 };
+
+type ProductStatusValue = "AVAILABLE" | "COMING_SOON" | "SOLD" | "HIDDEN";
+
+const STATUS_OPTIONS: { value: ProductStatusValue; label: string }[] = [
+  { value: "AVAILABLE", label: "זמין למכירה" },
+  { value: "COMING_SOON", label: "בקרוב (בלי מחיר)" },
+  { value: "SOLD", label: "נמכר (מוצג בגלריה)" },
+  { value: "HIDDEN", label: "מוסתר (טיוטה)" },
+];
 
 const EMPTY: ProductFormValues = {
   name_he: "",
@@ -41,7 +52,7 @@ const EMPTY: ProductFormValues = {
   description_en: "",
   price: 0,
   comparePrice: null,
-  category: null,
+  categoryId: null,
   tagIds: [],
   materials_he: "",
   materials_en: "",
@@ -49,9 +60,11 @@ const EMPTY: ProductFormValues = {
   height: null,
   depth: null,
   stockCount: 0,
-  inStock: true,
+  status: "HIDDEN",
+  isUnique: false,
+  pieceNumber: null,
+  year: new Date().getFullYear(),
   featured: false,
-  published: false,
   images: [],
 };
 
@@ -122,7 +135,7 @@ export function ProductForm({
         values.comparePrice == null || Number.isNaN(values.comparePrice)
           ? null
           : Number(values.comparePrice),
-      category: values.category || null,
+      categoryId: values.categoryId || null,
       tagIds: values.tagIds,
       materials_he: values.materials_he.trim() || null,
       materials_en: values.materials_en.trim() || null,
@@ -130,9 +143,11 @@ export function ProductForm({
       height: values.height,
       depth: values.depth,
       stockCount: Number(values.stockCount) | 0,
-      inStock: values.inStock,
+      status: values.status,
+      isUnique: values.isUnique,
+      pieceNumber: values.isUnique ? values.pieceNumber : null,
+      year: values.year,
       featured: values.featured,
-      published: values.published,
       images: values.images,
     };
 
@@ -326,24 +341,58 @@ export function ProductForm({
               }
               placeholder="ריק = אין מבצע"
             />
-            <Input
-              id="stockCount"
-              type="number"
-              step="1"
-              min="0"
-              label="מלאי"
-              value={values.stockCount}
-              onChange={(e) => set("stockCount", Number(e.target.value))}
-            />
             <label className="flex items-center gap-2 text-sm text-charcoal">
               <input
                 type="checkbox"
-                checked={values.inStock}
-                onChange={(e) => set("inStock", e.target.checked)}
+                checked={values.isUnique}
+                onChange={(e) => {
+                  const on = e.target.checked;
+                  setValues((prev) => ({
+                    ...prev,
+                    isUnique: on,
+                    // A one-of-a-kind piece is exactly one item.
+                    stockCount: on ? Math.min(prev.stockCount, 1) || 1 : prev.stockCount,
+                  }));
+                }}
                 className="accent-charcoal"
               />
-              במלאי
+              פריט יחיד (One of a kind)
             </label>
+            {values.isUnique ? (
+              <Input
+                id="pieceNumber"
+                type="number"
+                step="1"
+                min="1"
+                label="מספר פריט (יוצג כ־03)"
+                value={values.pieceNumber ?? ""}
+                onChange={(e) =>
+                  set("pieceNumber", e.target.value === "" ? null : Number(e.target.value))
+                }
+              />
+            ) : (
+              <Input
+                id="stockCount"
+                type="number"
+                step="1"
+                min="0"
+                label="מלאי"
+                value={values.stockCount}
+                onChange={(e) => set("stockCount", Number(e.target.value))}
+              />
+            )}
+            <Input
+              id="year"
+              type="number"
+              step="1"
+              min="1900"
+              max="2100"
+              label="שנה"
+              value={values.year ?? ""}
+              onChange={(e) =>
+                set("year", e.target.value === "" ? null : Number(e.target.value))
+              }
+            />
           </div>
 
           <div className={card}>
@@ -362,12 +411,12 @@ export function ProductForm({
               <Dropdown
                 variant="field"
                 ariaLabel="קטגוריה"
-                value={values.category ?? ""}
-                onChange={(v) => set("category", v || null)}
+                value={values.categoryId ?? ""}
+                onChange={(v) => set("categoryId", v || null)}
                 options={[
                   { value: "", label: "ללא קטגוריה" },
                   ...options.categories.map((c) => ({
-                    value: c.slug,
+                    value: c.id,
                     label: c.name_en ? `${c.name_he} · ${c.name_en}` : c.name_he,
                   })),
                 ]}
@@ -419,15 +468,16 @@ export function ProductForm({
 
           <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-3 shadow-soft">
             <h2 className="font-serif text-lg text-charcoal">תצוגה</h2>
-            <label className="flex items-center gap-2 text-sm text-charcoal">
-              <input
-                type="checkbox"
-                checked={values.published}
-                onChange={(e) => set("published", e.target.checked)}
-                className="accent-charcoal"
+            <div className="space-y-1.5">
+              <span className={fieldLabel}>סטטוס</span>
+              <Dropdown
+                variant="field"
+                ariaLabel="סטטוס"
+                value={values.status}
+                onChange={(v) => set("status", v as ProductStatusValue)}
+                options={STATUS_OPTIONS}
               />
-              מפורסם באתר
-            </label>
+            </div>
             <label className="flex items-center gap-2 text-sm text-charcoal">
               <input
                 type="checkbox"

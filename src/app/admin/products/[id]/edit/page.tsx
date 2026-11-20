@@ -43,7 +43,7 @@ export default async function EditProductPage({
           description_en: product.description_en ?? "",
           price: product.price,
           comparePrice: product.comparePrice,
-          category: product.category ?? "",
+          categoryId: product.categoryId ?? "",
           tagIds: product.tags.map((t) => t.tagId),
           materials_he: product.materials_he ?? "",
           materials_en: product.materials_en ?? "",
@@ -51,9 +51,11 @@ export default async function EditProductPage({
           height: product.height,
           depth: product.depth,
           stockCount: product.stockCount,
-          inStock: product.inStock,
+          status: product.status,
+          isUnique: product.isUnique,
+          pieceNumber: product.pieceNumber,
+          year: product.year,
           featured: product.featured,
-          published: product.published,
           images: product.images.map((i) => ({ url: i.url, alt: i.alt_he })),
         }}
       />

@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { Badge } from "@/components/ui/Badge";
 import { formatPrice, localize } from "@/lib/utils";
 import type { ProductWithImages } from "@/types";
+import { isBuyable } from "@/lib/product-status";
 
 /**
  * Shop card: one portrait photo, a quiet caption underneath.
@@ -28,7 +29,7 @@ export function ProductCard({
   const secondary = product.images[1]?.url;
   const onSale =
     product.comparePrice != null && product.comparePrice > product.price;
-  const soldOut = !product.inStock || product.stockCount <= 0;
+  const soldOut = !isBuyable(product);
 
   return (
     <Link href={`/shop/${product.slug}`} className="group block">

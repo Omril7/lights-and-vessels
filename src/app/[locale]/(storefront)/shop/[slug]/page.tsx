@@ -11,15 +11,17 @@ import { FadeIn } from "@/components/ui/FadeIn";
 import { Badge } from "@/components/ui/Badge";
 import { formatPrice, renderMarkdown, localize } from "@/lib/utils";
 import type { ProductWithImages } from "@/types";
+import { PUBLIC_STATUSES, STORE_STATUSES, isSoldOut, displayName } from "@/lib/product-status";
 
 export const dynamic = "force-dynamic";
 
 const getProduct = cache(async (slug: string) =>
   prisma.product.findFirst({
-    where: { slug, published: true },
+    where: { slug, status: { in: PUBLIC_STATUSES } },
     include: {
       images: { orderBy: { order: "asc" } },
       tags: { include: { tag: true } },
+      category: true,
     },
   }),
 );
@@ -32,7 +34,7 @@ export async function generateMetadata({
   const { locale, slug } = params;
   const product = await getProduct(slug);
   if (!product) return { title: locale === "en" ? "Item not found" : "פריט לא נמצא" };
-  const name = localize(product, "name", locale);
+  const name = displayName(product, locale);
   const rawDesc = localize(product, "description", locale);
   const description = rawDesc.replace(/[#*\n]/g, " ").slice(0, 150);
   const firstImage = product.images[0]?.url;
@@ -74,8 +76,8 @@ export default async function ProductPage({
 
   const related = (await prisma.product.findMany({
     where: {
-      published: true,
-      category: product.category,
+      status: { in: STORE_STATUSES },
+      categoryId: product.categoryId,
       id: { not: product.id },
     },
     include: { images: { orderBy: { order: "asc" } } },
@@ -83,22 +85,18 @@ export default async function ProductPage({
     take: 3,
   })) as ProductWithImages[];
 
-  const name = localize(product, "name", locale);
+  const name = displayName(product, locale);
   const description = localize(product, "description", locale);
   const materials = localize(product, "materials", locale);
   const onSale = product.comparePrice != null && product.comparePrice > product.price;
-  const soldOut = !product.inStock || product.stockCount <= 0;
+  const soldOut = isSoldOut(product);
   const lowStock = !soldOut && product.stockCount <= 5;
   const tags = product.tags.map((l) => localize(l.tag, "name", locale));
   const dimensions = [product.width, product.height, product.depth]
     .filter((d): d is number => d != null)
     .join(" × ");
 
-  const category = product.category
-    ? await prisma.productCategory.findUnique({
-        where: { slug: product.category },
-      })
-    : null;
+  const category = product.category;
   const catLabel = category ? localize(category, "name", locale) : "";
 
   const productJsonLd = {
@@ -137,7 +135,7 @@ export default async function ProductPage({
         <span>/</span>
         {category && (
           <Link
-            href={`/shop?category=${product.category}`}
+            href={`/shop?category=${category.slug}`}
             className="hover:text-charcoal"
           >
             {catLabel}

@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { useCart } from "@/lib/cart";
 import { Button } from "@/components/ui/Button";
 import type { ProductWithImages } from "@/types";
+import { isBuyable } from "@/lib/product-status";
 
 export function AddToCartButton({
   product,
@@ -19,7 +20,7 @@ export function AddToCartButton({
   const addItem = useCart((s) => s.addItem);
   const [qty, setQty] = useState(1);
 
-  const soldOut = !product.inStock || product.stockCount <= 0;
+  const soldOut = !isBuyable(product);
 
   const handleAdd = () => {
     addItem(

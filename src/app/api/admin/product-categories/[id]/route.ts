@@ -31,19 +31,10 @@ export async function PATCH(
 
   const slug = parsed.data.slug ? makeSlug(parsed.data.slug) : undefined;
   try {
-    // Products reference the category by slug, so a slug change moves them along.
-    const category = await prisma.$transaction(async (tx) => {
-      const updated = await tx.productCategory.update({
-        where: { id: params.id },
-        data: { ...parsed.data, slug },
-      });
-      if (slug && slug !== existing.slug) {
-        await tx.product.updateMany({
-          where: { category: existing.slug },
-          data: { category: slug },
-        });
-      }
-      return updated;
+    // Products reference the category by id, so a slug change needs no product updates.
+    const category = await prisma.productCategory.update({
+      where: { id: params.id },
+      data: { ...parsed.data, slug },
     });
     return NextResponse.json({ category });
   } catch {
@@ -67,12 +58,7 @@ export async function DELETE(
   if (!existing) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  await prisma.$transaction([
-    prisma.product.updateMany({
-      where: { category: existing.slug },
-      data: { category: null },
-    }),
-    prisma.productCategory.delete({ where: { id: params.id } }),
-  ]);
+  // Products keep existing; the FK sets their categoryId to null.
+  await prisma.productCategory.delete({ where: { id: params.id } });
   return NextResponse.json({ ok: true });
 }

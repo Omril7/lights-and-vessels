@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { type SortKey } from "@/types";
 import type { ProductWithImages } from "@/types";
 import type { Prisma } from "@prisma/client";
+import { STORE_STATUSES } from "@/lib/product-status";
 
 export const dynamic = "force-dynamic";
 
@@ -51,7 +52,7 @@ export default async function ShopPage({
     : "curated";
 
   const products = (await prisma.product.findMany({
-    where: { published: true, ...(category ? { category } : {}) },
+    where: { status: { in: STORE_STATUSES }, ...(category ? { category: { slug: category } } : {}) },
     include: { images: { orderBy: { order: "asc" } } },
     orderBy: SORT_MAP[sort],
   })) as ProductWithImages[];

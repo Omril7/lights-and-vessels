@@ -2,15 +2,20 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin";
 import { productSchema, productScalars, resolveSlug } from "@/lib/products";
+import { PUBLIC_STATUSES } from "@/lib/product-status";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const where: Record<string, unknown> = {};
-  if (searchParams.get("category")) where.category = searchParams.get("category");
+  if (searchParams.get("category")) where.category = { slug: searchParams.get("category") };
   if (searchParams.get("featured") === "true") where.featured = true;
-  if (searchParams.get("published") === "true") where.published = true;
+  // Public callers only ever see public products; admins may ask for everything.
+  const auth = await requireAdmin();
+  if (!auth.ok || searchParams.get("published") === "true") {
+    where.status = { in: PUBLIC_STATUSES };
+  }
 
   const items = await prisma.product.findMany({
     where,

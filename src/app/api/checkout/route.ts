@@ -50,7 +50,7 @@ export async function POST(req: Request) {
 
   // Load products from DB — never trust client-side prices.
   const products = await prisma.product.findMany({
-    where: { id: { in: parsed.items.map((i) => i.productId) }, published: true },
+    where: { id: { in: parsed.items.map((i) => i.productId) }, status: "AVAILABLE" },
   });
   if (products.length !== parsed.items.length) {
     return NextResponse.json({ error: "אחד הפריטים לא זמין יותר" }, { status: 400 });
@@ -85,8 +85,7 @@ export async function POST(req: Request) {
         const res = await tx.product.updateMany({
           where: {
             id: item.productId,
-            published: true,
-            inStock: true,
+            status: "AVAILABLE",
             stockCount: { gte: item.quantity },
           },
           data: { stockCount: { decrement: item.quantity } },

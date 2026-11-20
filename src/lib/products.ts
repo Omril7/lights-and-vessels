@@ -13,7 +13,7 @@ export const productSchema = z.object({
   description_en: required("Description in English is required"),
   price: z.number().nonnegative(),
   comparePrice: z.number().nonnegative().nullable().optional(),
-  category: z.string().min(1).nullable().optional(),
+  categoryId: z.string().min(1).nullable().optional(),
   tagIds: z.array(z.string()).default([]),
   materials_he: z.string().trim().nullable().optional(),
   materials_en: z.string().trim().nullable().optional(),
@@ -21,9 +21,11 @@ export const productSchema = z.object({
   height: dimension,
   depth: dimension,
   stockCount: z.number().int().nonnegative().default(0),
-  inStock: z.boolean().default(true),
+  status: z.enum(["AVAILABLE", "COMING_SOON", "SOLD", "HIDDEN"]).default("HIDDEN"),
+  isUnique: z.boolean().default(false),
+  pieceNumber: z.number().int().positive().nullable().optional(),
+  year: z.number().int().min(1900).max(2100).nullable().optional(),
   featured: z.boolean().default(false),
-  published: z.boolean().default(false),
   images: z
     .array(
       z.object({
@@ -45,16 +47,19 @@ export function productScalars(data: ProductInput) {
     description_en: data.description_en,
     price: data.price,
     comparePrice: data.comparePrice ?? null,
-    category: data.category ?? null,
+    categoryId: data.categoryId ?? null,
     materials_he: data.materials_he || null,
     materials_en: data.materials_en || null,
     width: data.width ?? null,
     height: data.height ?? null,
     depth: data.depth ?? null,
-    stockCount: data.stockCount,
-    inStock: data.inStock,
+    // A one-of-a-kind piece is exactly one item.
+    stockCount: data.isUnique ? Math.min(data.stockCount, 1) : data.stockCount,
+    status: data.status,
+    isUnique: data.isUnique,
+    pieceNumber: data.isUnique ? data.pieceNumber ?? null : null,
+    year: data.year ?? null,
     featured: data.featured,
-    published: data.published,
   };
 }
 

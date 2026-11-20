@@ -8,8 +8,10 @@ import { useState } from "react";
 
 const STATUS_OPTIONS = [
   { value: "all", label: "כל הסטטוסים" },
-  { value: "published", label: "פעיל" },
-  { value: "draft", label: "טיוטה" },
+  { value: "available", label: "זמין" },
+  { value: "coming-soon", label: "בקרוב" },
+  { value: "sold", label: "נמכר" },
+  { value: "hidden", label: "מוסתר" },
   { value: "featured", label: "מומלץ" },
   { value: "soldout", label: "אזל מהמלאי" },
 ];

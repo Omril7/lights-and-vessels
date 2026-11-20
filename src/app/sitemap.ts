@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
+import { PUBLIC_STATUSES } from "@/lib/product-status";
 
 const LOCALES = ["he", "en"] as const;
 
@@ -30,7 +31,7 @@ function bothLocales(
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [products, posts] = await Promise.all([
     prisma.product.findMany({
-      where: { published: true },
+      where: { status: { in: PUBLIC_STATUSES } },
       select: { slug: true, updatedAt: true },
     }),
     prisma.blogPost.findMany({

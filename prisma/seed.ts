@@ -312,11 +312,9 @@ async function main() {
         description_en: p.description_en,
         price: p.price,
         comparePrice: p.comparePrice ?? null,
-        category: p.category,
-        inStock: p.stockCount > 0,
         stockCount: p.stockCount,
         featured: p.featured,
-        published: p.published,
+        status: p.published ? "AVAILABLE" : "HIDDEN",
       },
       create: {
         name_he: p.name_he,
@@ -326,11 +324,9 @@ async function main() {
         description_en: p.description_en,
         price: p.price,
         comparePrice: p.comparePrice ?? null,
-        category: p.category,
-        inStock: p.stockCount > 0,
         stockCount: p.stockCount,
         featured: p.featured,
-        published: p.published,
+        status: p.published ? "AVAILABLE" : "HIDDEN",
       },
     });
     await prisma.productImage.deleteMany({ where: { productId: product.id } });

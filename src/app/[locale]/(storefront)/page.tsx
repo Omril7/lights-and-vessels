@@ -4,11 +4,11 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { getSiteContent } from "@/lib/content";
 import { HomeSplit } from "@/components/storefront/HomeSplit";
-// import { CategoryStrip } from "@/components/storefront/CategoryStrip"; // CATEGORIES_DISABLED
 import { Testimonials } from "@/components/storefront/Testimonials";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { Button } from "@/components/ui/Button";
 import type { ProductWithImages } from "@/types";
+import { STORE_STATUSES } from "@/lib/product-status";
 
 export const dynamic = "force-dynamic";
 
@@ -34,13 +34,11 @@ export default async function HomePage() {
   const content = await getSiteContent({ locale });
 
   const featured = (await prisma.product.findMany({
-    where: { published: true, featured: true },
+    where: { status: { in: STORE_STATUSES }, featured: true },
     include: { images: { orderBy: { order: "asc" } } },
     orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     take: 8,
   })) as ProductWithImages[];
-
-  // CATEGORIES_DISABLED: const hasAnyCategorized = (await prisma.product.count({ where: { published: true, category: { not: null } } })) > 0;
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://lights-and-vessels.vercel.app";
@@ -98,8 +96,6 @@ export default async function HomePage() {
           </FadeIn>
         </div>
       </section>
-
-      {/* CATEGORIES_DISABLED: {hasAnyCategorized && <CategoryStrip />} */}
 
       <Testimonials />
     </>
