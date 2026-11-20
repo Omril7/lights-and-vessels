@@ -87,6 +87,10 @@ const isWithin = (pathname: string, item: NavItem) =>
 /** The sectioned navigation — shared by the desktop sidebar and the mobile drawer. */
 function AdminNav({ email, onNavigate }: { email?: string | null; onNavigate?: () => void }) {
   const pathname = usePathname() ?? "";
+  // Manual open/closed state per parent item; unset = follow the current route.
+  const [open, setOpen] = useState<Record<string, boolean>>({});
+  const toggle = (href: string, isOpen: boolean) =>
+    setOpen((prev) => ({ ...prev, [href]: !isOpen }));
 
   return (
     <div className="flex h-full flex-col">
@@ -111,15 +115,15 @@ function AdminNav({ email, onNavigate }: { email?: string | null; onNavigate?: (
               {section.items.map((item) => {
                 const within = isWithin(pathname, item);
                 const exactHere = item.children ? pathname === item.href : within;
+                // Children open automatically inside the section; the arrow overrides.
+                const expanded = item.children ? (open[item.href] ?? within) : false;
+                const listId = `nav-children-${item.href.replace(/\W+/g, "-")}`;
                 const Icon = item.icon;
                 return (
                   <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      onClick={onNavigate}
-                      aria-current={exactHere ? "page" : undefined}
+                    <div
                       className={cn(
-                        "flex items-center gap-3 px-3 py-2.5 text-sm transition-colors",
+                        "flex items-center transition-colors",
                         within && !item.children
                           ? "bg-ink text-cream"
                           : within
@@ -127,20 +131,36 @@ function AdminNav({ email, onNavigate }: { email?: string | null; onNavigate?: (
                             : "text-charcoal/80 hover:bg-charcoal/[0.06]"
                       )}
                     >
-                      <Icon className="h-5 w-5 shrink-0" aria-hidden />
-                      <span className="flex-1">{item.label}</span>
+                      <Link
+                        href={item.href}
+                        onClick={onNavigate}
+                        aria-current={exactHere ? "page" : undefined}
+                        className="flex flex-1 items-center gap-3 px-3 py-2.5 text-sm"
+                      >
+                        <Icon className="h-5 w-5 shrink-0" aria-hidden />
+                        {item.label}
+                      </Link>
                       {item.children && (
-                        <ChevronLeftIcon
-                          aria-hidden
-                          className={cn(
-                            "h-4 w-4 shrink-0 text-charcoal/50 transition-transform duration-200",
-                            within && "-rotate-90"
-                          )}
-                        />
+                        <button
+                          type="button"
+                          onClick={() => toggle(item.href, expanded)}
+                          aria-expanded={expanded}
+                          aria-controls={listId}
+                          aria-label={`${expanded ? "סגירת" : "פתיחת"} ${item.label}`}
+                          className="flex h-10 w-10 shrink-0 items-center justify-center text-charcoal/50 transition-colors hover:text-ink"
+                        >
+                          <ChevronLeftIcon
+                            aria-hidden
+                            className={cn(
+                              "h-4 w-4 transition-transform duration-200",
+                              expanded && "-rotate-90"
+                            )}
+                          />
+                        </button>
                       )}
-                    </Link>
-                    {item.children && within && (
-                      <ul className="mb-1 ms-[1.4rem] border-s border-charcoal/15 py-1">
+                    </div>
+                    {item.children && expanded && (
+                      <ul id={listId} className="mb-1 ms-[1.4rem] border-s border-charcoal/15 py-1">
                         {item.children.map((c) => {
                           const on = pathname === c.href;
                           return (
