@@ -1,29 +1,43 @@
 ---
 title: Accessibility Statement
-intro: Lights & Vessels Studio places great importance on making the website accessible to all users, including people with disabilities. We work to ensure the site meets the requirements of Israeli Standard 5568 (equivalent to WCAG 2.0 Level AA recommendations), to the extent possible in a digital environment.
-lastUpdated: May 29, 2026
+intro: We want everyone to be able to browse and buy here comfortably. The site is built to follow Israeli Standard 5568 and WCAG 2.0 level AA, as far as possible.
+lastUpdated: 20 November 2026
 ---
 
-## Accessibility Features
+## 1. The accessibility button
 
-The site includes a floating accessibility widget (a round button in the corner of the screen) that allows users to choose personal adjustments for a more comfortable browsing experience. Among other things, you can:
+An **accessibility button** sits in the bottom-left corner of every page. It opens a panel where you can:
 
-- Increase or decrease text size.
-- Enable high contrast, dark mode, or a warm tone.
-- Apply greyscale or hide images.
-- Highlight links, headings, and bold text.
-- Increase letter spacing and line spacing.
-- Switch to a more readable font.
-- Display a large mouse cursor and a horizontal reading guide.
-- Highlight the focus outline for keyboard users.
-- Stop animations and pause media.
+- enlarge the text (three steps)
+- switch on high contrast, dark mode, warm tone or grayscale
+- highlight links and underline headings
+- switch to a readable font and make all text bold
+- increase letter and line spacing
+- show a large cursor, a focus highlight and a reading line
+- stop animations and media, and hide images
 
-Settings are saved on the device and applied automatically on future visits.
+Your settings are saved in your browser and apply on later visits too. The "Reset" button restores the defaults.
 
-## Keyboard Navigation
+## 2. More accessibility on the site
 
-The entire site can be navigated using a keyboard alone: `Tab` to move between elements, `Enter` or `Space` to activate, and `Esc` to close windows. Within the accessibility menu, you can navigate between options using the arrow keys.
+- **Three colour themes** (Paper, Evening, Cobalt), from the button at the top of the page.
+- **Keyboard navigation:** `Tab` moves between elements, `Enter` or `Space` activates them, and `Esc` closes windows such as the cart and the accessibility panel. Inside the accessibility panel, the arrow keys move between options.
+- A **"skip to content"** link at the start of every page.
+- **Alternative text** on product images.
+- The site **respects your system's "reduce motion"** setting.
+- The site is available in **Hebrew and English**.
 
-## Contact About Accessibility
+## 3. Known limitations
 
-Encountered a difficulty while browsing? We'd love to know and fix it. You can contact us via WhatsApp (the floating button in the corner of the screen) or by email at the address on the "About" page.
+- **The payment page** is run by our payment provider, Morning, and its accessibility is their responsibility.
+- Some images may still lack a detailed description. We're adding these gradually.
+
+## 4. Contact about accessibility
+
+Something hard to use, or not working as it should? We'd like to know so we can fix it.
+
+- **Accessibility coordinator:** Alon Bar-El
+- **Email:** {{email}}
+- **WhatsApp:** [send a message]({{whatsapp}})
+
+We'll do our best to reply within a few business days.

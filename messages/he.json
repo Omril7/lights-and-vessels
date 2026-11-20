@@ -207,12 +207,11 @@
     "globalMessage": "נסו לרענן את הדף. אם הבעיה נמשכת, פנו אלינו."
   },
   "legal": {
-    "document": "מסמך משפטי",
+    "documents": "מסמכים",
     "lastUpdated": "עודכן לאחרונה: ",
-    "question": "יש שאלה? ",
-    "contactLink": "אפשר לפנות אלינו",
-    "contactSuffix": " ונשמח לעזור.",
-    "backToHome": "← חזרה לדף הבית"
+    "question": "שאלה על אחד המסמכים?",
+    "whatsapp": "כתבו בוואטסאפ",
+    "email": "שלחו מייל"
   },
   "a11y": {
     "heading": "נגישות",

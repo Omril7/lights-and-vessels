@@ -207,12 +207,11 @@
     "globalMessage": "Try refreshing the page. If the problem persists, please contact us."
   },
   "legal": {
-    "document": "Legal Document",
+    "documents": "Documents",
     "lastUpdated": "Last updated: ",
-    "question": "Have a question? ",
-    "contactLink": "Feel free to contact us",
-    "contactSuffix": " and we'd be happy to help.",
-    "backToHome": "← Back to Home"
+    "question": "A question about any of these?",
+    "whatsapp": "Message on WhatsApp",
+    "email": "Send an email"
   },
   "a11y": {
     "heading": "Accessibility",
