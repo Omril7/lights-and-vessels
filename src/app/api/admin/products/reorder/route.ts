@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
 
-const schema = z.object({ ids: z.array(z.string()).min(1) });
+const schema = z.object({ ids: z.array(z.string()).min(1).max(1000) });
 
 /** Persists a manual order: ids[0] is shown first on the shop. */
 export async function POST(req: Request) {

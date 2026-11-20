@@ -14,7 +14,7 @@ const entriesSchema = z.object({
       value_en: z.string().nullable().optional(),
       type: z.string().optional(),
     })
-  ),
+  ).max(200),
 });
 
 export async function POST(req: Request) {

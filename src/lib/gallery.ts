@@ -12,7 +12,7 @@ export const galleryProjectSchema = z.object({
   published: z.boolean().default(false),
   images: z
     .array(z.object({ url: z.string().min(1), alt: z.string().nullable().optional() }))
-    .default([]),
+    .max(60).default([]),
 });
 
 export type GalleryProjectInput = z.infer<typeof galleryProjectSchema>;

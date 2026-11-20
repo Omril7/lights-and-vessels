@@ -10,7 +10,9 @@ export const dynamic = "force-dynamic";
 const schema = z.object({
   items: z
     .array(z.object({ productId: z.string().min(1), quantity: z.number().int().min(1).max(99) }))
-    .min(1),
+    .min(1)
+    // Cap the payload: this endpoint is public (and zod 3 has no built-in size guard).
+    .max(50),
   customer: z.object({
     name: z.string().trim().min(1).max(120),
     email: z.string().trim().email().max(200),

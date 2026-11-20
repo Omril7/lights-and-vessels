@@ -14,7 +14,7 @@ export const productSchema = z.object({
   price: z.number().nonnegative(),
   comparePrice: z.number().nonnegative().nullable().optional(),
   categoryId: z.string().min(1).nullable().optional(),
-  tagIds: z.array(z.string()).default([]),
+  tagIds: z.array(z.string()).max(50).default([]),
   materials_he: z.string().trim().nullable().optional(),
   materials_en: z.string().trim().nullable().optional(),
   width: dimension,
@@ -33,7 +33,7 @@ export const productSchema = z.object({
         alt: z.string().nullable().optional(),
       })
     )
-    .default([]),
+    .max(40).default([]),
 });
 
 export type ProductInput = z.infer<typeof productSchema>;
