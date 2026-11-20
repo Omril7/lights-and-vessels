@@ -99,7 +99,7 @@ export default async function AdminDashboard() {
     <div className="space-y-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-wider2 text-charcoal/50">
+          <p className="text-xs text-charcoal/50">
             לוח בקרה
           </p>
           <h1 className="mt-1 font-serif text-3xl md:text-4xl text-charcoal">
@@ -122,10 +122,10 @@ export default async function AdminDashboard() {
           return (
             <div
               key={stat.label}
-              className="rounded-2xl border border-charcoal/10 bg-cream p-5 shadow-soft"
+              className="border border-charcoal/10 bg-cream p-5"
             >
               <div className="flex items-center justify-between">
-                <p className="text-xs uppercase tracking-wider2 text-charcoal/50">
+                <p className="text-xs text-charcoal/50">
                   {stat.label}
                 </p>
                 <Icon className="h-5 w-5 text-charcoal/40" aria-hidden />
@@ -138,7 +138,7 @@ export default async function AdminDashboard() {
         })}
       </section>
 
-      <section className="rounded-2xl border border-charcoal/10 bg-cream shadow-soft overflow-hidden">
+      <section className="border border-charcoal/10 bg-cream overflow-hidden">
         <header className="flex items-center justify-between px-5 py-4 border-b border-charcoal/10">
           <h2 className="font-serif text-xl text-charcoal">הזמנות אחרונות</h2>
           <Link
@@ -157,7 +157,7 @@ export default async function AdminDashboard() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-linen/60 text-xs uppercase tracking-wider2 text-charcoal/60">
+              <thead className="bg-linen/60 text-xs text-charcoal/60">
                 <tr>
                   <th className="px-5 py-3 text-start font-medium">מס׳</th>
                   <th className="px-5 py-3 text-start font-medium">תאריך</th>

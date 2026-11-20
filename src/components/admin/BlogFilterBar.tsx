@@ -49,7 +49,7 @@ export function BlogFilterBar({
         e.preventDefault();
         go({});
       }}
-      className="flex flex-wrap items-center gap-2 rounded-2xl border border-charcoal/10 bg-cream p-3 shadow-soft"
+      className="flex flex-wrap items-center gap-2 border border-charcoal/10 bg-cream p-3"
     >
       <label className="relative min-w-0 flex-1 sm:min-w-[18rem]">
         <MagnifyingGlassIcon
@@ -61,7 +61,7 @@ export function BlogFilterBar({
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="חיפוש כותרת או slug…"
-          className="w-full rounded-xl border border-charcoal/15 bg-cream py-2.5 ps-9 pe-3 text-sm focus:outline-none focus:border-charcoal/50 focus:ring-2 focus:ring-gold/30"
+          className="w-full border border-charcoal/15 bg-cream py-2.5 ps-9 pe-3 text-sm focus:outline-none focus:border-charcoal/50 focus:ring-2 focus:ring-gold/30"
         />
       </label>
       <Dropdown

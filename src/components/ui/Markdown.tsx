@@ -66,7 +66,7 @@ const CHEAT_SHEET = {
 export function MarkdownCheatSheet({ locale = "he" }: { locale?: "he" | "en" }) {
   const { heading, footer, rows } = CHEAT_SHEET[locale];
   return (
-    <div className="rounded-xl border border-charcoal/10 bg-linen/40 p-3 text-xs" dir={locale === "en" ? "ltr" : "rtl"}>
+    <div className="border border-charcoal/10 bg-linen/40 p-3 text-xs" dir={locale === "en" ? "ltr" : "rtl"}>
       <p className="mb-2 font-medium text-charcoal/70">{heading}</p>
       <ul className="grid gap-1.5 sm:grid-cols-2">
         {rows.map((r) => (

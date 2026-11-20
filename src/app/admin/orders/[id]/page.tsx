@@ -50,7 +50,7 @@ export default async function AdminOrderDetailPage({
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs uppercase tracking-wider2 text-charcoal/50">
+          <p className="text-xs text-charcoal/50">
             <Link href="/admin/orders" className="hover:text-charcoal">
               הזמנות
             </Link>
@@ -69,7 +69,7 @@ export default async function AdminOrderDetailPage({
 
       <div className="grid lg:grid-cols-3 gap-6">
         <section className="lg:col-span-2 space-y-6">
-          <div className="rounded-2xl border border-charcoal/10 bg-cream shadow-soft overflow-hidden">
+          <div className="border border-charcoal/10 bg-cream overflow-hidden">
             <header className="px-5 py-4 border-b border-charcoal/10">
               <h2 className="font-serif text-lg text-charcoal">פריטים</h2>
             </header>
@@ -126,17 +126,17 @@ export default async function AdminOrderDetailPage({
             </table>
           </div>
 
-          <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 shadow-soft">
+          <div className="border border-charcoal/10 bg-cream p-5">
             <h2 className="font-serif text-lg text-charcoal">פרטי לקוח/ה</h2>
             <dl className="mt-3 grid sm:grid-cols-2 gap-3 text-sm">
               <div>
-                <dt className="text-xs uppercase tracking-wider2 text-charcoal/50">
+                <dt className="text-xs text-charcoal/50">
                   שם
                 </dt>
                 <dd className="text-charcoal">{order.customerName}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wider2 text-charcoal/50">
+                <dt className="text-xs text-charcoal/50">
                   אימייל
                 </dt>
                 <dd className="text-charcoal" dir="ltr">
@@ -145,7 +145,7 @@ export default async function AdminOrderDetailPage({
               </div>
               {order.phone && (
                 <div>
-                  <dt className="text-xs uppercase tracking-wider2 text-charcoal/50">
+                  <dt className="text-xs text-charcoal/50">
                     טלפון
                   </dt>
                   <dd className="text-charcoal" dir="ltr">
@@ -154,7 +154,7 @@ export default async function AdminOrderDetailPage({
                 </div>
               )}
               <div>
-                <dt className="text-xs uppercase tracking-wider2 text-charcoal/50">
+                <dt className="text-xs text-charcoal/50">
                   שיטת משלוח
                 </dt>
                 <dd className="text-charcoal">
@@ -162,7 +162,7 @@ export default async function AdminOrderDetailPage({
                 </dd>
               </div>
               <div className="sm:col-span-2">
-                <dt className="text-xs uppercase tracking-wider2 text-charcoal/50">
+                <dt className="text-xs text-charcoal/50">
                   כתובת למשלוח
                 </dt>
                 <dd className="text-charcoal whitespace-pre-line">
@@ -187,7 +187,7 @@ export default async function AdminOrderDetailPage({
             customerEmail={order.customerEmail}
             status={order.status}
           />
-          <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 shadow-soft">
+          <div className="border border-charcoal/10 bg-cream p-5">
             <h2 className="font-serif text-lg text-charcoal mb-4">פעולות</h2>
             <OrderControls
               id={order.id}

@@ -26,12 +26,12 @@ export function MarkdownEditor({
   const isHe = locale === "he";
 
   const inputBase =
-    "w-full rounded-xl border border-charcoal/15 bg-cream px-3 py-2.5 text-sm text-ink placeholder:text-charcoal/30 focus:outline-none focus:border-charcoal/50 focus:ring-2 focus:ring-gold/30";
+    "w-full border border-charcoal/15 bg-cream px-3 py-2.5 text-sm text-ink placeholder:text-charcoal/30 focus:outline-none focus:border-charcoal/50 focus:ring-2 focus:ring-gold/30";
 
   return (
     <div className="space-y-1.5" dir={isHe ? undefined : "ltr"}>
       <div className="flex items-center justify-between">
-        <span className="text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium flex items-center gap-1.5">
+        <span className="text-[0.7rem] text-charcoal/55 font-medium flex items-center gap-1.5">
           <Flag className="h-3 w-4 rounded-sm" />
           {label}
         </span>
@@ -90,7 +90,7 @@ export function MarkdownEditor({
           }
         />
       ) : (
-        <div className="min-h-[14rem] rounded-xl border border-charcoal/10 bg-linen/60 p-4">
+        <div className="min-h-[14rem] border border-charcoal/10 bg-linen/60 p-4">
           {value ? (
             <Markdown source={value} />
           ) : (

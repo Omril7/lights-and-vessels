@@ -62,7 +62,7 @@ export function OrderControls({
       <div className="space-y-1.5">
         <label
           htmlFor="status"
-          className="text-xs uppercase tracking-wider2 text-charcoal/70 font-medium"
+          className="text-xs text-charcoal/70 font-medium"
         >
           סטטוס
         </label>
@@ -79,7 +79,7 @@ export function OrderControls({
       <div className="space-y-1.5">
         <label
           htmlFor="notes"
-          className="text-xs uppercase tracking-wider2 text-charcoal/70 font-medium"
+          className="text-xs text-charcoal/70 font-medium"
         >
           הערות פנימיות
         </label>
@@ -89,7 +89,7 @@ export function OrderControls({
           onChange={(e) => setNotes(e.target.value)}
           rows={5}
           placeholder="הערות לעצמך…"
-          className="w-full rounded-xl border border-charcoal/20 bg-cream p-3 text-sm focus:outline-none focus:border-charcoal/60 focus:ring-2 focus:ring-gold/30"
+          className="w-full border border-charcoal/20 bg-cream p-3 text-sm focus:outline-none focus:border-charcoal/60 focus:ring-2 focus:ring-gold/30"
         />
       </div>
 

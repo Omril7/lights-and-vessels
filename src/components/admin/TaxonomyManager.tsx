@@ -33,7 +33,7 @@ const COPY = {
 } as const;
 
 const cell =
-  "w-full rounded-lg border border-charcoal/15 bg-cream px-3 py-2 text-sm text-ink focus:border-charcoal/50 focus:outline-none focus:ring-2 focus:ring-gold/30";
+  "w-full border border-charcoal/15 bg-cream px-3 py-2 text-sm text-ink focus:border-charcoal/50 focus:outline-none focus:ring-2 focus:ring-gold/30";
 
 export function TaxonomyManager({
   kind,
@@ -123,7 +123,7 @@ export function TaxonomyManager({
     <div className="space-y-6">
       <form
         onSubmit={add}
-        className="grid items-end gap-3 rounded-2xl border border-charcoal/10 bg-cream p-4 shadow-soft sm:grid-cols-[1fr_1fr_auto]"
+        className="grid items-end gap-3 border border-charcoal/10 bg-cream p-4 sm:grid-cols-[1fr_1fr_auto]"
       >
         <LocalizedInput
           id="new-name-he"
@@ -144,14 +144,14 @@ export function TaxonomyManager({
         </Button>
       </form>
 
-      <section className="overflow-hidden rounded-2xl border border-charcoal/10 bg-cream shadow-soft">
+      <section className="overflow-hidden border border-charcoal/10 bg-cream">
         {rows.length === 0 ? (
           <p className="px-5 py-10 text-center text-sm text-charcoal/50">
             {copy.empty}
           </p>
         ) : (
           <ul className="divide-y divide-charcoal/5">
-            <li className="hidden grid-cols-[1fr_1fr_5rem_2.5rem] gap-3 bg-linen/60 px-4 py-3 text-xs uppercase tracking-wider2 text-charcoal/60 sm:grid">
+            <li className="hidden grid-cols-[1fr_1fr_5rem_2.5rem] gap-3 bg-linen/60 px-4 py-3 text-xs text-charcoal/60 sm:grid">
               <span className="flex items-center gap-1.5">
                 <IsraelFlag className="h-3 w-[1.1rem] rounded-[2px]" />
                 עברית

@@ -20,7 +20,7 @@ function LoginPanel() {
       : null;
 
   return (
-    <div className="flex w-full max-w-sm flex-col gap-6 rounded-3xl border border-charcoal/10 bg-cream/90 p-8 shadow-soft backdrop-blur">
+    <div className="flex w-full max-w-sm flex-col gap-6 rounded-3xl border border-charcoal/10 bg-cream/90 p-8 backdrop-blur">
       <div className="text-center">
         <h1 className="font-serif text-3xl text-charcoal">כניסת מנהל</h1>
         <p className="mt-1 text-sm text-charcoal/60">
@@ -30,7 +30,7 @@ function LoginPanel() {
 
       {errorMessage && (
         <p
-          className="rounded-xl bg-terracotta/10 px-3 py-2 text-center text-sm text-terracotta"
+          className="bg-terracotta/10 px-3 py-2 text-center text-sm text-terracotta"
           role="alert"
         >
           {errorMessage}

@@ -101,9 +101,9 @@ export function DocumentsArchive() {
 
   return (
     <div className="space-y-4">
-      <div className="grid items-end gap-3 rounded-2xl border border-charcoal/10 bg-cream p-4 shadow-soft sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid items-end gap-3 border border-charcoal/10 bg-cream p-4 sm:grid-cols-2 lg:grid-cols-5">
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs uppercase tracking-wider2 text-charcoal/60">סוג</span>
+          <span className="text-xs text-charcoal/60">סוג</span>
           <Dropdown
             ariaLabel="סוג מסמך"
             variant="field"
@@ -113,22 +113,22 @@ export function DocumentsArchive() {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs uppercase tracking-wider2 text-charcoal/60">מתאריך</span>
+          <span className="text-xs text-charcoal/60">מתאריך</span>
           <DatePicker ariaLabel="מתאריך" value={from} onChange={setFrom} max={to || undefined} />
         </div>
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs uppercase tracking-wider2 text-charcoal/60">עד</span>
+          <span className="text-xs text-charcoal/60">עד</span>
           <DatePicker ariaLabel="עד תאריך" value={to} onChange={setTo} min={from || undefined} />
         </div>
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs uppercase tracking-wider2 text-charcoal/60">חיפוש</span>
+          <span className="text-xs text-charcoal/60">חיפוש</span>
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && load()}
             placeholder="מספר / שם לקוח"
-            className="w-full rounded-xl border border-charcoal/20 bg-cream px-4 py-3 text-sm text-charcoal placeholder:text-charcoal/40 focus:outline-none focus:border-charcoal/60 focus:ring-2 focus:ring-gold/30"
+            className="w-full border border-charcoal/20 bg-cream px-4 py-3 text-sm text-charcoal placeholder:text-charcoal/40 focus:outline-none focus:border-charcoal/60 focus:ring-2 focus:ring-gold/30"
           />
         </div>
         <button
@@ -139,9 +139,9 @@ export function DocumentsArchive() {
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-charcoal/10 bg-cream shadow-soft">
+      <div className="overflow-hidden border border-charcoal/10 bg-cream">
         <table className="w-full text-sm">
-          <thead className="bg-linen/60 text-xs uppercase tracking-wider2 text-charcoal/60">
+          <thead className="bg-linen/60 text-xs text-charcoal/60">
             <tr>
               <th className="px-4 py-3 text-start">מספר</th>
               <th className="px-4 py-3 text-start">סוג</th>
@@ -226,7 +226,7 @@ function PagerBtn({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "inline-flex h-8 min-w-[2rem] items-center justify-center rounded-lg px-2 text-sm transition-colors",
+        "inline-flex h-8 min-w-[2rem] items-center justify-center px-2 text-sm transition-colors",
         active ? "bg-charcoal text-cream" : "text-charcoal/70 hover:bg-charcoal/[0.06]",
         disabled && "pointer-events-none opacity-30"
       )}

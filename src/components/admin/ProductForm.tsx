@@ -69,9 +69,9 @@ const EMPTY: ProductFormValues = {
 };
 
 const card =
-  "rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-4 shadow-soft";
+  " border border-charcoal/10 bg-cream p-5 space-y-4";
 const fieldLabel =
-  "text-xs uppercase tracking-wider2 text-charcoal/70 font-medium";
+  "text-xs text-charcoal/70 font-medium";
 
 export function ProductForm({
   initial,
@@ -466,7 +466,7 @@ export function ProductForm({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-3 shadow-soft">
+          <div className="border border-charcoal/10 bg-cream p-5 space-y-3">
             <h2 className="font-serif text-lg text-charcoal">תצוגה</h2>
             <div className="space-y-1.5">
               <span className={fieldLabel}>סטטוס</span>

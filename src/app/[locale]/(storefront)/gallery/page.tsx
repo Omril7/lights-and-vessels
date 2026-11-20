@@ -73,7 +73,8 @@ export default async function GalleryPage() {
     })),
   ].sort((a, b) => (b.year ?? 0) - (a.year ?? 0) || b.date.getTime() - a.date.getTime());
 
-  const heroImage = content.entry_image_gallery || content.hero_image;
+  const heroImage =
+    content.gallery_hero_image || content.entry_image_gallery || content.hero_image;
 
   return (
     <>

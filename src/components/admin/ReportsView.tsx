@@ -69,13 +69,13 @@ export function ReportsView() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-end gap-3 rounded-2xl border border-charcoal/10 bg-cream p-4 shadow-soft">
+      <div className="flex flex-wrap items-end gap-3 border border-charcoal/10 bg-cream p-4">
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs uppercase tracking-wider2 text-charcoal/60">מתאריך</span>
+          <span className="text-xs text-charcoal/60">מתאריך</span>
           <DatePicker ariaLabel="מתאריך" value={from} onChange={setFrom} max={to || undefined} />
         </div>
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs uppercase tracking-wider2 text-charcoal/60">עד</span>
+          <span className="text-xs text-charcoal/60">עד</span>
           <DatePicker ariaLabel="עד תאריך" value={to} onChange={setTo} min={from || undefined} />
         </div>
         <button
@@ -85,12 +85,12 @@ export function ReportsView() {
           רענן
         </button>
         <div className="ms-auto text-end">
-          <p className="text-xs uppercase tracking-wider2 text-charcoal/50">סך הכנסות בטווח</p>
+          <p className="text-xs text-charcoal/50">סך הכנסות בטווח</p>
           <p className="font-serif text-2xl text-charcoal">{formatPrice(total)}</p>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 shadow-soft">
+      <div className="border border-charcoal/10 bg-cream p-5">
         <h2 className="font-serif text-lg text-charcoal">הכנסות חודשיות</h2>
         <div className="mt-4 h-72">
           {loading ? (

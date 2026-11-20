@@ -9,7 +9,7 @@ export default function AdminOrdersLoading() {
           <Skeleton key={i} className="h-8 w-24 rounded-full" />
         ))}
       </div>
-      <div className="overflow-hidden rounded-2xl border border-charcoal/10">
+      <div className="overflow-hidden border border-charcoal/10">
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}

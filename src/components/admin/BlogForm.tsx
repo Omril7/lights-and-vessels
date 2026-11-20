@@ -144,7 +144,7 @@ export function BlogForm({
     <form onSubmit={onSubmit} className="space-y-8">
       <div className="grid lg:grid-cols-3 gap-6">
         <section className="lg:col-span-2 space-y-6">
-          <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-4 shadow-soft">
+          <div className="border border-charcoal/10 bg-cream p-5 space-y-4">
             <h2 className="font-serif text-lg text-charcoal">פרטי הפוסט</h2>
 
             <div className="grid sm:grid-cols-2 gap-3">
@@ -219,7 +219,7 @@ export function BlogForm({
             />
           </div>
 
-          <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-4 shadow-soft">
+          <div className="border border-charcoal/10 bg-cream p-5 space-y-4">
             <h2 className="font-serif text-lg text-charcoal">תמונות</h2>
             <p className="text-xs text-charcoal/60">
               התמונה הראשונה תשמש ככריכה. ניתן לסדר מחדש בגרירה.
@@ -234,10 +234,10 @@ export function BlogForm({
         </section>
 
         <aside className="space-y-6">
-          <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-4 shadow-soft">
+          <div className="border border-charcoal/10 bg-cream p-5 space-y-4">
             <h2 className="font-serif text-lg text-charcoal">פרסום</h2>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs uppercase tracking-wider2 text-charcoal/70 font-medium">
+              <label className="text-xs text-charcoal/70 font-medium">
                 סטטוס
               </label>
               <Dropdown
@@ -254,7 +254,7 @@ export function BlogForm({
             <div className="flex flex-col gap-1.5">
               <label
                 htmlFor="publishedAt"
-                className="text-xs uppercase tracking-wider2 text-charcoal/70 font-medium"
+                className="text-xs text-charcoal/70 font-medium"
               >
                 תאריך פרסום
               </label>
@@ -276,7 +276,7 @@ export function BlogForm({
             />
           </div>
 
-          <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 space-y-3 shadow-soft">
+          <div className="border border-charcoal/10 bg-cream p-5 space-y-3">
             <h2 className="font-serif text-lg text-charcoal">תגיות</h2>
             {tags.length === 0 ? (
               <p className="text-sm text-charcoal/50">

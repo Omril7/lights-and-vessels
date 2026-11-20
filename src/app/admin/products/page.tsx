@@ -108,7 +108,7 @@ export default async function AdminProductsPage({
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs uppercase tracking-wider2 text-charcoal/50">
+          <p className="text-xs text-charcoal/50">
             ניהול
           </p>
           <h1 className="mt-1 font-serif text-3xl text-charcoal">מוצרים</h1>
@@ -140,7 +140,7 @@ export default async function AdminProductsPage({
         filtersActive={filtersActive}
       />
 
-      <section className="rounded-2xl border border-charcoal/10 bg-cream shadow-soft overflow-hidden">
+      <section className="border border-charcoal/10 bg-cream overflow-hidden">
         {products.length === 0 ? (
           <p className="px-5 py-12 text-center text-sm text-charcoal/50">
             {filtersActive ? (
@@ -152,7 +152,7 @@ export default async function AdminProductsPage({
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-linen/60 text-xs uppercase tracking-wider2 text-charcoal/60">
+              <thead className="bg-linen/60 text-xs text-charcoal/60">
                 <tr>
                   <th className="w-10 px-2 py-3">
                     <span className="sr-only">סדר</span>
@@ -181,7 +181,7 @@ export default async function AdminProductsPage({
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="relative h-12 w-12 overflow-hidden rounded-md bg-linen">
+                        <div className="relative h-12 w-12 overflow-hidden bg-linen">
                           {img && (
                             <Image
                               src={img}
@@ -315,7 +315,7 @@ function PageLink({
   children: React.ReactNode;
 } & React.AriaAttributes) {
   const className = cn(
-    "inline-flex h-8 min-w-[2rem] items-center justify-center rounded-lg px-2 text-sm transition-colors",
+    "inline-flex h-8 min-w-[2rem] items-center justify-center px-2 text-sm transition-colors",
     active
       ? "bg-charcoal text-cream"
       : "text-charcoal/70 hover:bg-charcoal/[0.06]",

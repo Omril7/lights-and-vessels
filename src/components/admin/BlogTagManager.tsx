@@ -87,7 +87,7 @@ export function BlogTagManager({ initial }: { initial: BlogTagRow[] }) {
     <div className="space-y-6">
       <form
         onSubmit={addTag}
-        className="rounded-2xl border border-charcoal/10 bg-cream p-5 shadow-soft space-y-3"
+        className="border border-charcoal/10 bg-cream p-5 space-y-3"
       >
         <h2 className="font-serif text-lg text-charcoal">תגית חדשה</h2>
         <div className="grid sm:grid-cols-2 gap-3">
@@ -123,7 +123,7 @@ export function BlogTagManager({ initial }: { initial: BlogTagRow[] }) {
         </div>
       </form>
 
-      <div className="rounded-2xl border border-charcoal/10 bg-cream shadow-soft overflow-hidden">
+      <div className="border border-charcoal/10 bg-cream overflow-hidden">
         {tags.length === 0 ? (
           <p className="px-5 py-10 text-center text-sm text-charcoal/50">
             עדיין אין תגיות.
@@ -149,7 +149,7 @@ export function BlogTagManager({ initial }: { initial: BlogTagRow[] }) {
                   onBlur={() => updateTag(t.id, { name: t.name_he })}
                   dir="rtl"
                   placeholder="עברית"
-                  className="flex-1 min-w-[8rem] rounded-lg border border-charcoal/10 bg-cream px-3 py-2 text-sm"
+                  className="flex-1 min-w-[8rem] border border-charcoal/10 bg-cream px-3 py-2 text-sm"
                 />
                 {/* English name */}
                 <input
@@ -167,7 +167,7 @@ export function BlogTagManager({ initial }: { initial: BlogTagRow[] }) {
                   }
                   dir="ltr"
                   placeholder="English"
-                  className="flex-1 min-w-[8rem] rounded-lg border border-charcoal/10 bg-cream px-3 py-2 text-sm"
+                  className="flex-1 min-w-[8rem] border border-charcoal/10 bg-cream px-3 py-2 text-sm"
                 />
                 {/* Slug */}
                 <input
@@ -182,7 +182,7 @@ export function BlogTagManager({ initial }: { initial: BlogTagRow[] }) {
                     )
                   }
                   onBlur={() => updateTag(t.id, { slug: t.slug })}
-                  className="w-36 rounded-lg border border-charcoal/10 bg-cream px-3 py-2 text-sm"
+                  className="w-36 border border-charcoal/10 bg-cream px-3 py-2 text-sm"
                 />
                 {/* Order */}
                 <input
@@ -198,13 +198,13 @@ export function BlogTagManager({ initial }: { initial: BlogTagRow[] }) {
                     )
                   }
                   onBlur={() => updateTag(t.id, { order: t.order })}
-                  className="w-20 rounded-lg border border-charcoal/10 bg-cream px-3 py-2 text-sm"
+                  className="w-20 border border-charcoal/10 bg-cream px-3 py-2 text-sm"
                   aria-label="סדר"
                 />
                 <button
                   type="button"
                   onClick={() => removeTag(t.id)}
-                  className="rounded-md p-2 text-terracotta hover:bg-terracotta/10"
+                  className="p-2 text-terracotta hover:bg-terracotta/10"
                   aria-label="מחיקה"
                 >
                   <TrashIcon className="h-4 w-4" />

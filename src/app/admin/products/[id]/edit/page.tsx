@@ -24,7 +24,7 @@ export default async function EditProductPage({
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-xs uppercase tracking-wider2 text-charcoal/50">
+        <p className="text-xs text-charcoal/50">
           מוצרים
         </p>
         <h1 className="mt-1 font-serif text-3xl text-charcoal">

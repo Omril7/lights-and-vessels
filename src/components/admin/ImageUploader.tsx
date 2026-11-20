@@ -90,7 +90,7 @@ export function ImageUploader({
       <div
         {...getRootProps()}
         className={cn(
-          "flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-8 text-center cursor-pointer transition-colors",
+          "flex flex-col items-center justify-center gap-2 border-2 border-dashed p-8 text-center cursor-pointer transition-colors",
           isDragActive
             ? "border-copper bg-gold/10"
             : "border-charcoal/20 bg-cream hover:border-charcoal/40",
@@ -126,7 +126,7 @@ export function ImageUploader({
               }}
               onDragEnd={() => setDragIndex(null)}
               className={cn(
-                "group relative overflow-hidden rounded-xl border bg-cream",
+                "group relative overflow-hidden border bg-cream",
                 dragIndex === i
                   ? "border-copper opacity-60"
                   : "border-charcoal/10"
@@ -153,7 +153,7 @@ export function ImageUploader({
                   value={img.alt ?? ""}
                   onChange={(e) => updateAlt(i, e.target.value)}
                   placeholder="תיאור התמונה (alt)"
-                  className="w-full rounded-lg border border-charcoal/10 bg-cream px-2 py-1 text-xs"
+                  className="w-full border border-charcoal/10 bg-cream px-2 py-1 text-xs"
                 />
                 <div className="flex items-center justify-between gap-1">
                   <div className="flex gap-1">
@@ -161,7 +161,7 @@ export function ImageUploader({
                       type="button"
                       onClick={() => reorder(i, i - 1)}
                       disabled={i === 0}
-                      className="rounded-md p-1 text-charcoal/60 hover:bg-charcoal/[0.06] disabled:opacity-30"
+                      className="p-1 text-charcoal/60 hover:bg-charcoal/[0.06] disabled:opacity-30"
                       aria-label="הזזה אחורה"
                     >
                       <ChevronRightIcon className="h-4 w-4" />
@@ -170,7 +170,7 @@ export function ImageUploader({
                       type="button"
                       onClick={() => reorder(i, i + 1)}
                       disabled={i === images.length - 1}
-                      className="rounded-md p-1 text-charcoal/60 hover:bg-charcoal/[0.06] disabled:opacity-30"
+                      className="p-1 text-charcoal/60 hover:bg-charcoal/[0.06] disabled:opacity-30"
                       aria-label="הזזה קדימה"
                     >
                       <ChevronLeftIcon className="h-4 w-4" />
@@ -182,7 +182,7 @@ export function ImageUploader({
                   <button
                     type="button"
                     onClick={() => remove(i)}
-                    className="rounded-md p-1 text-terracotta hover:bg-terracotta/10"
+                    className="p-1 text-terracotta hover:bg-terracotta/10"
                     aria-label="מחיקה"
                   >
                     <TrashIcon className="h-4 w-4" />

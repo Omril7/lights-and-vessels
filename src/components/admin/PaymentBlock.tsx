@@ -88,7 +88,7 @@ export function PaymentBlock({
   }
 
   return (
-    <div className="rounded-2xl border border-charcoal/10 bg-cream p-5 shadow-soft">
+    <div className="border border-charcoal/10 bg-cream p-5">
       <h2 className="font-serif text-lg text-charcoal">תשלום</h2>
 
       {!paidAt ? (
@@ -97,16 +97,16 @@ export function PaymentBlock({
         <>
           <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
             <div>
-              <dt className="text-xs uppercase tracking-wider2 text-charcoal/50">סכום ששולם</dt>
+              <dt className="text-xs text-charcoal/50">סכום ששולם</dt>
               <dd className="text-charcoal">{formatPrice(total)}</dd>
             </div>
             <div>
-              <dt className="text-xs uppercase tracking-wider2 text-charcoal/50">שולם ב־</dt>
+              <dt className="text-xs text-charcoal/50">שולם ב־</dt>
               <dd className="text-charcoal">{formatDate(paidAt)}</dd>
             </div>
             {documentNumber && (
               <div>
-                <dt className="text-xs uppercase tracking-wider2 text-charcoal/50">מספר מסמך</dt>
+                <dt className="text-xs text-charcoal/50">מספר מסמך</dt>
                 <dd className="text-charcoal" dir="ltr">{documentNumber}</dd>
               </div>
             )}
@@ -141,11 +141,11 @@ export function PaymentBlock({
           </div>
 
           {showRefund && canRefund && (
-            <div className="mt-4 rounded-xl border border-terracotta/30 bg-linen p-4">
+            <div className="mt-4 border border-terracotta/30 bg-linen p-4">
               <p className="text-sm text-charcoal">סכום ההזמנה: {formatPrice(total)}</p>
               <div className="mt-3 flex flex-wrap items-end gap-3">
                 <label className="flex flex-col gap-1 text-xs">
-                  <span className="uppercase tracking-wider2 text-charcoal/70">סכום זיכוי חלקי (₪)</span>
+                  <span className="text-charcoal/70">סכום זיכוי חלקי (₪)</span>
                   <input
                     type="number"
                     step="0.01"
@@ -153,7 +153,7 @@ export function PaymentBlock({
                     max={total}
                     value={partialAmount}
                     onChange={(e) => setPartialAmount(e.target.value)}
-                    className="w-40 rounded-lg border border-charcoal/25 bg-cream px-3 py-2 text-sm"
+                    className="w-40 border border-charcoal/25 bg-cream px-3 py-2 text-sm"
                     placeholder="0.00"
                   />
                 </label>

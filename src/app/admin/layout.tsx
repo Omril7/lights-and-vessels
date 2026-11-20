@@ -1,10 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import {
-  Sidebar,
-  MobileTopbar,
-  MobileBottomNav,
-} from "@/components/admin/Sidebar";
+import { Sidebar, MobileTopbar } from "@/components/admin/Sidebar";
 
 export const metadata = {
   title: "ניהול",
@@ -25,14 +21,13 @@ export default async function AdminLayout({
     return <>{children}</>;
   }
 
+  const email = session.user?.email ?? null;
+
   return (
-    <div className="min-h-screen bg-linen text-ink">
-      <Sidebar />
-      <MobileTopbar />
-      <main className="md:me-64 px-4 py-6 md:px-10 md:py-10 pb-24 md:pb-10">
-        {children}
-      </main>
-      <MobileBottomNav />
+    <div className="min-h-screen bg-linen font-sans text-ink">
+      <Sidebar email={email} />
+      <MobileTopbar email={email} />
+      <main className="px-4 py-6 md:ms-64 md:px-10 md:py-10">{children}</main>
     </div>
   );
 }

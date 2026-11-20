@@ -1,372 +1,108 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useDropzone } from "react-dropzone";
 import { Button, Dropdown, LocalizedInput, LocalizedTextarea } from "@/components/ui";
 import { MarkdownEditor } from "@/components/admin/MarkdownEditor";
 import {
-  MegaphoneIcon,
-  SparklesIcon,
-  PaintBrushIcon,
-  UserIcon,
-  ChatBubbleLeftRightIcon,
-  Square3Stack3DIcon,
   ArrowUpTrayIcon,
+  ArrowTopRightOnSquareIcon,
   TrashIcon,
-  EnvelopeIcon,
-  PhotoIcon,
   PlusIcon,
-  // RectangleGroupIcon, // CATEGORIES_DISABLED
-  ChatBubbleBottomCenterTextIcon,
   ChevronDownIcon,
+  MegaphoneIcon,
+  InformationCircleIcon,
 } from "@heroicons/react/24/outline";
-// import { CATEGORIES } from "@/types"; // CATEGORIES_DISABLED
 import { cn } from "@/lib/utils";
 import { SOCIAL_PLATFORMS } from "@/lib/social";
+import {
+  type ContentField,
+  type ContentGroup,
+  getContentGroup,
+  groupFields,
+  isBilingual,
+  fieldIsEmpty,
+} from "@/lib/site-content-schema";
 
-type FieldKind =
-  | "text"
-  | "textarea"
-  | "bilingual_text"
-  | "bilingual_textarea"
-  | "richtext"
-  | "url"
-  | "image"
-  | "image-list"
-  // | "category-images" // CATEGORIES_DISABLED
-  | "testimonials"
-  | "social-links"
-  | "toggle";
-
-type Field = {
-  key: string;
-  label: string;
-  label_en?: string;
-  help?: string;
-  /** Force LTR direction on single-locale text/textarea fields (e.g. email, phone). */
-  ltr?: boolean;
-  /** Recommended pixel dimensions, shown inside the upload dropzone. */
-  dimensions?: string;
-  kind: FieldKind;
-  /** When true, field takes a full row in the 2-col grid. */
-  wide?: boolean;
-  /** Toggle-only: custom icon + on/off status text. Defaults to Megaphone + פעיל/כבוי. */
-  icon?: React.ComponentType<{ className?: string }>;
-  onLabel?: string;
-  offLabel?: string;
-};
-
-type PageId = "home" | "about" | "site" | "settings";
-
-/** Groups for the section nav, in display order. */
-const PAGES: { id: PageId; label: string }[] = [
-  { id: "home", label: "דף הבית" },
-  { id: "about", label: "דף אודות" },
-  { id: "site", label: "כלל האתר" },
-  { id: "settings", label: "הגדרות" },
-];
-
-type Section = {
-  id: string;
-  heading: string;
-  description?: string;
-  /** Which page this section belongs to — drives grouping in the nav. */
-  page: PageId;
-  icon: React.ComponentType<{ className?: string }>;
-  fields: Field[];
-};
-
-export const SECTIONS: Section[] = [
-  {
-    id: "banner",
-    heading: "באנר עליון",
-    description: "הודעה קצרה שמופיעה מעל הניווט בכל עמוד.",
-    page: "site",
-    icon: MegaphoneIcon,
-    fields: [
-      { key: "banner_enabled", label: "באנר פעיל", kind: "toggle", wide: true },
-      {
-        key: "banner_text",
-        label: "טקסט הבאנר",
-        label_en: "Banner text",
-        kind: "bilingual_text",
-        wide: true,
-        help: "שינוי הטקסט יציג את הבאנר מחדש לכל מי שסגר אותו.",
-      },
-      {
-        key: "banner_link",
-        label: "קישור (אופציונלי)",
-        kind: "url",
-        wide: true,
-        help: "ריק = הבאנר אינו לחיץ.",
-      },
-    ],
-  },
-  {
-    id: "hero",
-    heading: "דף כניסה",
-    description: "מסך הכניסה: תמונה במסך מלא, שורה אחת ושלוש כניסות. ריחוף על כל כניסה מחליף לתמונה שלה.",
-    page: "home",
-    icon: SparklesIcon,
-    fields: [
-      { key: "hero_title", label: "שורת פתיחה", label_en: "Opening line", kind: "bilingual_text", wide: true },
-      {
-        key: "hero_image",
-        label: "תמונת רקע ראשית",
-        kind: "image",
-        wide: true,
-        dimensions: "מומלץ: 2400×1350 פיקסל (16:9, לרוחב, כהה)",
-      },
-      {
-        key: "entry_image_store",
-        label: "תמונה — ריחוף על 'החנות'",
-        kind: "image",
-        dimensions: "16:9 לרוחב. ריק = התמונה הראשית",
-      },
-      {
-        key: "entry_image_gallery",
-        label: "תמונה — ריחוף על 'הגלריה'",
-        kind: "image",
-        dimensions: "16:9 לרוחב. ריק = התמונה הראשית",
-      },
-      {
-        key: "entry_image_about",
-        label: "תמונה — ריחוף על 'אודות'",
-        kind: "image",
-        dimensions: "16:9 לרוחב. ריק = התמונה הראשית",
-      },
-      {
-        key: "store_hero_image",
-        label: "באנר דף החנות",
-        kind: "image",
-        wide: true,
-        dimensions: "רחב ונמוך (בערך 2400×900). ריק = תמונת 'החנות' מהכניסה",
-      },
-    ],
-  },
-  {
-    id: "story",
-    heading: "סיפור הסטודיו",
-    description: "טקסט קצר שמופיע בדף הבית עם קישור ל'אודות'.",
-    page: "home",
-    icon: PaintBrushIcon,
-    fields: [
-      { key: "story_teaser", label: "תקציר", label_en: "Studio teaser", kind: "bilingual_textarea", wide: true },
-      {
-        key: "story_image",
-        label: "תמונה",
-        kind: "image",
-        wide: true,
-        dimensions: "מומלץ: 1200×1500 פיקסל (יחס 4:5, לאורך)",
-      },
-    ],
-  },
-  {
-    id: "about",
-    heading: "דף 'אודות'",
-    description: "התוכן המלא של עמוד 'אודות' (תומך ב‑Markdown).",
-    page: "about",
-    icon: UserIcon,
-    fields: [
-      { key: "about_text", label: "תוכן מלא", label_en: "Full content", kind: "richtext", wide: true },
-      {
-        key: "about_materials",
-        label: "חומרים (שורה לכל פריט)",
-        label_en: "Materials (one per line)",
-        kind: "bilingual_textarea",
-        help: "רשימה קצרה שמוצגת בדף 'אודות'. אם ריק — הרשימה מוסתרת.",
-      },
-      {
-        key: "about_process",
-        label: "תהליך העבודה (שורה לכל שלב)",
-        label_en: "Process (one step per line)",
-        kind: "bilingual_textarea",
-        help: "השלבים מוצגים ממוספרים בדף 'אודות'. אם ריק — הרשימה מוסתרת.",
-      },
-      {
-        key: "about_portrait",
-        label: "פורטרט",
-        kind: "image",
-        wide: true,
-        dimensions: "מומלץ: 1200×1500 פיקסל (יחס 4:5, לאורך)",
-      },
-    ],
-  },
-  {
-    id: "process_gallery",
-    heading: "גלריית הסטודיו (דף 'אודות')",
-    description: "תמונות מתוך תהליך העבודה. אם ריק, הגלריה מוסתרת בדף האתר.",
-    page: "about",
-    icon: PhotoIcon,
-    fields: [
-      {
-        key: "process_gallery",
-        label: "תמונות",
-        kind: "image-list",
-        wide: true,
-        dimensions: "מומלץ: 1000×1000 פיקסל (ריבוע)",
-        help: "הוספה, הסרה ושינוי טקסט חלופי לכל תמונה.",
-      },
-    ],
-  },
-  // CATEGORIES_DISABLED: category_images section removed from nav/editor
-  // {
-  //   id: "category_images",
-  //   heading: "תמונות קטגוריות (דף הבית)",
-  //   description: "תמונה לכל קטגוריה ברצועת הקטגוריות בדף הבית. קטגוריה ללא תמונה — לא תוצג.",
-  //   page: "home",
-  //   icon: RectangleGroupIcon,
-  //   fields: [
-  //     {
-  //       key: "category_images",
-  //       label: "קטגוריות",
-  //       kind: "category-images",
-  //       wide: true,
-  //       dimensions: "מומלץ: 1000×1200 פיקסל (יחס 5:6, לאורך)",
-  //       help: "התמונות נשמרות ב‑Supabase Storage תחת תיקיית content/.",
-  //     },
-  //   ],
-  // },
-  {
-    id: "testimonials",
-    heading: "המלצות לקוחות (דף הבית)",
-    description:
-      "המלצות שמופיעות בעמוד הבית. אם הרשימה ריקה, הסקציה מוסתרת.",
-    page: "home",
-    icon: ChatBubbleBottomCenterTextIcon,
-    fields: [
-      {
-        key: "testimonials",
-        label: "המלצות",
-        kind: "testimonials",
-        wide: true,
-        dimensions: "מומלץ: 400×400 פיקסל (ריבוע)",
-        help: "ציטוט (חובה), שם, פירוט (אופציונלי), ותמונה (אופציונלי).",
-      },
-    ],
-  },
-  {
-    id: "contact",
-    heading: "צרו קשר",
-    description: "פרטי הקשר שמופיעים באתר ובכפתור הוואטסאפ הצף.",
-    page: "site",
-    icon: ChatBubbleLeftRightIcon,
-    fields: [
-      { key: "contact_heading", label: "כותרת", label_en: "Heading", kind: "bilingual_text" },
-      { key: "contact_email", label: "אימייל", kind: "text", ltr: true },
-      { key: "whatsapp_number", label: "מספר וואטסאפ", kind: "text", ltr: true },
-      { key: "contact_text", label: "טקסט הזמנה", label_en: "Invitation text", kind: "bilingual_textarea", wide: true },
-      {
-        key: "whatsapp_message",
-        label: "הודעה מוכנה לוואטסאפ",
-        label_en: "WhatsApp message",
-        kind: "bilingual_textarea",
-        wide: true,
-      },
-    ],
-  },
-  {
-    id: "footer",
-    heading: "פוטר",
-    page: "site",
-    icon: Square3Stack3DIcon,
-    fields: [
-      { key: "footer_text", label: "טקסט הפוטר", label_en: "Footer text", kind: "bilingual_text", wide: true },
-      {
-        key: "social_links",
-        label: "קישורים לרשתות חברתיות",
-        kind: "social-links",
-        wide: true,
-        help: "כל שורה מוצגת כאייקון בפוטר. השאר ריק כדי להסתיר את כל האייקונים.",
-      },
-    ],
-  },
-  {
-    id: "email",
-    heading: "התראות אימייל",
-    description:
-      "ספק שליחת האימיילים האוטומטיים ללקוחות (אישור הזמנה). פרטי החיבור עצמם נשמרים ב‑.env.",
-    page: "settings",
-    icon: EnvelopeIcon,
-    fields: [
-      {
-        key: "email_use_gmail",
-        label: "שליחה דרך Gmail",
-        kind: "toggle",
-        wide: true,
-        icon: EnvelopeIcon,
-        onLabel: "Gmail SMTP — נשלח מחשבון Gmail אישי",
-        offLabel: "Resend — נשלח מהדומיין של הסטודיו",
-        help: "כבוי = Resend (מומלץ ברגע שיש דומיין). דלוק = Gmail (חינמי, ללא דומיין, אך נראה פחות מקצועי).",
-      },
-    ],
-  },
-];
-
+type Lang = "he" | "en";
 type BilingualValues = Record<string, { he: string; en: string }>;
 
+/**
+ * One site page's editable content (see lib/site-content-schema.ts).
+ * - One language at a time: Hebrew shows everything; English shows only the
+ *   texts that need translating (images and settings are shared).
+ * - Saves only this page's fields; warns before leaving with unsaved changes.
+ */
 export function SiteContentEditor({
+  groupId,
   initial,
 }: {
+  groupId: ContentGroup["id"];
   initial: BilingualValues;
 }) {
+  const group = getContentGroup(groupId)!;
   const router = useRouter();
   const [values, setValues] = useState<BilingualValues>(initial);
+  const [saved, setSaved] = useState<BilingualValues>(initial);
+  const [lang, setLang] = useState<Lang>("he");
   const [saving, setSaving] = useState(false);
-  // Sections grouped by the page they belong to, in PAGES order.
-  const groupedSections = PAGES.map((p) => ({
-    ...p,
-    sections: SECTIONS.filter((s) => s.page === p.id),
-  })).filter((g) => g.sections.length > 0);
-  const orderedSections = groupedSections.flatMap((g) => g.sections);
 
-  const [active, setActive] = useState<string>(orderedSections[0].id);
+  const fields = useMemo(() => groupFields(group), [group]);
+  const hasBilingual = fields.some(isBilingual);
 
-  const set = (k: string, lang: "he" | "en", v: string) =>
-    setValues((prev) => ({ ...prev, [k]: { ...prev[k], [lang]: v } }));
-
-  function buildEntries(vals: BilingualValues) {
-    return SECTIONS.flatMap((s) =>
-      s.fields.map((f) => ({
-        key: f.key,
-        value_he: vals[f.key]?.he ?? "",
-        value_en: vals[f.key]?.en || null,
-        type: f.kind === "richtext" ? "richtext" : "text",
-      }))
+  const changedKeys = fields
+    .map((f) => f.key)
+    .filter(
+      (k) =>
+        (values[k]?.he ?? "") !== (saved[k]?.he ?? "") ||
+        (values[k]?.en ?? "") !== (saved[k]?.en ?? "")
     );
-  }
+  const dirty = changedKeys.length > 0;
 
-  async function preview() {
-    const w = window.open("", "_blank");
-    try {
-      const res = await fetch("/api/site-content/preview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ entries: buildEntries(values) }),
-      });
-      if (!res.ok) throw new Error("שגיאה");
-      if (w) w.location.href = "/";
-      else toast.error("חסימת חלון קופץ — אפשר חלונות קופצים ונסה שוב");
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "שגיאה בתצוגה מקדימה");
-      w?.close();
-    }
-  }
+  const missingEn = fields.filter(
+    (f) => isBilingual(f) && !fieldIsEmpty(values, f.key, "he") && fieldIsEmpty(values, f.key, "en")
+  ).length;
+
+  // Warn before closing the tab / navigating away with unsaved changes.
+  useEffect(() => {
+    if (!dirty) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [dirty]);
+
+  const set = (k: string, l: Lang, v: string) =>
+    setValues((prev) => ({ ...prev, [k]: { he: prev[k]?.he ?? "", en: prev[k]?.en ?? "", [l]: v } }));
+
+  const entriesFor = (keys: string[]) =>
+    keys.map((key) => {
+      const f = fields.find((x) => x.key === key);
+      return {
+        key,
+        value_he: values[key]?.he ?? "",
+        value_en: values[key]?.en || null,
+        type: f?.kind === "richtext" ? "richtext" : "text",
+      };
+    });
 
   async function save() {
     setSaving(true);
     try {
-      const entries = buildEntries(values);
       const res = await fetch("/api/site-content", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ entries }),
+        body: JSON.stringify({ entries: entriesFor(fields.map((f) => f.key)) }),
       });
-      if (!res.ok) throw new Error("שגיאה בשמירה");
-      toast.success("השינויים נשמרו");
+      if (!res.ok) throw new Error("השמירה נכשלה");
+      setSaved(values);
+      toast.success("נשמר — השינויים כבר באתר");
       router.refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "שגיאה");
@@ -375,105 +111,159 @@ export function SiteContentEditor({
     }
   }
 
+  async function preview() {
+    const w = window.open("", "_blank");
+    try {
+      // Draft = every value currently on screen, layered over the live site.
+      const res = await fetch("/api/site-content/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entries: entriesFor(Object.keys(values)) }),
+      });
+      if (!res.ok) throw new Error("שגיאה בתצוגה המקדימה");
+      if (w) w.location.href = group.sitePath ?? "/";
+      else toast.error("הדפדפן חסם חלון חדש — אפשרו חלונות קופצים ונסו שוב");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "שגיאה");
+      w?.close();
+    }
+  }
+
+  const visibleSections = group.sections
+    .map((s) => ({ ...s, fields: lang === "he" ? s.fields : s.fields.filter(isBilingual) }))
+    .filter((s) => s.fields.length > 0);
+
   return (
-    <div className="mx-auto max-w-5xl">
-      <div className="grid lg:grid-cols-[14rem_minmax(0,1fr)] gap-6">
-        {/* Sticky section nav */}
-        <nav className="hidden lg:block">
-          <div className="sticky top-6 space-y-4">
-            {groupedSections.map((group) => (
-              <div key={group.id}>
-                <p className="px-3 pb-1 text-[0.65rem] font-semibold uppercase tracking-wider2 text-charcoal/40">
-                  {group.label}
-                </p>
-                <ul className="space-y-1">
-                  {group.sections.map((s) => {
-                    const Icon = s.icon;
-                    const on = active === s.id;
-                    return (
-                      <li key={s.id}>
-                        <a
-                          href={`#${s.id}`}
-                          onClick={() => setActive(s.id)}
-                          className={cn(
-                            "flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition-colors",
-                            on
-                              ? "bg-charcoal text-cream"
-                              : "text-charcoal/70 hover:bg-charcoal/[0.06]"
-                          )}
-                        >
-                          <Icon className="h-4 w-4 shrink-0" aria-hidden />
-                          <span>{s.heading}</span>
-                        </a>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
+    <div className="mx-auto max-w-3xl pb-32">
+      {/* Page header */}
+      <header className="mb-6 space-y-3">
+        <Link href="/admin/site-content" className="text-sm text-charcoal/60 hover:text-ink">
+          → כל עמודי האתר
+        </Link>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="font-serif text-3xl text-ink">{group.label}</h1>
+            <p className="mt-1 text-sm text-charcoal/70">{group.description}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {group.related && (
+              <Button href={group.related.href} variant="outline" size="sm">
+                {group.related.label}
+              </Button>
+            )}
+            {group.sitePath && (
+              <a
+                href={group.sitePath}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 border border-charcoal/40 px-4 py-2 text-xs font-medium text-charcoal transition-colors hover:border-charcoal"
+              >
+                צפייה בדף
+                <ArrowTopRightOnSquareIcon className="h-3.5 w-3.5" aria-hidden />
+              </a>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Language switch */}
+      {hasBilingual && (
+        <div className="sticky top-14 z-20 -mx-4 mb-6 border-b border-charcoal/10 bg-linen/95 px-4 py-2 backdrop-blur md:top-0 md:mx-0 md:px-0">
+          <div role="tablist" aria-label="שפה" className="flex gap-1">
+            {(["he", "en"] as const).map((l) => (
+              <button
+                key={l}
+                type="button"
+                role="tab"
+                aria-selected={lang === l}
+                onClick={() => setLang(l)}
+                className={cn(
+                  "flex items-center gap-2 border px-4 py-2 text-sm transition-colors",
+                  lang === l
+                    ? "border-ink bg-ink text-cream"
+                    : "border-charcoal/25 text-charcoal hover:border-charcoal/60"
+                )}
+              >
+                {l === "he" ? "עברית" : "English"}
+                {l === "en" && missingEn > 0 && (
+                  <span
+                    className={cn(
+                      "px-1.5 text-[0.7rem]",
+                      lang === l ? "bg-cream/20" : "bg-accent/15 text-accent"
+                    )}
+                  >
+                    {missingEn} חסרים
+                  </span>
+                )}
+              </button>
             ))}
           </div>
-        </nav>
-
-        {/* Main column */}
-        <div className="space-y-6 pb-24">
-          {orderedSections.map((section) => {
-            const Icon = section.icon;
-            return (
-              <section
-                key={section.id}
-                id={section.id}
-                className="scroll-mt-6 rounded-2xl border border-charcoal/10 bg-cream p-6 shadow-soft"
-              >
-                <header className="mb-5 flex items-start gap-3">
-                  <div className="rounded-xl bg-linen p-2.5">
-                    <Icon className="h-5 w-5 text-charcoal/70" aria-hidden />
-                  </div>
-                  <div>
-                    <h2 className="font-serif text-lg text-charcoal">
-                      {section.heading}
-                    </h2>
-                    {section.description && (
-                      <p className="mt-0.5 text-xs text-charcoal/55">
-                        {section.description}
-                      </p>
-                    )}
-                  </div>
-                </header>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
-                  {section.fields.map((field) => (
-                    <div
-                      key={field.key}
-                      className={field.wide ? "sm:col-span-2" : undefined}
-                    >
-                      <ContentField
-                        field={field}
-                        valueHe={values[field.key]?.he ?? ""}
-                        valueEn={values[field.key]?.en ?? ""}
-                        onChangeHe={(v) => set(field.key, "he", v)}
-                        onChangeEn={(v) => set(field.key, "en", v)}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </section>
-            );
-          })}
+          {lang === "en" && (
+            <p className="mt-2 flex items-center gap-1.5 text-xs text-charcoal/60">
+              <InformationCircleIcon className="h-4 w-4 shrink-0" aria-hidden />
+              מוצגים רק טקסטים לתרגום. תמונות והגדרות משותפות לשתי השפות. טקסט שלא תורגם יוצג באתר האנגלי בעברית.
+            </p>
+          )}
         </div>
+      )}
+
+      {/* Sections */}
+      <div className="space-y-6">
+        {visibleSections.map((section) => (
+          <section
+            key={section.id}
+            id={section.id}
+            className="scroll-mt-28 border border-charcoal/10 bg-cream p-5 md:p-6"
+          >
+            <header className="mb-5">
+              <h2 className="font-serif text-xl text-ink">{section.heading}</h2>
+              {section.description && (
+                <p className="mt-1 text-sm text-charcoal/65">{section.description}</p>
+              )}
+            </header>
+            <div className="space-y-6">
+              {section.fields.map((field) => (
+                <FieldBlock
+                  key={field.key}
+                  field={field}
+                  lang={lang}
+                  value={values[field.key]?.[isBilingual(field) ? lang : "he"] ?? ""}
+                  hebrew={values[field.key]?.he ?? ""}
+                  changed={changedKeys.includes(field.key)}
+                  onChange={(v) => set(field.key, isBilingual(field) ? lang : "he", v)}
+                />
+              ))}
+            </div>
+          </section>
+        ))}
       </div>
 
-      {/* Floating save bar */}
-      <div className="fixed inset-x-0 bottom-16 md:bottom-0 z-40 border-t border-charcoal/10 bg-cream/95 backdrop-blur md:me-64">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
-          <p className="text-xs text-charcoal/60">
-            השינויים נכנסים לתוקף מיד באתר.
+      {/* Save bar */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-charcoal/15 bg-cream/95 backdrop-blur md:ms-64">
+        <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 px-4 py-3">
+          <p className={cn("text-sm", dirty ? "text-accent" : "text-charcoal/60")} aria-live="polite">
+            {dirty
+              ? `${changedKeys.length === 1 ? "שינוי אחד" : `${changedKeys.length} שינויים`} שלא נשמרו`
+              : "הכל שמור"}
           </p>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={preview} disabled={saving}>
-              תצוגה מקדימה
-            </Button>
-            <Button onClick={save} disabled={saving} size="sm">
-              {saving ? "שומר…" : "שמירת השינויים"}
+            {dirty && (
+              <button
+                type="button"
+                onClick={() => setValues(saved)}
+                disabled={saving}
+                className="px-3 py-2 text-sm text-charcoal/70 hover:text-ink disabled:opacity-50"
+              >
+                ביטול שינויים
+              </button>
+            )}
+            {group.sitePath && (
+              <Button variant="outline" size="sm" onClick={preview} disabled={saving}>
+                תצוגה מקדימה
+              </Button>
+            )}
+            <Button size="sm" onClick={save} disabled={saving || !dirty}>
+              {saving ? "שומר…" : "שמירה"}
             </Button>
           </div>
         </div>
@@ -482,218 +272,194 @@ export function SiteContentEditor({
   );
 }
 
-function ContentField({
+/** Label + "where it appears" + the input + empty/translation hints. */
+function FieldBlock({
   field,
-  valueHe,
-  valueEn,
-  onChangeHe,
-  onChangeEn,
+  lang,
+  value,
+  hebrew,
+  changed,
+  onChange,
 }: {
-  field: Field;
-  valueHe: string;
-  valueEn: string;
-  onChangeHe: (v: string) => void;
-  onChangeEn: (v: string) => void;
+  field: ContentField;
+  lang: Lang;
+  value: string;
+  hebrew: string;
+  changed: boolean;
+  onChange: (v: string) => void;
 }) {
-  if (field.kind === "toggle") {
-    const on = valueHe === "true";
-    const Icon = field.icon ?? MegaphoneIcon;
-    const onText = field.onLabel ?? "פעיל — מוצג למבקרים";
-    const offText = field.offLabel ?? "כבוי — אינו מוצג";
-    return (
-      <div className="space-y-1.5">
-      <button
-        type="button"
-        onClick={() => onChangeHe(on ? "false" : "true")}
-        aria-pressed={on}
-        className={cn(
-          "group flex w-full items-center justify-between gap-4 rounded-2xl border px-5 py-4 text-start transition-all",
-          on
-            ? "border-olive/40 bg-olive/10 shadow-soft"
-            : "border-charcoal/15 bg-linen/40 hover:border-charcoal/30"
-        )}
-      >
-        <div className="flex items-center gap-3">
-          <span
-            className={cn(
-              "flex h-9 w-9 items-center justify-center rounded-xl transition-colors",
-              on ? "bg-olive text-cream" : "bg-charcoal/10 text-charcoal/60"
-            )}
-            aria-hidden
-          >
-            <Icon className="h-5 w-5" />
-          </span>
-          <div>
-            <p className="text-sm font-medium text-charcoal">{field.label}</p>
-            <p
-              className={cn(
-                "text-xs transition-colors",
-                on ? "text-olive" : "text-charcoal/50"
-              )}
-            >
-              {on ? onText : offText}
-            </p>
-          </div>
-        </div>
+  const empty = !value.trim() || value.trim() === "[]";
+  const label = lang === "en" && field.label_en ? field.label_en : field.label;
 
-        <span
-          className={cn(
-            "relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors",
-            on ? "bg-olive" : "bg-charcoal/25"
-          )}
-        >
-          <span
-            className={cn(
-              "inline-block h-6 w-6 transform rounded-full bg-cream shadow transition-transform duration-200",
-              on
-                ? "translate-x-0.5 rtl:-translate-x-0.5"
-                : "translate-x-[1.375rem] rtl:-translate-x-[1.375rem]"
-            )}
-          />
-        </span>
-      </button>
-        {field.help && (
-          <p className="px-1 text-xs text-charcoal/50">{field.help}</p>
-        )}
-      </div>
-    );
-  }
-
-  if (field.kind === "image") {
-    return <ImageField value={valueHe} label={field.label} help={field.help} hint={field.dimensions} onChange={onChangeHe} />;
-  }
-
-  if (field.kind === "image-list") {
-    return <ImageListField value={valueHe} label={field.label} help={field.help} hint={field.dimensions} onChange={onChangeHe} />;
-  }
-
-  // CATEGORIES_DISABLED:
-  // if (field.kind === "category-images") { ... }
-
-  if (field.kind === "testimonials") {
-    return <TestimonialsField value={valueHe} label={field.label} help={field.help} hint={field.dimensions} onChange={onChangeHe} />;
-  }
-
-  if (field.kind === "social-links") {
-    return <SocialLinksField value={valueHe} label={field.label} help={field.help} onChange={onChangeHe} />;
-  }
-
-  if (field.kind === "richtext") {
-    return (
-      <MarkdownField
-        valueHe={valueHe}
-        valueEn={valueEn}
-        label={field.label}
-        labelEn={field.label_en}
-        help={field.help}
-        onChangeHe={onChangeHe}
-        onChangeEn={onChangeEn}
-      />
-    );
-  }
-
-  const inputBase =
-    "w-full rounded-xl border border-charcoal/15 bg-cream px-3 py-2.5 text-sm text-ink placeholder:text-charcoal/30 focus:outline-none focus:border-charcoal/50 focus:ring-2 focus:ring-gold/30 transition-colors";
-
-  // bilingual_text / bilingual_textarea — two LocalizedInput / LocalizedTextarea side by side
-  if (field.kind === "bilingual_text" || field.kind === "bilingual_textarea") {
-    const pairs = (
-      <div className="grid sm:grid-cols-2 gap-3">
-        {field.kind === "bilingual_textarea" ? (
-          <>
-            <LocalizedTextarea id={`${field.key}-he`} locale="he" label={field.label} value={valueHe} onChange={(e) => onChangeHe(e.target.value)} rows={3} />
-            <LocalizedTextarea id={`${field.key}-en`} locale="en" label={field.label_en ?? field.label} value={valueEn} onChange={(e) => onChangeEn(e.target.value)} rows={3} />
-          </>
-        ) : (
-          <>
-            <LocalizedInput id={`${field.key}-he`} locale="he" label={field.label} value={valueHe} onChange={(e) => onChangeHe(e.target.value)} />
-            <LocalizedInput id={`${field.key}-en`} locale="en" label={field.label_en ?? field.label} value={valueEn} onChange={(e) => onChangeEn(e.target.value)} />
-          </>
-        )}
-      </div>
-    );
-    return field.help ? (
-      <div className="space-y-1.5">
-        {pairs}
-        <span className="block text-xs text-charcoal/50">{field.help}</span>
-      </div>
-    ) : pairs;
-  }
-
-  // url — single LTR input (links)
-  if (field.kind === "url") {
-    return (
-      <label className="block space-y-1.5">
-        <span className="text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
-          {field.label}
-        </span>
-        <input
-          type="url"
-          value={valueHe}
-          onChange={(e) => onChangeHe(e.target.value)}
-          dir="ltr"
-          className={inputBase}
-        />
-        {field.help && (
-          <span className="block text-xs text-charcoal/50">{field.help}</span>
-        )}
-      </label>
-    );
-  }
-
-  // text / textarea — single locale (email, phone, etc.)
   return (
-    <label className="block space-y-1.5">
-      <span className="text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
-        {field.label}
-      </span>
-      {field.kind === "textarea" ? (
+    <div className="space-y-2">
+      {field.kind !== "toggle" && (
+        <div className="space-y-0.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-ink">{label}</span>
+            {changed && <span className="bg-accent/10 px-1.5 text-[0.7rem] text-accent">שונה</span>}
+            {empty && field.ifEmpty && (
+              <span className="bg-charcoal/[0.07] px-1.5 text-[0.7rem] text-charcoal/70">
+                ריק · {field.ifEmpty}
+              </span>
+            )}
+          </div>
+          {field.where && <p className="text-xs text-charcoal/60">{field.where}</p>}
+        </div>
+      )}
+
+      <FieldInput field={field} lang={lang} value={value} onChange={onChange} />
+
+      {lang === "en" && isBilingual(field) && hebrew.trim() && (
+        <p className="text-xs text-charcoal/55">
+          <span className="text-charcoal/40">בעברית: </span>
+          <span className="line-clamp-2">{hebrew}</span>
+        </p>
+      )}
+      {field.help && <p className="text-xs text-charcoal/55">{field.help}</p>}
+    </div>
+  );
+}
+
+function FieldInput({
+  field,
+  lang,
+  value,
+  onChange,
+}: {
+  field: ContentField;
+  lang: Lang;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const inputBase =
+    "w-full border border-charcoal/35 bg-cream px-3 py-2.5 text-sm text-ink placeholder:text-charcoal/35 focus:border-ink focus:outline-none transition-colors";
+
+  switch (field.kind) {
+    case "toggle":
+      return <ToggleField field={field} on={value === "true"} onChange={(on) => onChange(on ? "true" : "false")} />;
+    case "image":
+      return <ImageField value={value} label={field.label} hint={field.dimensions} onChange={onChange} />;
+    case "image-list":
+      return <ImageListField value={value} label={field.label} hint={field.dimensions} onChange={onChange} />;
+    case "testimonials":
+      return <TestimonialsField value={value} label={field.label} hint={field.dimensions} onChange={onChange} />;
+    case "social-links":
+      return <SocialLinksField value={value} label={field.label} onChange={onChange} />;
+    case "richtext":
+      return (
+        <MarkdownEditor
+          locale={lang}
+          label={lang === "en" && field.label_en ? field.label_en : field.label}
+          value={value}
+          onChange={onChange}
+        />
+      );
+    case "bilingual_textarea":
+      return (
         <textarea
-          value={valueHe}
-          onChange={(e) => onChangeHe(e.target.value)}
-          dir={field.ltr ? "ltr" : "rtl"}
-          rows={3}
+          aria-label={field.label}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          dir={lang === "en" ? "ltr" : "rtl"}
+          rows={4}
+          placeholder={lang === "he" ? field.placeholder : undefined}
           className={inputBase}
         />
-      ) : (
+      );
+    case "bilingual_text":
+      return (
         <input
           type="text"
-          value={valueHe}
-          onChange={(e) => onChangeHe(e.target.value)}
-          dir={field.ltr ? "ltr" : "rtl"}
+          aria-label={field.label}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          dir={lang === "en" ? "ltr" : "rtl"}
+          placeholder={lang === "he" ? field.placeholder : undefined}
           className={inputBase}
         />
-      )}
-      {field.help && (
-        <span className="block text-xs text-charcoal/50">{field.help}</span>
-      )}
-    </label>
-  );
+      );
+    case "url":
+      return (
+        <input
+          type="text"
+          inputMode="url"
+          aria-label={field.label}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          dir="ltr"
+          placeholder={field.placeholder}
+          className={inputBase}
+        />
+      );
+    default:
+      return (
+        <input
+          type="text"
+          aria-label={field.label}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          dir={field.ltr ? "ltr" : "rtl"}
+          placeholder={field.placeholder}
+          className={inputBase}
+        />
+      );
+  }
 }
 
-function MarkdownField({
-  valueHe,
-  valueEn,
-  label,
-  labelEn,
-  help,
-  onChangeHe,
-  onChangeEn,
+function ToggleField({
+  field,
+  on,
+  onChange,
 }: {
-  valueHe: string;
-  valueEn: string;
-  label: string;
-  labelEn?: string;
-  help?: string;
-  onChangeHe: (v: string) => void;
-  onChangeEn: (v: string) => void;
+  field: ContentField;
+  on: boolean;
+  onChange: (on: boolean) => void;
 }) {
+  const Icon = field.icon ?? MegaphoneIcon;
   return (
-    <div className="space-y-3">
-      <MarkdownEditor locale="he" label={label} value={valueHe} onChange={onChangeHe} />
-      <MarkdownEditor locale="en" label={labelEn ?? label} value={valueEn} onChange={onChangeEn} />
-      {help && <p className="text-xs text-charcoal/50">{help}</p>}
-    </div>
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      onClick={() => onChange(!on)}
+      className={cn(
+        "flex w-full items-center justify-between gap-4 border px-4 py-3.5 text-start transition-colors",
+        on ? "border-moss/50 bg-moss/10" : "border-charcoal/20 bg-linen/40 hover:border-charcoal/40"
+      )}
+    >
+      <span className="flex items-center gap-3">
+        <span
+          aria-hidden
+          className={cn(
+            "flex h-9 w-9 items-center justify-center",
+            on ? "bg-moss text-cream" : "bg-charcoal/10 text-charcoal/60"
+          )}
+        >
+          <Icon className="h-5 w-5" />
+        </span>
+        <span>
+          <span className="block text-sm font-medium text-ink">{field.label}</span>
+          <span className={cn("block text-xs", on ? "text-moss" : "text-charcoal/55")}>
+            {on ? field.onLabel ?? "מוצג באתר" : field.offLabel ?? "מוסתר"}
+          </span>
+        </span>
+      </span>
+      <span
+        aria-hidden
+        className={cn(
+          "relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors",
+          on ? "bg-moss" : "bg-charcoal/25"
+        )}
+      >
+        <span
+          className={cn(
+            "inline-block h-6 w-6 rounded-full bg-cream shadow transition-transform duration-200",
+            on ? "translate-x-0.5 rtl:-translate-x-0.5" : "translate-x-[1.375rem] rtl:-translate-x-[1.375rem]"
+          )}
+        />
+      </span>
+    </button>
   );
 }
 
@@ -748,13 +514,10 @@ function ImageField({
 
   return (
     <div className="space-y-1.5">
-      <span className="block text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
-        {label}
-      </span>
 
       {value ? (
-        <div className="flex items-center gap-4 rounded-xl border border-charcoal/10 bg-linen/40 p-3">
-          <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-sand">
+        <div className="flex items-center gap-4 border border-charcoal/10 bg-linen/40 p-3">
+          <div className="relative h-24 w-24 shrink-0 overflow-hidden bg-sand">
             <Image
               src={value}
               alt={label}
@@ -795,7 +558,7 @@ function ImageField({
         <div
           {...getRootProps()}
           className={cn(
-            "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-8 text-center transition-colors",
+            "flex cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed px-4 py-8 text-center transition-colors",
             isDragActive
               ? "border-charcoal/50 bg-linen"
               : "border-charcoal/20 bg-linen/40 hover:border-charcoal/40",
@@ -915,16 +678,13 @@ function ImageListField({
 
   return (
     <div className="space-y-3">
-      <span className="block text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
-        {label}
-      </span>
 
       {items.length > 0 && (
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {items.map((item, i) => (
             <li
               key={`${item.url}-${i}`}
-              className="overflow-hidden rounded-xl border border-charcoal/10 bg-linen/40"
+              className="overflow-hidden border border-charcoal/10 bg-linen/40"
             >
               <div className="relative aspect-square bg-sand">
                 <Image
@@ -942,7 +702,7 @@ function ImageListField({
                   onChange={(e) => setAlt(i, "alt", e.target.value)}
                   dir="rtl"
                   placeholder="טקסט חלופי 🇮🇱"
-                  className="w-full rounded-md border border-charcoal/15 bg-cream px-2 py-1 text-xs text-charcoal focus:border-charcoal/50 focus:outline-none"
+                  className="w-full border border-charcoal/15 bg-cream px-2 py-1 text-xs text-charcoal focus:border-charcoal/50 focus:outline-none"
                 />
                 <input
                   type="text"
@@ -950,7 +710,7 @@ function ImageListField({
                   onChange={(e) => setAlt(i, "alt_en", e.target.value)}
                   dir="ltr"
                   placeholder="Alt text 🇬🇧"
-                  className="w-full rounded-md border border-charcoal/15 bg-cream px-2 py-1 text-xs text-charcoal focus:border-charcoal/50 focus:outline-none"
+                  className="w-full border border-charcoal/15 bg-cream px-2 py-1 text-xs text-charcoal focus:border-charcoal/50 focus:outline-none"
                 />
                 <div className="flex items-center justify-between gap-1">
                   <div className="flex items-center gap-1">
@@ -959,7 +719,7 @@ function ImageListField({
                       onClick={() => move(i, -1)}
                       disabled={i === 0}
                       aria-label="הזזה אחורה"
-                      className="rounded-md p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
+                      className="p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
                     >
                       ‹
                     </button>
@@ -968,7 +728,7 @@ function ImageListField({
                       onClick={() => move(i, 1)}
                       disabled={i === items.length - 1}
                       aria-label="הזזה קדימה"
-                      className="rounded-md p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
+                      className="p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
                     >
                       ›
                     </button>
@@ -977,7 +737,7 @@ function ImageListField({
                     type="button"
                     onClick={() => remove(i)}
                     aria-label="הסרה"
-                    className="rounded-md p-1 text-terracotta/80 transition-colors hover:bg-terracotta/10"
+                    className="p-1 text-terracotta/80 transition-colors hover:bg-terracotta/10"
                   >
                     <TrashIcon className="h-4 w-4" />
                   </button>
@@ -991,7 +751,7 @@ function ImageListField({
       <div
         {...getRootProps()}
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-6 text-center transition-colors",
+          "flex cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed px-4 py-6 text-center transition-colors",
           isDragActive
             ? "border-charcoal/50 bg-linen"
             : "border-charcoal/20 bg-linen/40 hover:border-charcoal/40",
@@ -1015,39 +775,6 @@ function ImageListField({
     </div>
   );
 }
-
-// CATEGORIES_DISABLED: parseMap only used by CategoryImagesField
-// function parseMap(value: string): Record<string, string> {
-//   if (!value) return {};
-//   try {
-//     const obj = JSON.parse(value);
-//     if (!obj || typeof obj !== "object" || Array.isArray(obj)) return {};
-//     const out: Record<string, string> = {};
-//     for (const [k, v] of Object.entries(obj)) { if (typeof v === "string") out[k] = v; }
-//     return out;
-//   } catch { return {}; }
-// }
-
-// CATEGORIES_DISABLED: CategoryImagesField commented out
-// function CategoryImagesField({ value, label, help, hint, onChange }: { value: string; label: string; help?: string; hint?: string; onChange: (v: string) => void }) {
-//   const map = parseMap(value);
-//   const setOne = (slug: string, url: string) => {
-//     const next = { ...map };
-//     if (url) next[slug] = url; else delete next[slug];
-//     onChange(JSON.stringify(next));
-//   };
-//   return (
-//     <div className="space-y-3">
-//       <span className="block text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">{label}</span>
-//       <div className="grid gap-4 sm:grid-cols-2">
-//         {CATEGORIES.map((c) => (
-//           <ImageField key={c.slug} value={map[c.slug] ?? ""} label={c.label} hint={hint} onChange={(url) => setOne(c.slug, url)} />
-//         ))}
-//       </div>
-//       {help && <p className="text-xs text-charcoal/50">{help}</p>}
-//     </div>
-//   );
-// }
 
 type TestimonialItem = {
   quote: string;
@@ -1120,12 +847,9 @@ function TestimonialsField({
 
   return (
     <div className="space-y-2">
-      <span className="block text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
-        {label}
-      </span>
 
       {items.length > 0 && (
-        <ul className="divide-y divide-charcoal/8 rounded-xl border border-charcoal/10 overflow-hidden">
+        <ul className="divide-y divide-charcoal/8 border border-charcoal/10 overflow-hidden">
           {items.map((item, i) => {
             const isOpen = openIndex === i;
             const preview = item.name || item.quote
@@ -1225,7 +949,7 @@ function TestimonialsField({
                               onClick={() => move(i, -1)}
                               disabled={i === 0}
                               aria-label="הזזה אחורה"
-                              className="rounded-md p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
+                              className="p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
                             >
                               ‹
                             </button>
@@ -1234,7 +958,7 @@ function TestimonialsField({
                               onClick={() => move(i, 1)}
                               disabled={i === items.length - 1}
                               aria-label="הזזה קדימה"
-                              className="rounded-md p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
+                              className="p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
                             >
                               ›
                             </button>
@@ -1320,20 +1044,17 @@ function SocialLinksField({
     persist([...items, { platform: SOCIAL_PLATFORMS[0]?.slug ?? "facebook", url: "" }]);
 
   const inputBase =
-    "w-full rounded-md border border-charcoal/15 bg-cream px-2.5 py-2 text-sm text-ink placeholder:text-charcoal/35 focus:border-charcoal/50 focus:outline-none focus:ring-2 focus:ring-gold/30";
+    "w-full border border-charcoal/15 bg-cream px-2.5 py-2 text-sm text-ink placeholder:text-charcoal/35 focus:border-charcoal/50 focus:outline-none focus:ring-2 focus:ring-gold/30";
 
   return (
     <div className="space-y-3">
-      <span className="block text-[0.7rem] uppercase tracking-wider2 text-charcoal/55 font-medium">
-        {label}
-      </span>
 
       {items.length > 0 && (
         <ul className="space-y-2">
           {items.map((item, i) => (
             <li
               key={i}
-              className="rounded-xl border border-charcoal/10 bg-linen/40 p-3"
+              className="border border-charcoal/10 bg-linen/40 p-3"
             >
               <div className="grid gap-2 sm:grid-cols-[10rem_minmax(0,1fr)_auto]">
                 <Dropdown
@@ -1357,7 +1078,7 @@ function SocialLinksField({
                     onClick={() => move(i, -1)}
                     disabled={i === 0}
                     aria-label="הזזה אחורה"
-                    className="rounded-md p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
+                    className="p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
                   >
                     ‹
                   </button>
@@ -1366,7 +1087,7 @@ function SocialLinksField({
                     onClick={() => move(i, 1)}
                     disabled={i === items.length - 1}
                     aria-label="הזזה קדימה"
-                    className="rounded-md p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
+                    className="p-1 text-charcoal/60 transition-colors hover:bg-charcoal/[0.06] disabled:opacity-30"
                   >
                     ›
                   </button>
@@ -1374,7 +1095,7 @@ function SocialLinksField({
                     type="button"
                     onClick={() => remove(i)}
                     aria-label="הסרה"
-                    className="rounded-md p-1 text-terracotta transition-colors hover:bg-terracotta/10"
+                    className="p-1 text-terracotta transition-colors hover:bg-terracotta/10"
                   >
                     <TrashIcon className="h-4 w-4" />
                   </button>

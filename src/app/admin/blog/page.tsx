@@ -66,7 +66,7 @@ export default async function AdminBlogPage({
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs uppercase tracking-wider2 text-charcoal/50">ניהול</p>
+          <p className="text-xs text-charcoal/50">ניהול</p>
           <h1 className="mt-1 font-serif text-3xl text-charcoal">בלוג</h1>
           <p className="mt-1 text-sm text-charcoal/60">
             {filtersActive ? `${total} תוצאות` : `${total} פוסטים`}
@@ -86,7 +86,7 @@ export default async function AdminBlogPage({
         filtersActive={filtersActive}
       />
 
-      <section className="rounded-2xl border border-charcoal/10 bg-cream shadow-soft overflow-hidden">
+      <section className="border border-charcoal/10 bg-cream overflow-hidden">
         {posts.length === 0 ? (
           <p className="px-5 py-12 text-center text-sm text-charcoal/50">
             {filtersActive ? (
@@ -99,7 +99,7 @@ export default async function AdminBlogPage({
           <ul className="divide-y divide-charcoal/5">
             {posts.map((p) => (
               <li key={p.id} className="flex items-center gap-4 px-5 py-3">
-                <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-md bg-linen">
+                <div className="relative h-14 w-20 shrink-0 overflow-hidden bg-linen">
                   {p.images[0]?.url && (
                     <Image src={p.images[0].url} alt={p.title_he} fill className="object-cover" sizes="80px" />
                   )}
@@ -175,7 +175,7 @@ function PageLink({
   children: React.ReactNode;
 } & React.AriaAttributes) {
   const className = cn(
-    "inline-flex h-8 min-w-[2rem] items-center justify-center rounded-lg px-2 text-sm transition-colors",
+    "inline-flex h-8 min-w-[2rem] items-center justify-center px-2 text-sm transition-colors",
     active ? "bg-charcoal text-cream" : "text-charcoal/70 hover:bg-charcoal/[0.06]",
     disabled && "pointer-events-none opacity-30"
   );
