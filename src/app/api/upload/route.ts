@@ -35,7 +35,7 @@ export async function POST(req: Request) {
 
   const folderRaw = String(form.get("folder") ?? "products");
   const folder =
-    folderRaw === "content" || folderRaw === "blog"
+    folderRaw === "content" || folderRaw === "blog" || folderRaw === "gallery"
       ? folderRaw
       : "products";
   const bucket = process.env.SUPABASE_STORAGE_BUCKET!;

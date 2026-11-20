@@ -251,5 +251,13 @@
     "store": "Store",
     "gallery": "Gallery",
     "about": "About"
+  },
+  "gallery": {
+    "title": "Gallery",
+    "subtitle": "Sold pieces and projects.",
+    "empty": "The gallery is filling up soon.",
+    "sold": "Sold",
+    "project": "Project",
+    "back": "← Back to the gallery"
   }
 }

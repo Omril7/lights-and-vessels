@@ -22,7 +22,7 @@ export function ImageUploader({
 }: {
   images: UploadedImage[];
   onChange: (next: UploadedImage[]) => void;
-  folder?: "products" | "blog" | "content";
+  folder?: "products" | "blog" | "content" | "gallery";
   /** Recommended pixel dimensions, shown inside the dropzone. */
   hint?: string;
 }) {

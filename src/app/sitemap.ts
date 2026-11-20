@@ -44,6 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = [
     ...bothLocales("", { changeFrequency: "weekly", priority: 1 }),
     ...bothLocales("/shop", { changeFrequency: "daily", priority: 0.9 }),
+    ...bothLocales("/gallery", { changeFrequency: "weekly", priority: 0.8 }),
     ...bothLocales("/about", { changeFrequency: "monthly", priority: 0.6 }),
     ...bothLocales("/blog", { changeFrequency: "weekly", priority: 0.7 }),
     ...bothLocales("/legal/terms", { changeFrequency: "yearly", priority: 0.3 }),

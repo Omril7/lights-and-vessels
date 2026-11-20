@@ -11,6 +11,7 @@ import {
   DocumentTextIcon,
   DocumentDuplicateIcon,
   NewspaperIcon,
+  PhotoIcon,
   ChartBarIcon,
   ArrowRightOnRectangleIcon,
   ArrowUturnRightIcon,
@@ -22,6 +23,7 @@ const nav = [
   { href: "/admin/orders", label: "הזמנות", icon: ClipboardDocumentListIcon },
   { href: "/admin/documents", label: "מסמכים", icon: DocumentDuplicateIcon },
   { href: "/admin/reports", label: "דוחות", icon: ChartBarIcon },
+  { href: "/admin/gallery", label: "גלריה", icon: PhotoIcon },
   { href: "/admin/blog", label: "בלוג", icon: NewspaperIcon },
   { href: "/admin/site-content", label: "תוכן האתר", icon: DocumentTextIcon },
 ];
