@@ -7,6 +7,7 @@ import {
   GlobeAltIcon,
   Cog6ToothIcon,
   MegaphoneIcon,
+  TruckIcon,
   EnvelopeIcon,
 } from "@heroicons/react/24/outline";
 
@@ -44,6 +45,8 @@ export type ContentField = {
   kind: FieldKind;
   /** Force LTR on single-language text (email, phone). */
   ltr?: boolean;
+  /** Numbers only: numeric keypad on phones. */
+  numeric?: boolean;
   /** Toggle only. */
   icon?: ComponentType<{ className?: string }>;
   onLabel?: string;
@@ -57,7 +60,7 @@ export type ContentSection = {
   fields: ContentField[];
 };
 
-export type ContentGroupId = "entry" | "store" | "gallery" | "about" | "site" | "settings";
+export type ContentGroupId = "entry" | "store" | "gallery" | "about" | "site" | "shipping" | "settings";
 
 export type ContentGroup = {
   id: ContentGroupId;
@@ -351,6 +354,87 @@ export const CONTENT_GROUPS: ContentGroup[] = [
             kind: "social-links",
             where: "אייקונים בתחתית כל עמוד.",
             ifEmpty: "לא יוצגו אייקונים.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "shipping",
+    label: "משלוחים",
+    description: "מחיר המשלוח, משלוח חינם, זמנים ואיסוף עצמי. משמש בעמוד התשלום, במייל לאישור ההזמנה ובמדיניות המשלוחים.",
+    icon: TruckIcon,
+    sitePath: "/legal/shipping",
+    sections: [
+      {
+        id: "shipping-price",
+        heading: "מחיר",
+        fields: [
+          {
+            key: "shipping_post_price",
+            label: "מחיר משלוח בדואר (₪)",
+            kind: "text",
+            ltr: true,
+            numeric: true,
+            placeholder: "30",
+            where: "נוסף לכל הזמנה בדואר בעמוד התשלום, ומופיע במדיניות המשלוחים.",
+            help: "מספר בלבד, בלי ₪.",
+            ifEmpty: "ייגבו ₪30.",
+          },
+          {
+            key: "shipping_free_over",
+            label: "משלוח חינם בהזמנות מעל (₪)",
+            kind: "text",
+            ltr: true,
+            numeric: true,
+            placeholder: "250",
+            where: "הזמנה בסכום הזה ומעלה מקבלת משלוח בדואר חינם, אוטומטית בעמוד התשלום.",
+            help: "מספר בלבד. אם הבאנר העליון מבטיח משלוח חינם — הסכום כאן חייב להתאים לו.",
+            ifEmpty: "אין משלוח חינם; כל הזמנה בדואר משלמת את מחיר המשלוח.",
+          },
+        ],
+      },
+      {
+        id: "shipping-times",
+        heading: "זמנים",
+        fields: [
+          {
+            key: "shipping_processing_days",
+            label: "ימי הכנה בסטודיו",
+            kind: "text",
+            ltr: true,
+            placeholder: "1-3",
+            where: "מאישור התשלום ועד המסירה לדואר. מופיע במדיניות המשלוחים.",
+          },
+          {
+            key: "shipping_post_eta",
+            label: "זמן משלוח בדואר",
+            label_en: "Postal delivery time",
+            kind: "bilingual_text",
+            placeholder: "עד 7 ימי עסקים",
+            where: "בעמוד התשלום, במייל לאישור ההזמנה ובמדיניות המשלוחים.",
+          },
+        ],
+      },
+      {
+        id: "shipping-pickup",
+        heading: "איסוף עצמי",
+        fields: [
+          {
+            key: "shipping_pickup_address",
+            label: "כתובת לאיסוף",
+            label_en: "Pickup address",
+            kind: "bilingual_text",
+            where: "בעמוד התשלום, בעמוד 'ההזמנה התקבלה' ובמייל — רק ללקוחות שבחרו איסוף.",
+            ifEmpty: "ייכתב ללקוח שהכתובת תישלח בוואטסאפ.",
+          },
+          {
+            key: "shipping_pickup_hours",
+            label: "שעות איסוף",
+            label_en: "Pickup hours",
+            kind: "bilingual_text",
+            placeholder: "א׳–ה׳, 10:00–17:00, בתיאום מראש",
+            ifEmpty: "ייכתב ללקוח שניצור קשר לתיאום שעה.",
           },
         ],
       },

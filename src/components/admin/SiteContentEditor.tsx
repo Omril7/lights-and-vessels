@@ -400,6 +400,7 @@ function FieldInput({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           dir={field.ltr ? "ltr" : "rtl"}
+          inputMode={field.numeric ? "numeric" : undefined}
           placeholder={field.placeholder}
           className={inputBase}
         />
