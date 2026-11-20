@@ -32,6 +32,12 @@ There are three storefront colour themes, switched by `ThemeSwitcher` in the hea
 - **ערב / Evening**: dark brown `#1c1612` with cream text `#e6ddbf` and a warm red accent.
 - **כחול / Cobalt**: `#1e4a8e`, the product-photo backdrop, with cream text and a beeswax accent.
 
+**The theme button** (`ThemeSwitcher`, in the header next to the language link):
+- It's a three-state button: each click moves to the next theme, נייר → ערב → כחול → back to נייר.
+- It shows a small **square** swatch of the theme a click will switch to, with no text label.
+- Its accessible label names the current and next theme ("ערכת צבעים: נייר. לחיצה מעבירה לערב").
+- The choice is saved in `localStorage` (`lv-theme`) and applied before paint by the boot script in `app/layout.tsx`.
+
 Themes are scoped to `.storefront`, so the admin keeps the default palette. The accessibility colour modes always win over a theme.
 
 ## Type
@@ -79,7 +85,7 @@ We never take TK Creative's:
 - grey `#f0f0f0` / gold `#b89b62` / charcoal `#232e2e` palette
 - gold-tint image hover
 - giant name pinned bottom-left over scrolling photos
-- single-dot colour cycler (our theme switch is a named menu)
+- single gold dot as the colour cycler. Ours also cycles, but keep it a small square swatch of the next theme in our own palette, never a round gold dot.
 - wording
 
 The Pinterest photos are mood references only, never site content.
