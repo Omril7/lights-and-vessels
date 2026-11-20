@@ -1,8 +1,9 @@
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton, LoadingLabel } from "@/components/ui/Skeleton";
 
 export default function BlogLoading() {
   return (
-    <main className="mx-auto max-w-editorial px-5 py-12 md:px-8 md:py-20">
+    <div className="mx-auto max-w-editorial px-5 py-12 md:px-8 md:py-20">
+      <LoadingLabel />
       <header className="mb-10 md:mb-14 text-center space-y-3">
         <Skeleton className="h-3 w-24 mx-auto" />
         <Skeleton className="h-10 w-64 mx-auto" />
@@ -11,7 +12,7 @@ export default function BlogLoading() {
 
       <div className="mb-10 flex justify-center gap-2">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-8 w-20" />
+          <Skeleton key={i} className="h-10 w-20" />
         ))}
       </div>
 
@@ -29,6 +30,6 @@ export default function BlogLoading() {
           </div>
         ))}
       </div>
-    </main>
+    </div>
   );
 }

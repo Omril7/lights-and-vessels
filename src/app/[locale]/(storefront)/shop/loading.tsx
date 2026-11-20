@@ -1,28 +1,20 @@
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton, LoadingLabel } from "@/components/ui/Skeleton";
+import { BannerSkeleton, CardGridSkeleton } from "@/components/storefront/PageSkeletons";
 
-export default function ShopLoading() {
+/** Store: dark banner, category filter buttons, card grid. */
+export default function StoreLoading() {
   return (
-    <div className="mx-auto max-w-editorial px-5 pb-20 pt-12 md:px-8 md:pt-16">
-      <div className="mb-8 space-y-3">
-        <Skeleton className="h-10 w-48" />
-        <Skeleton className="h-4 w-72" />
+    <>
+      <LoadingLabel />
+      <BannerSkeleton />
+      <div className="flex flex-col gap-12 px-5 pb-10 pt-16 sm:px-[5vw] md:pt-20">
+        <div className="flex flex-wrap justify-end gap-2">
+          {["w-14", "w-16", "w-20", "w-20", "w-20"].map((w, i) => (
+            <Skeleton key={i} className={`h-11 ${w}`} />
+          ))}
+        </div>
+        <CardGridSkeleton count={6} />
       </div>
-
-      <div className="mb-8 flex flex-wrap gap-2">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-8 w-24" />
-        ))}
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="space-y-3">
-            <Skeleton className="aspect-square w-full" />
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-4 w-1/3" />
-          </div>
-        ))}
-      </div>
-    </div>
+    </>
   );
 }

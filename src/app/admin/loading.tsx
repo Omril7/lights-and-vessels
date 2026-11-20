@@ -1,34 +1,24 @@
-import { Skeleton } from "@/components/ui/Skeleton";
+import { Skeleton, LoadingLabel } from "@/components/ui/Skeleton";
+import { AdminHeaderSkeleton, AdminTableSkeleton } from "@/components/admin/AdminSkeletons";
 
+/** Dashboard: greeting + actions, four stat cards, recent orders table. */
 export default function AdminLoading() {
   return (
-    <div className="space-y-6">
-      <Skeleton className="h-9 w-48" />
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="space-y-8">
+      <LoadingLabel />
+      <AdminHeaderSkeleton subtitle={false} actions={2} />
+      <section className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div
-            key={i}
-            className="space-y-3 border border-charcoal/10 p-5"
-          >
-            <Skeleton className="h-3 w-20" />
-            <Skeleton className="h-8 w-24" />
+          <div key={i} className="border border-charcoal/10 bg-cream p-5">
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-5 w-5" />
+            </div>
+            <Skeleton className="mt-4 h-8 w-20" />
           </div>
         ))}
-      </div>
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="space-y-3 border border-charcoal/10 p-5">
-          <Skeleton className="h-5 w-32" />
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-10 w-full" />
-          ))}
-        </div>
-        <div className="space-y-3 border border-charcoal/10 p-5">
-          <Skeleton className="h-5 w-32" />
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-10 w-full" />
-          ))}
-        </div>
-      </div>
+      </section>
+      <AdminTableSkeleton rows={5} />
     </div>
   );
 }
