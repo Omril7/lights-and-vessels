@@ -9,6 +9,7 @@ import { FadeIn } from "@/components/ui/FadeIn";
 import { Button } from "@/components/ui/Button";
 import type { ProductWithImages } from "@/types";
 import { STORE_STATUSES } from "@/lib/product-status";
+import { alternatesFor } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -19,10 +20,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = params;
   return {
-    alternates: {
-      canonical: `/${locale}`,
-      languages: { he: `/he`, en: `/en` },
-    },
+    alternates: alternatesFor(locale, `/`),
   };
 }
 

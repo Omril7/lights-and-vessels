@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { Markdown } from "@/components/ui/Markdown";
 import { BlogGallery } from "@/components/storefront/BlogGallery";
 import { formatDate, localize } from "@/lib/utils";
+import { alternatesFor } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -42,10 +43,7 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: {
-      canonical: `/${locale}/blog/${post.slug}`,
-      languages: { he: `/he/blog/${post.slug}`, en: `/en/blog/${post.slug}` },
-    },
+    alternates: alternatesFor(locale, `/blog/${post.slug}`),
     openGraph: {
       title,
       description,

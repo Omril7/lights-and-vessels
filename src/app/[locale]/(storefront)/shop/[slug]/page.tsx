@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/Badge";
 import { formatPrice, renderMarkdown, localize } from "@/lib/utils";
 import type { ProductWithImages } from "@/types";
 import { PUBLIC_STATUSES, STORE_STATUSES, isSoldOut, displayName } from "@/lib/product-status";
+import { alternatesFor, localePath } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -41,15 +42,12 @@ export async function generateMetadata({
   return {
     title: name,
     description,
-    alternates: {
-      canonical: `/${locale}/shop/${product.slug}`,
-      languages: { he: `/he/shop/${product.slug}`, en: `/en/shop/${product.slug}` },
-    },
+    alternates: alternatesFor(locale, `/shop/${product.slug}`),
     openGraph: {
       type: "website",
       title: name,
       description,
-      url: `/${locale}/shop/${product.slug}`,
+      url: localePath(locale, `/shop/${product.slug}`),
       locale: locale === "en" ? "en_US" : "he_IL",
       images: firstImage ? [{ url: firstImage, alt: name }] : undefined,
     },

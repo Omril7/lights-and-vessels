@@ -3,6 +3,7 @@ import { FadeIn } from "@/components/ui/FadeIn";
 import { Markdown } from "@/components/ui";
 import { LegalPage } from "@/components/storefront/LegalPage";
 import { readLegalContent } from "@/lib/legal";
+import { alternatesFor } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -14,10 +15,7 @@ export async function generateMetadata({
   return {
     title,
     description: intro,
-    alternates: {
-      canonical: `/${locale}/legal/accessibility`,
-      languages: { he: `/he/legal/accessibility`, en: `/en/legal/accessibility` },
-    },
+    alternates: alternatesFor(locale, `/legal/accessibility`),
   };
 }
 

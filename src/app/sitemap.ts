@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { PUBLIC_STATUSES } from "@/lib/product-status";
+import { localePath } from "@/lib/seo";
 
 const LOCALES = ["he", "en"] as const;
 
@@ -8,7 +9,7 @@ const site =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://lights-and-vessels.vercel.app";
 
 function alternate(path: string) {
-  return Object.fromEntries(LOCALES.map((l) => [l, `${site}/${l}${path}`]));
+  return Object.fromEntries(LOCALES.map((l) => [l, `${site}${localePath(l, path || "/")}`]));
 }
 
 function bothLocales(
@@ -20,7 +21,7 @@ function bothLocales(
   },
 ): MetadataRoute.Sitemap {
   return LOCALES.map((locale) => ({
-    url: `${site}/${locale}${path}`,
+    url: `${site}${localePath(locale, path || "/")}`,
     lastModified: opts.lastModified,
     changeFrequency: opts.changeFrequency,
     priority: opts.priority,

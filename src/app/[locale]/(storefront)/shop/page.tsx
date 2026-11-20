@@ -9,6 +9,7 @@ import { type SortKey } from "@/types";
 import type { ProductWithImages } from "@/types";
 import type { Prisma } from "@prisma/client";
 import { STORE_STATUSES } from "@/lib/product-status";
+import { alternatesFor } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -22,10 +23,7 @@ export async function generateMetadata({
   return {
     title: t("collectionLabel"),
     description: t("subtitle"),
-    alternates: {
-      canonical: `/${locale}/shop`,
-      languages: { he: `/he/shop`, en: `/en/shop` },
-    },
+    alternates: alternatesFor(locale, `/shop`),
   };
 }
 

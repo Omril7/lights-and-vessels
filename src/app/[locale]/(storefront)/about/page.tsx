@@ -5,6 +5,7 @@ import { getSiteContent, parseGallery } from "@/lib/content";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { ContactSection } from "@/components/storefront/ContactSection";
 import { renderMarkdown } from "@/lib/utils";
+import { alternatesFor } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -23,10 +24,7 @@ export async function generateMetadata({
   return {
     title: t("label"),
     description: ABOUT_DESCRIPTION[locale] ?? ABOUT_DESCRIPTION.he,
-    alternates: {
-      canonical: `/${locale}/about`,
-      languages: { he: `/he/about`, en: `/en/about` },
-    },
+    alternates: alternatesFor(locale, `/about`),
   };
 }
 

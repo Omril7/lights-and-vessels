@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { localize } from "@/lib/utils";
 import { BlogCard } from "@/components/storefront/BlogCard";
 import { BlogTagFilter } from "@/components/storefront/BlogTagFilter";
+import { alternatesFor } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -17,10 +18,7 @@ export async function generateMetadata({
   return {
     title: t("heading"),
     description: t("description"),
-    alternates: {
-      canonical: `/${locale}/blog`,
-      languages: { he: `/he/blog`, en: `/en/blog` },
-    },
+    alternates: alternatesFor(locale, `/blog`),
   };
 }
 
