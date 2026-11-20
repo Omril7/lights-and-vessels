@@ -97,11 +97,17 @@ html[data-theme="cobalt"]:not(.a11y-dark):not(.a11y-contrast):not(.a11y-grayscal
   background-color: #1e4a8e;
   color-scheme: dark;
 }
+/* The logo is black-on-white artwork: multiply drops the white on paper,
+   and on dark themes it's inverted and screened instead. */
+.brand-logo {
+  mix-blend-mode: multiply;
+}
 html[data-theme="evening"] .storefront .brand-logo,
 html[data-theme="cobalt"] .storefront .brand-logo,
 html.a11y-dark .brand-logo,
 html.a11y-contrast .brand-logo {
   filter: invert(1);
+  mix-blend-mode: screen;
 }
 @media (prefers-reduced-motion: no-preference) {
   .storefront {

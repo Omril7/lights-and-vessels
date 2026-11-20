@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import Image from "next/image";
+import { getLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
-import { ShopGrid } from "@/components/storefront/ShopGrid";
-import { ShopFilters } from "@/components/storefront/ShopFilters";
+import { getSiteContent } from "@/lib/content";
+import { Link } from "@/i18n/navigation";
+import { ProductCard } from "@/components/storefront/ProductCard";
 import { FadeIn } from "@/components/ui/FadeIn";
-import { Button } from "@/components/ui/Button";
-import { type SortKey } from "@/types";
-import type { ProductWithImages } from "@/types";
-import type { Prisma } from "@prisma/client";
 import { STORE_STATUSES } from "@/lib/product-status";
 import { alternatesFor } from "@/lib/seo";
+import { cn, localize } from "@/lib/utils";
+import type { ProductWithImages } from "@/types";
 
 export const dynamic = "force-dynamic";
 
@@ -18,77 +18,102 @@ export async function generateMetadata({
 }: {
   params: { locale: string };
 }): Promise<Metadata> {
-  const { locale } = params;
-  const t = await getTranslations({ locale, namespace: "shop" });
+  const t = await getTranslations({ locale: params.locale, namespace: "shop" });
   return {
-    title: t("collectionLabel"),
+    title: t("title"),
     description: t("subtitle"),
-    alternates: alternatesFor(locale, `/shop`),
+    alternates: alternatesFor(params.locale, "/shop"),
   };
 }
 
-const SORT_MAP: Record<
-  SortKey,
-  Prisma.ProductOrderByWithRelationInput | Prisma.ProductOrderByWithRelationInput[]
-> = {
-  curated: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-  "price-asc": { price: "asc" },
-  "price-desc": { price: "desc" },
-};
-
-export default async function ShopPage({
+export default async function StorePage({
   searchParams,
 }: {
-  searchParams: { category?: string; sort?: string };
+  searchParams: { category?: string };
 }) {
-  const t = await getTranslations("shop");
-  const category = "";
-  const sort: SortKey = (
-    ["curated", "price-asc", "price-desc"] as const
-  ).includes(searchParams.sort as SortKey)
-    ? (searchParams.sort as SortKey)
-    : "curated";
+  const [locale, t] = await Promise.all([getLocale(), getTranslations("shop")]);
+  const [content, categories] = await Promise.all([
+    getSiteContent({ locale }),
+    prisma.productCategory.findMany({ orderBy: [{ order: "asc" }, { createdAt: "asc" }] }),
+  ]);
 
+  const active = categories.find((c) => c.slug === searchParams.category)?.slug ?? null;
   const products = (await prisma.product.findMany({
-    where: { status: { in: STORE_STATUSES }, ...(category ? { category: { slug: category } } : {}) },
+    where: {
+      status: { in: STORE_STATUSES },
+      ...(active ? { category: { slug: active } } : {}),
+    },
     include: { images: { orderBy: { order: "asc" } } },
-    orderBy: SORT_MAP[sort],
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
   })) as ProductWithImages[];
 
+  const heroImage = content.store_hero_image || content.entry_image_store || content.hero_image;
+  const filters = [
+    { slug: null as string | null, label: t("all") },
+    ...categories.map((c) => ({ slug: c.slug as string | null, label: localize(c, "name", locale) })),
+  ];
+
   return (
-    <div className="mx-auto max-w-editorial px-5 pb-10 pt-28 md:px-8 md:pt-32">
-      <FadeIn className="mb-10 text-center">
-        <p className="text-xs text-copper">
-          {t("collectionLabel")}
-        </p>
-        <h1 className="mt-2 font-serif text-4xl text-ink md:text-5xl">
-          {t("allItems")}
-        </h1>
-        <p className="mx-auto mt-3 max-w-md text-sm text-charcoal/60">
-          {t("subtitle")}
-        </p>
-      </FadeIn>
-
-      <ShopFilters
-        activeSort={sort}
-        total={products.length}
-      />
-
-      {products.length === 0 ? (
-        <div className="flex flex-col items-center gap-4 py-24 text-center">
-          <p className="font-serif text-2xl text-ink">
-            {t("emptyCategory")}
-          </p>
-          <p className="max-w-sm text-sm text-charcoal/60">
-            {t("emptyMessage")}
-          </p>
-          <Button href="/shop" variant="outline">
-            {t("allItemsBtn")}
-          </Button>
+    <>
+      {/* Banner */}
+      <section className="relative h-[clamp(320px,52vh,560px)] overflow-hidden bg-[#1c1612]">
+        {heroImage && (
+          <Image
+            src={heroImage}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+            style={{ objectPosition: "50% 40%", filter: "brightness(0.62) saturate(0.85)" }}
+          />
+        )}
+        <div className="absolute inset-x-5 bottom-10 flex flex-col gap-2 text-[#f2ebda] sm:inset-x-[5vw] sm:bottom-12">
+          <h1 className="font-serif text-5xl leading-none md:text-6xl">{t("title")}</h1>
+          <p className="font-light text-[#e6ddbf]">{t("subtitle")}</p>
         </div>
-      ) : (
-        <ShopGrid products={products} />
-      )}
-    </div>
+      </section>
+
+      <div className="flex flex-col gap-12 px-5 pb-10 pt-16 sm:px-[5vw] md:pt-20">
+        {/* Category filters */}
+        <div
+          role="group"
+          aria-label={t("filterLabel")}
+          className="flex flex-wrap justify-end gap-2"
+        >
+          {filters.map((f) => {
+            const on = f.slug === active;
+            return (
+              <Link
+                key={f.slug ?? "all"}
+                href={f.slug ? `/shop?category=${f.slug}` : "/shop"}
+                aria-current={on ? "page" : undefined}
+                scroll={false}
+                className={cn(
+                  "flex min-h-[44px] items-center border px-[18px] text-sm font-light transition-colors",
+                  on
+                    ? "border-ink bg-ink text-cream"
+                    : "border-stone text-ink hover:border-ink"
+                )}
+              >
+                {f.label}
+              </Link>
+            );
+          })}
+        </div>
+
+        {products.length === 0 ? (
+          <p className="py-24 text-center font-serif text-2xl text-ink">{t("emptyCategory")}</p>
+        ) : (
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-x-8 gap-y-16">
+            {products.map((p, i) => (
+              <FadeIn key={p.id} delay={(i % 3) * 0.06}>
+                <ProductCard product={p} priority={i < 3} />
+              </FadeIn>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   );
 }

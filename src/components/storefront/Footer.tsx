@@ -1,9 +1,13 @@
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { type SocialLink } from "@/lib/content";
 import { getPlatform } from "@/lib/social";
-import { LanguageSwitcher } from "@/components/storefront/LanguageSwitcher";
 
+/**
+ * Dark footer bar — always dark, whatever the colour theme, so the page ends
+ * the way the entry page begins.
+ */
 export async function Footer({
   footerText,
   socialLinks,
@@ -16,17 +20,19 @@ export async function Footer({
     getTranslations("nav"),
   ]);
   const year = new Date().getFullYear();
-  const items = socialLinks
+  const social = socialLinks
     .map((l) => ({ ...l, platform: getPlatform(l.platform) }))
-    .filter((l): l is { platform: NonNullable<ReturnType<typeof getPlatform>>; url: string } => !!l.platform);
+    .filter(
+      (l): l is { platform: NonNullable<ReturnType<typeof getPlatform>>; url: string } =>
+        !!l.platform
+    );
 
   const NAV_LINKS = [
-    { href: "/", label: tNav("home") },
     { href: "/shop", label: tNav("shop") },
-    { href: "/about", label: t("aboutLink") },
-    { href: "/cart", label: t("cartLink") },
+    { href: "/gallery", label: t("galleryLink") },
+    { href: "/about", label: tNav("about") },
+    { href: "/blog", label: t("blogLink") },
   ];
-
   const LEGAL_LINKS = [
     { href: "/legal/terms", label: t("terms") },
     { href: "/legal/privacy", label: t("privacy") },
@@ -36,56 +42,47 @@ export async function Footer({
   ];
 
   return (
-    <footer className="mt-24 border-t border-charcoal/10 bg-linen paper-grain">
-      <div className="mx-auto max-w-editorial px-5 py-8 md:px-8">
-        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-          <div className="min-w-0">
-            <p className="font-serif text-xl text-ink">
-              {t("studioName")}
-            </p>
-            <p className="mt-1 text-sm text-charcoal/65">{footerText}</p>
+    <footer className="mt-24 bg-[#120e0b] text-[#8c8270]">
+      <div className="flex flex-col gap-10 px-5 pb-10 pt-16 sm:px-[5vw]">
+        <div className="flex flex-wrap items-start justify-between gap-8">
+          <div className="flex flex-col gap-3">
+            <Image
+              src="/logo-2169x1282-black.png"
+              alt={t("studioName")}
+              width={140}
+              height={83}
+              className="h-auto w-[140px]"
+              style={{ filter: "invert(0.9) sepia(0.25)", mixBlendMode: "screen" }}
+            />
+            {footerText && (
+              <p className="max-w-xs text-sm font-light text-[#b5aa94]">{footerText}</p>
+            )}
           </div>
-          {items.length > 0 && (
-            <ul className="flex items-center gap-2">
-              {items.map(({ platform, url }) => (
-                <li key={platform.slug}>
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={platform.label}
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-charcoal/15 text-charcoal/70 transition hover:border-copper hover:text-copper"
-                  >
-                    <platform.Icon className="h-4 w-4" />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
+
+          <div className="flex flex-wrap gap-x-14 gap-y-6 text-sm font-light">
+            <LinkList label={t("navLabel")} links={NAV_LINKS} />
+            <LinkList label={t("legalLabel")} links={LEGAL_LINKS} />
+          </div>
         </div>
 
-        <div className="mt-6 grid gap-4 border-t border-charcoal/10 pt-5 text-xs text-charcoal/70 md:grid-cols-2 md:gap-10">
-          <nav aria-label={t("navLabel")}>
-            <p className="mb-2 text-[0.65rem] text-charcoal/45">
-              {t("navLabel")}
-            </p>
-            <InlineLinks links={NAV_LINKS} />
-          </nav>
-          <nav aria-label={t("legalLabel")}>
-            <p className="mb-2 text-[0.65rem] text-charcoal/45">
-              {t("legalLabel")}
-            </p>
-            <InlineLinks links={LEGAL_LINKS} />
-          </nav>
-        </div>
-      </div>
+        <div className="h-px bg-[#2a211b]" />
 
-      <div className="border-t border-charcoal/10">
-        <div className="mx-auto flex max-w-editorial flex-col items-center justify-between gap-2 px-5 py-3 text-[0.7rem] text-charcoal/55 md:flex-row md:px-8">
-          <p>{t("copyright", { year })}</p>
-          <div className="flex items-center gap-4">
-            <LanguageSwitcher />
-            <p>{t("tagline")}</p>
+        <div className="flex flex-wrap items-center justify-between gap-4 text-[0.8rem] font-light">
+          <p>{t("tagline")}</p>
+          <div className="flex flex-wrap items-center gap-5">
+            {social.map(({ platform, url }) => (
+              <a
+                key={platform.slug}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={platform.label}
+                className="text-[#b5aa94] transition-colors hover:text-[#f2ebda]"
+              >
+                <platform.Icon className="h-4 w-4" />
+              </a>
+            ))}
+            <p>{t("copyright", { year })}</p>
           </div>
         </div>
       </div>
@@ -93,23 +90,19 @@ export async function Footer({
   );
 }
 
-function InlineLinks({
-  links,
-}: {
-  links: { href: string; label: string }[];
-}) {
+function LinkList({ label, links }: { label: string; links: { href: string; label: string }[] }) {
   return (
-    <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
-      {links.map((l, i) => (
-        <span key={l.href} className="flex items-center gap-x-3">
-          <Link href={l.href} className="hover:text-ink">
-            {l.label}
-          </Link>
-          {i < links.length - 1 && (
-            <span className="text-charcoal/25">·</span>
-          )}
-        </span>
-      ))}
-    </span>
+    <nav aria-label={label}>
+      <p className="mb-3 text-xs text-[#6e6457]">{label}</p>
+      <ul className="flex flex-col gap-2">
+        {links.map((l) => (
+          <li key={l.href}>
+            <Link href={l.href} className="text-[#b5aa94] transition-colors hover:text-[#f2ebda]">
+              {l.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }

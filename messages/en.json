@@ -3,10 +3,8 @@
     "skipToContent": "Skip to main content"
   },
   "nav": {
-    "home": "Home",
     "shop": "Shop",
-    "blog": "Blog",
-    "about": "Our Story",
+    "about": "About",
     "cartLabel": "Shopping Cart",
     "menu": "Menu",
     "logoAlt": "Studio Lights and Vessels",
@@ -15,21 +13,24 @@
       "paper": "Paper",
       "evening": "Evening",
       "cobalt": "Cobalt"
-    }
+    },
+    "gallery": "Gallery",
+    "cart": "Cart ({count})",
+    "backToEntry": "Back to the entry — Lights and Vessels"
   },
   "footer": {
     "studioName": "Studio · Lights and Vessels",
     "navLabel": "Navigation",
     "legalLabel": "Legal",
-    "aboutLink": "Our Story",
-    "cartLink": "Cart",
     "terms": "Terms",
     "privacy": "Privacy",
     "returns": "Returns",
     "shipping": "Shipping",
     "accessibility": "Accessibility",
     "copyright": "© {year} Studio Lights and Vessels. All rights reserved.",
-    "tagline": "Made with love, one piece at a time."
+    "tagline": "Made with love, one piece at a time.",
+    "blogLink": "Blog",
+    "galleryLink": "Gallery"
   },
   "banner": {
     "ariaLabel": "Studio announcement",
@@ -74,17 +75,14 @@
     "breadcrumbShop": "Shop"
   },
   "shop": {
-    "collectionLabel": "The Collection",
-    "allItems": "All Items",
-    "subtitle": "Each piece is crafted by hand in the studio, in small batches.",
-    "emptyCategory": "No items in this category",
-    "emptyMessage": "Try another category, or return to all items.",
-    "allItemsBtn": "All Items",
-    "sortLabel": "Sort items",
-    "itemCount": "{count} items",
-    "sortCurated": "Our picks",
-    "sortPriceAsc": "Price: Low to High",
-    "sortPriceDesc": "Price: High to Low"
+    "subtitle": "Handmade, in small batches.",
+    "emptyCategory": "Nothing in this category yet",
+    "title": "Store",
+    "all": "All",
+    "filterLabel": "Filter by category",
+    "comingSoon": "Coming soon",
+    "oneOfAKind": "One of a kind",
+    "soldOut": "Sold"
   },
   "blog": {
     "studioLabel": "The Studio",

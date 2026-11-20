@@ -138,6 +138,13 @@ export const SECTIONS: Section[] = [
         kind: "image",
         dimensions: "16:9 לרוחב. ריק = התמונה הראשית",
       },
+      {
+        key: "store_hero_image",
+        label: "באנר דף החנות",
+        kind: "image",
+        wide: true,
+        dimensions: "רחב ונמוך (בערך 2400×900). ריק = תמונת 'החנות' מהכניסה",
+      },
     ],
   },
   {

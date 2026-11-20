@@ -24,6 +24,8 @@ const FALLBACKS: Record<string, string> = {
   entry_image_store: "",
   entry_image_gallery: "",
   entry_image_about: "",
+  // Store page banner. Empty = the store door photo, then hero_image.
+  store_hero_image: "",
   story_teaser: "הכול כאן מתחיל על שולחן עץ בלוי לצד חלון.",
   story_image: "https://picsum.photos/seed/studio-bench/900/1100",
   about_text: "## הסיפור שלי\n\nתוכן בקרוב.",

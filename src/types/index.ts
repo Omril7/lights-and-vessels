@@ -14,4 +14,3 @@ export type CartItem = {
   stockCount: number;
 };
 
-export type SortKey = "curated" | "price-asc" | "price-desc";

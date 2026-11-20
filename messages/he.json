@@ -3,10 +3,8 @@
     "skipToContent": "דלגו לתוכן הראשי"
   },
   "nav": {
-    "home": "בית",
     "shop": "החנות",
-    "blog": "בלוג",
-    "about": "הסיפור",
+    "about": "אודות",
     "cartLabel": "עגלת הקניות",
     "menu": "תפריט",
     "logoAlt": "סטודיו אורות וכלים",
@@ -15,21 +13,24 @@
       "paper": "נייר",
       "evening": "ערב",
       "cobalt": "כחול"
-    }
+    },
+    "gallery": "הגלריה",
+    "cart": "עגלה ({count})",
+    "backToEntry": "חזרה לכניסה — אורות וכלים"
   },
   "footer": {
     "studioName": "סטודיו · אורות וכלים",
     "navLabel": "ניווט",
     "legalLabel": "מסמכים משפטיים",
-    "aboutLink": "הסיפור שלי",
-    "cartLink": "עגלת הקניות",
     "terms": "תקנון",
     "privacy": "פרטיות",
     "returns": "החזרות וביטולים",
     "shipping": "משלוחים",
     "accessibility": "נגישות",
     "copyright": "© {year} סטודיו אורות וכלים. כל הזכויות שמורות.",
-    "tagline": "נוצר באהבה, פריט אחר פריט."
+    "tagline": "נוצר באהבה, פריט אחר פריט.",
+    "blogLink": "בלוג",
+    "galleryLink": "הגלריה"
   },
   "banner": {
     "ariaLabel": "הודעה מהסטודיו",
@@ -74,17 +75,14 @@
     "breadcrumbShop": "החנות"
   },
   "shop": {
-    "collectionLabel": "האוסף",
-    "allItems": "כל הפריטים",
-    "subtitle": "כל פריט נוצר בעבודת יד בסטודיו, במנות קטנות.",
-    "emptyCategory": "אין פריטים בקטגוריה הזו",
-    "emptyMessage": "נסו קטגוריה אחרת, או חזרו לכל האוסף.",
-    "allItemsBtn": "לכל הפריטים",
-    "sortLabel": "מיון פריטים",
-    "itemCount": "{count} פריטים",
-    "sortCurated": "מומלצים",
-    "sortPriceAsc": "מחיר: מהנמוך לגבוה",
-    "sortPriceDesc": "מחיר: מהגבוה לנמוך"
+    "subtitle": "עבודת יד, במנות קטנות.",
+    "emptyCategory": "אין עדיין פריטים בקטגוריה הזו",
+    "title": "החנות",
+    "all": "הכל",
+    "filterLabel": "סינון לפי קטגוריה",
+    "comingSoon": "בקרוב",
+    "oneOfAKind": "פריט יחיד",
+    "soldOut": "נמכר"
   },
   "blog": {
     "studioLabel": "הסטודיו",
