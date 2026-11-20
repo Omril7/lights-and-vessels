@@ -54,7 +54,7 @@
   "product": {
     "soldOut": "Sold",
     "handcrafted": "Handcrafted in the studio",
-    "shippingDetail": "Carefully packaged, ships within 3–5 business days",
+    "shippingDetail": "Packed by hand and sent by registered mail, or picked up",
     "giftNote": "A gift? We'll gladly add a handwritten note",
     "related": "More from the Same World",
     "materials": "Materials",
@@ -73,7 +73,16 @@
     "morePhotos": "More photos",
     "photoN": "Photo {n}",
     "inCart": "In cart ✓",
-    "viewCart": "View cart"
+    "viewCart": "View cart",
+    "openLightbox": "Enlarge photo",
+    "lightbox": "Enlarged photo",
+    "close": "Close",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "prevPhoto": "Previous photo",
+    "nextPhoto": "Next photo",
+    "zoomHintIn": "Click the photo to zoom in",
+    "zoomHintOut": "Move to look around · click to zoom out"
   },
   "shop": {
     "subtitle": "Handmade, in small batches.",
