@@ -16,6 +16,8 @@ const config: Config = {
         moss: "var(--moss)",
         ember: "var(--ember)",
         beeswax: "var(--beeswax)",
+        accent: "var(--accent)",
+        stamp: "var(--stamp)",
         // Legacy names — aliases of the brand palette until components migrate
         clay: "var(--clay)",
         sand: "var(--sand)",
@@ -30,7 +32,7 @@ const config: Config = {
       },
       fontFamily: {
         serif: ["var(--font-frank)", "Frank Ruhl Libre", "Georgia", "serif"],
-        sans: ["var(--font-assistant)", "Assistant", "system-ui", "sans-serif"],
+        sans: ["var(--font-heebo)", "Heebo", "system-ui", "sans-serif"],
       },
       borderRadius: {
         organic: "62% 38% 46% 54% / 60% 56% 44% 40%",

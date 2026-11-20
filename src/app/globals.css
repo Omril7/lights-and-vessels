@@ -3,87 +3,120 @@
 @tailwind utilities;
 
 :root {
-  /* Brand palette — quiet paper & ink, loud studio backdrops (see .claude/STYLE.md) */
-  --paper: #f2efe8;
-  --paper-2: #e9e5dc;
-  --stone: #dbd5c8;
-  --stone-2: #b8b1a2;
-  --ink: #1b1712;
-  --ink-2: #2e2a24;
+  /* Palette — warm paper, near-black brown, one red (see .claude/STYLE.md).
+     This is the default "paper" theme; .storefront themes below override it. */
+  --paper: #efe7d8;
+  --paper-2: #e4d9c5;
+  --stone: #cdbfa8;
+  --stone-2: #a89c86;
+  --ink: #1c1612;
+  --ink-2: #3a2e26;
+  --accent: #a3361f;
+  --stamp: #c2271d;
   --cobalt: #1d4f9c;
   --moss: #3d6a2c;
-  --ember: #b54f18;
-  --beeswax: #d8b46a;
-
-  /* Legacy names still used across components — aliases until they're migrated */
+  --ember: #9a3a22;
+  --beeswax: #b08a4b;
+  /* legacy names resolve where declared, so every theme restates them */
   --cream: var(--paper);
   --linen: var(--paper-2);
   --sand: var(--stone);
   --clay: var(--stone-2);
   --charcoal: var(--ink-2);
-  --copper: var(--cobalt);
+  --copper: var(--accent);
   --olive: var(--moss);
   --terracotta: var(--ember);
   --gold: var(--beeswax);
-}
-
-/* Storefront type: one serif for reading, plain sans for form controls */
-.storefront :is(input, select, textarea, button) {
-  font-family: var(--font-assistant), system-ui, sans-serif;
 }
 
 /* ============================================================
-   Evening mode — candlelit storefront (toggle: EveningToggle).
-   Scoped to .storefront so the admin keeps its light palette.
-   Sits before the a11y modes so those still win when enabled.
+   Storefront colour themes — html[data-theme], set before paint by
+   the boot script in app/layout.tsx and switched by ThemeSwitcher.
+   Scoped to .storefront so the admin stays on the default palette;
+   the :not() guard lets the a11y colour modes win when they're on.
    ============================================================ */
-html.evening:not(.a11y-dark):not(.a11y-contrast):not(.a11y-grayscale):not(.a11y-sepia) .storefront {
-  --paper: #14110d;
-  --paper-2: #1c1813;
-  --stone: #26211b;
-  --stone-2: #4d453a;
-  --ink: #f1e9da;
-  --ink-2: #e2d8c5;
+html[data-theme="evening"]:not(.a11y-dark):not(.a11y-contrast):not(.a11y-grayscale):not(.a11y-sepia) .storefront {
+  --paper: #1c1612;
+  --paper-2: #241c17;
+  --stone: #3a2e26;
+  --stone-2: #5a4a3e;
+  --ink: #e6ddbf;
+  --ink-2: #cfc5ae;
+  --accent: #e0704f;
+  --stamp: #e5553f;
   --cobalt: #9db8ee;
   --moss: #a7c48f;
-  --ember: #ef9a6a;
+  --ember: #e0704f;
   --beeswax: #e8c67f;
-  /* legacy aliases resolve where declared, so restate them here */
+  /* legacy names resolve where declared, so every theme restates them */
   --cream: var(--paper);
   --linen: var(--paper-2);
   --sand: var(--stone);
   --clay: var(--stone-2);
   --charcoal: var(--ink-2);
-  --copper: var(--cobalt);
+  --copper: var(--accent);
   --olive: var(--moss);
   --terracotta: var(--ember);
   --gold: var(--beeswax);
-  color: var(--ink);
-  /* a warm pool of light falling from the top of the page */
-  background:
-    radial-gradient(ellipse 70% 45% at 50% 0%, rgba(232, 198, 127, 0.09), transparent 70%) fixed,
-    var(--paper);
 }
-html.evening:not(.a11y-dark):not(.a11y-contrast):not(.a11y-grayscale):not(.a11y-sepia):has(.storefront),
-html.evening:not(.a11y-dark):not(.a11y-contrast):not(.a11y-grayscale):not(.a11y-sepia):has(.storefront) body {
-  background-color: #14110d;
+html[data-theme="cobalt"]:not(.a11y-dark):not(.a11y-contrast):not(.a11y-grayscale):not(.a11y-sepia) .storefront {
+  --paper: #1e4a8e;
+  --paper-2: #22529c;
+  --stone: #2e5fa8;
+  --stone-2: #6f8fc4;
+  --ink: #f2ebda;
+  --ink-2: #dce3f0;
+  --accent: #e8c67f;
+  --stamp: #f2ebda;
+  --cobalt: #f2ebda;
+  --moss: #bfd8a6;
+  --ember: #f0a27a;
+  --beeswax: #e8c67f;
+  /* legacy names resolve where declared, so every theme restates them */
+  --cream: var(--paper);
+  --linen: var(--paper-2);
+  --sand: var(--stone);
+  --clay: var(--stone-2);
+  --charcoal: var(--ink-2);
+  --copper: var(--accent);
+  --olive: var(--moss);
+  --terracotta: var(--ember);
+  --gold: var(--beeswax);
+}
+.storefront {
+  background-color: var(--paper);
+  color: var(--ink);
+}
+html[data-theme="evening"]:not(.a11y-dark):not(.a11y-contrast):not(.a11y-grayscale):not(.a11y-sepia):has(.storefront),
+html[data-theme="evening"]:not(.a11y-dark):not(.a11y-contrast):not(.a11y-grayscale):not(.a11y-sepia):has(.storefront) body {
+  background-color: #1c1612;
   color-scheme: dark;
 }
-html.evening .storefront main img {
-  filter: saturate(1.08) brightness(1.03);
+html[data-theme="cobalt"]:not(.a11y-dark):not(.a11y-contrast):not(.a11y-grayscale):not(.a11y-sepia):has(.storefront),
+html[data-theme="cobalt"]:not(.a11y-dark):not(.a11y-contrast):not(.a11y-grayscale):not(.a11y-sepia):has(.storefront) body {
+  background-color: #1e4a8e;
+  color-scheme: dark;
 }
-html.evening .storefront .paper-grain {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.95 0 0 0 0 0.85 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-html.evening .storefront .brand-logo,
+html[data-theme="evening"] .storefront .brand-logo,
+html[data-theme="cobalt"] .storefront .brand-logo,
 html.a11y-dark .brand-logo,
 html.a11y-contrast .brand-logo {
   filter: invert(1);
 }
 @media (prefers-reduced-motion: no-preference) {
-  html .storefront {
+  .storefront {
     transition: background-color 0.6s ease, color 0.6s ease;
   }
+}
+
+/* Form controls stay in the text face */
+.storefront :is(input, select, textarea, button) {
+  font-family: var(--font-heebo), system-ui, sans-serif;
+}
+
+/* Ink-stamp edge: slightly rough outline for stamp-style buttons */
+.ink {
+  filter: url(#ink-edge);
 }
 
 * {
@@ -290,7 +323,7 @@ kbd {
   min-width: 1.75rem;
   padding: 0.1rem 0.5rem;
   margin: 0 0.15rem;
-  font-family: var(--font-assistant), ui-monospace, "SF Mono", Menlo, monospace;
+  font-family: var(--font-heebo), ui-monospace, "SF Mono", Menlo, monospace;
   font-size: 0.78em;
   font-weight: 600;
   line-height: 1.4;
@@ -368,7 +401,7 @@ html.a11y-links a {
 /* Readable font — drop the display serif for a plain sans */
 html.a11y-readable,
 html.a11y-readable * {
-  font-family: var(--font-assistant), system-ui, sans-serif !important;
+  font-family: var(--font-heebo), system-ui, sans-serif !important;
   letter-spacing: normal !important;
 }
 

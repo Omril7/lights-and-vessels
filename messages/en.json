@@ -10,7 +10,12 @@
     "cartLabel": "Shopping Cart",
     "menu": "Menu",
     "logoAlt": "Studio Lights and Vessels",
-    "eveningMode": "Evening mode"
+    "theme": "Colour theme",
+    "themes": {
+      "paper": "Paper",
+      "evening": "Evening",
+      "cobalt": "Cobalt"
+    }
   },
   "footer": {
     "studioName": "Studio · Lights and Vessels",

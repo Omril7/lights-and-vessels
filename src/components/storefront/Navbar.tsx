@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl";
 import { useCart, cartCount } from "@/lib/cart";
 import { cn } from "@/lib/utils";
 import { LanguageSwitcher } from "@/components/storefront/LanguageSwitcher";
-import { EveningToggle } from "@/components/storefront/EveningToggle";
+import { ThemeSwitcher } from "@/components/storefront/ThemeSwitcher";
 
 export function Navbar() {
   const t = useTranslations("nav");
@@ -97,7 +97,7 @@ export function Navbar() {
         </Link>
 
         <div className="flex items-center gap-2">
-          <EveningToggle />
+          <ThemeSwitcher />
           <LanguageSwitcher />
           <button
             onClick={openCart}

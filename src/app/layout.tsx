@@ -1,22 +1,22 @@
 import type { Metadata } from "next";
-import { Frank_Ruhl_Libre, Assistant } from "next/font/google";
+import { Frank_Ruhl_Libre, Heebo } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { MotionPrefsProvider } from "@/lib/motion-prefs";
 import "./globals.css";
 
-const a11yBootScript = `(function(){try{var s=JSON.parse(localStorage.getItem('a11y-settings')||'{}');var c=document.documentElement.classList;if(s.fontStep)c.add('a11y-font-'+s.fontStep);if(s.contrast)c.add('a11y-contrast');if(s.dark)c.add('a11y-dark');if(s.grayscale)c.add('a11y-grayscale');if(s.links)c.add('a11y-links');if(s.readable)c.add('a11y-readable');if(s.cursor)c.add('a11y-cursor');if(s.noMotion)c.add('a11y-no-motion');if(s.lineSpacing)c.add('a11y-line-spacing');if(s.letterSpacing)c.add('a11y-letter-spacing');if(s.hideImages)c.add('a11y-hide-images');if(s.underlineHeadings)c.add('a11y-underline-headings');if(s.pauseMedia)c.add('a11y-pause-media');if(s.bold)c.add('a11y-bold');if(s.focus)c.add('a11y-focus');if(s.sepia)c.add('a11y-sepia');}catch(e){}try{if(localStorage.getItem('lv-evening')==='1')document.documentElement.classList.add('evening');}catch(e){}})();`;
+const a11yBootScript = `(function(){try{var s=JSON.parse(localStorage.getItem('a11y-settings')||'{}');var c=document.documentElement.classList;if(s.fontStep)c.add('a11y-font-'+s.fontStep);if(s.contrast)c.add('a11y-contrast');if(s.dark)c.add('a11y-dark');if(s.grayscale)c.add('a11y-grayscale');if(s.links)c.add('a11y-links');if(s.readable)c.add('a11y-readable');if(s.cursor)c.add('a11y-cursor');if(s.noMotion)c.add('a11y-no-motion');if(s.lineSpacing)c.add('a11y-line-spacing');if(s.letterSpacing)c.add('a11y-letter-spacing');if(s.hideImages)c.add('a11y-hide-images');if(s.underlineHeadings)c.add('a11y-underline-headings');if(s.pauseMedia)c.add('a11y-pause-media');if(s.bold)c.add('a11y-bold');if(s.focus)c.add('a11y-focus');if(s.sepia)c.add('a11y-sepia');}catch(e){}try{var th=localStorage.getItem('lv-theme');if(!th&&localStorage.getItem('lv-evening')==='1')th='evening';if(th==='evening'||th==='cobalt')document.documentElement.setAttribute('data-theme',th);}catch(e){}})();`;
 
 const frank = Frank_Ruhl_Libre({
   subsets: ["hebrew", "latin"],
-  weight: ["400", "500", "700", "900"],
+  weight: ["300", "400", "500", "700"],
   variable: "--font-frank",
   display: "swap",
 });
 
-const assistant = Assistant({
+const heebo = Heebo({
   subsets: ["hebrew", "latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-assistant",
+  weight: ["300", "400", "500", "700"],
+  variable: "--font-heebo",
   display: "swap",
 });
 
@@ -93,10 +93,17 @@ export default function RootLayout({
       lang="he"
       dir="rtl"
       suppressHydrationWarning
-      className={`${frank.variable} ${assistant.variable}`}
+      className={`${frank.variable} ${heebo.variable}`}
     >
       <body className="font-sans antialiased bg-cream text-ink">
         <script dangerouslySetInnerHTML={{ __html: a11yBootScript }} />
+        {/* Shared SVG filter: rough "ink" edge for stamp-style buttons (.ink) */}
+        <svg aria-hidden width="0" height="0" className="absolute">
+          <filter id="ink-edge">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n" />
+            <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" />
+          </filter>
+        </svg>
         <MotionPrefsProvider>
           {children}
         </MotionPrefsProvider>
@@ -106,7 +113,7 @@ export default function RootLayout({
             style: {
               background: "var(--charcoal)",
               color: "var(--cream)",
-              fontFamily: "var(--font-assistant)",
+              fontFamily: "var(--font-heebo)",
               borderRadius: "999px",
               fontSize: "0.875rem",
               padding: "0.6rem 1.1rem",

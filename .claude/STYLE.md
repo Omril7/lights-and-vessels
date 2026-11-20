@@ -1,116 +1,85 @@
-# Rebrand / Restyle Direction
+# Style Direction
 
-Sources:
-- Mood references and our own product shots in `~/.claude/projects/C--Users-omril-Projects-lights-and-vessels/images`
-- Layout and typography principles from tkcreative.ca (structure only, see "Legal distance")
+Source of truth: the design board "Orot Vekelim — homepage mockup"
+(https://claude.ai/artifact/QZv57suvEcJHJTWxG6bsLx), page **"For Omri"**:
+- **Entry**: the homepage
+- **Store**
+- **Product (B1)**
 
-## The reading
+The other boards on that canvas are explorations only.
 
-**Moodboard (8 Pinterest references):**
-- One object shot as a still life on a **single saturated backdrop**: moss green, cobalt, burnt orange, ochre, violet-blue.
-- Hard light with real shadows, and film grain.
-- Warm light glowing (flames, amber) against cool or deep backgrounds.
-- Handmade materials: rust, wax, stone, wood, glaze.
+Earlier reference work (tkcreative.ca, the Pinterest moodboard) shaped the principles below. The cobalt-first palette from that round is superseded; cobalt survives as one of the three themes.
 
-**Our product (4 shots):** rusted-iron U-shaped candleholders on stone/terrazzo bases with feet, holding beeswax tapers, shot with flash on cobalt blue. These already speak the moodboard's language.
+## Palette (default "paper" theme)
 
-**Current site:**
-- Beige palette (cream, linen, sand, clay).
-- Rounded image corners, soft shadows, `rounded-organic` blob shapes.
-- Dark gradient over the hero.
-- Rounded "pill" buttons and small uppercase labels with wide letter spacing.
+| Token | Value | Use |
+|---|---|---|
+| `--paper` | `#efe7d8` | page background |
+| `--paper-2` | `#e4d9c5` | section tint |
+| `--stone` | `#cdbfa8` | hairlines, image placeholders |
+| `--stone-2` | `#a89c86` | dimmed text on dark |
+| `--ink` | `#1c1612` | text, dark sections |
+| `--ink-2` | `#3a2e26` | secondary text |
+| `--accent` | `#a3361f` | links, active nav, hover |
+| `--stamp` | `#c2271d` | ink-stamp buttons on the product page |
 
-That's the generic "calm handmade boutique" look, and it dulls photos that are actually bold.
+Legacy class names (`cream`, `linen`, `sand`, `charcoal`, `copper`…) are aliases of these tokens. New code should use the new names.
 
-**TK Creative contributes the discipline:**
-- Photos first.
-- One serif font.
-- No interface decoration.
-- Lots of empty space.
-- Quiet captions.
+## Themes
 
-**The middle ground:** TK's restraint for the structure and typography, the moodboard's colour and light for the mood. The page stays quiet and the photos are loud.
+There are three storefront colour themes, switched by `ThemeSwitcher` in the header and set as `html[data-theme]` before paint:
+- **נייר / Paper**: the default, above.
+- **ערב / Evening**: dark brown `#1c1612` with cream text `#e6ddbf` and a warm red accent.
+- **כחול / Cobalt**: `#1e4a8e`, the product-photo backdrop, with cream text and a beeswax accent.
 
-## 1. Palette: backdrops replace beige
+Themes are scoped to `.storefront`, so the admin keeps the default palette. The accessibility colour modes always win over a theme.
 
-These hex values are rough estimates from the photos, to tune later.
+## Type
 
-| Role | Colour |
-|---|---|
-| Paper (page background) | off-white `#f2efe8` |
-| Ink (text) | near-black `#1b1712` |
-| Backdrop: cobalt | `#1d4f9c` (current product shoot) |
-| Backdrop: moss | `#3d6a2c` |
-| Backdrop: ember | `#c2561c` |
-| Accent: beeswax / flame | `#d8b46a` |
+- **Heebo** (`font-sans`, weights 300–700) for text, navigation and UI. Light weight (300) for secondary text.
+- **Frank Ruhl Libre** (`font-serif`, weights 300–700) for headings and statements.
+- No italics: Frank Ruhl has none, and Hebrew has no real italic tradition.
+- No uppercase or wide letter spacing in Hebrew. The design uses wide-spaced English caps only for the small "Orot Vekelim · Design studio" line.
 
-- The page itself stays paper and ink; the backdrop colours come in through photos and full-colour sections.
-- Each collection can own a backdrop (e.g. candleholders = cobalt, vessels = moss).
+## Shape and texture
 
-## 2. "Evening mode" (our own take on TK's colour dot)
+- Square everything: no rounded corners on images, cards or buttons. Circles only for icon buttons, dots and avatars.
+- No shadows, except on floating layers (drawer, menus, modals, WhatsApp button).
+- Thin 1px hairlines (`stone`) separate captions from images and rows from each other.
+- Film grain on paper sections (`.paper-grain`).
+- Ink-stamp buttons on the product page: a 2px `stamp` border plus `.ink`, which applies the `#ink-edge` SVG displacement filter defined in `app/layout.tsx`.
+- Photos are slightly desaturated (`saturate(0.85)`); dark hero photos are dimmed so text reads over them.
 
-- A small flame icon in the header switches the site to a dark, candlelit theme where product photos seem to glow.
-- It plays on the name *Lights* & Vessels. Do **not** copy TK's gold dot or their three-colour cycle.
+## Products
 
-## 3. Typography
+- Status is `AVAILABLE`, `COMING_SOON`, `SOLD` or `HIDDEN`; see `lib/product-status.ts`.
+  - The store lists AVAILABLE and COMING_SOON. Coming-soon items show "בקרוב" in place of the price.
+  - SOLD pieces leave the store and appear in the Gallery; their product page stays reachable.
+- **One-of-a-kind pieces** (`isUnique`) are numbered and shown as "<name> 03" via `displayName()`. Only unique pieces get numbers. A unique piece flips to SOLD automatically when paid.
 
-- Frank Ruhl Libre for nearly everything, at one or two weights. It supports Hebrew.
-- Product names set apart by size/weight, **not italic**: Frank Ruhl Libre has no italic on Google Fonts (the browser would fake one), and Hebrew has no real italic tradition anyway.
-- Drop the small uppercase labels with wide letter spacing.
-- Assistant only for practical interface text: cart, checkout, forms, prices.
+## Pages (target)
 
-## 4. Remove the decoration
+- **Entry (`/`)**: a full-screen dark photo with the logo and one line, plus three large links: החנות / הגלריה / אודות. Hovering a link swaps the background photo to that section's image and dims the other links.
+- **Store (`/shop`)**: a sticky cream header, a photo banner with "החנות", square category filter buttons, and a grid of 4:5 photos. Each caption has a hairline, then name and price, then a one-line spec.
+- **Product (`/shop/[slug]`)**:
+  - A centred square photo with thumbnails.
+  - A large serif name, then a tiny spec line (one of a kind · materials · dimensions · year).
+  - An ink-stamp buy button, plus "back to store" and "ask about this piece" stamps.
+- **Gallery (`/gallery`)**: sold pieces plus `GalleryProject` entries.
+- **Blog**: kept, linked from the footer only.
 
-- Square image corners: no `rounded-xl` / `rounded-2xl` on images.
-- No `shadow-soft` / `shadow-lift`.
-- No `rounded-organic` blob shape.
-- Buttons become underlined text, or square buttons in ink. No pills.
-- Keep the grain texture (`paper-grain`) but tune it toward film grain, since it matches the photos.
+## Routing
 
-## 5. Page by page
+Hebrew is the default and has no prefix (`/shop`); English lives at `/en/shop`. `lib/seo.ts` builds paths and hreflang links.
 
-- **Home:**
-  - Replace the full-screen hero with a split layout: a fixed text column on the right (RTL) holds a short statement, while a staggered column of product still lifes scrolls on the left.
-  - Unlike TK, each photo has a caption and links to its product.
-  - Backdrop colours alternate as you scroll.
-- **Shop:**
-  - Rows of three portrait photos with a small caption under each: italic name, then material and price.
-  - **Hover lights the candle**: it swaps to a second photo of the same piece with the candles lit. Shoot every piece unlit and lit.
-  - Remove the slide-up "add to cart" button.
-- **Product page:**
-  - The page takes the product's backdrop colour.
-  - A large photo sits next to an expandable "+" list: materials, dimensions, care, shipping.
-- **About:** one large opening paragraph about the work, then two short lists: materials and process.
-- **Contact:** keep WhatsApp and the contact section, restyled to match.
+## Legal distance (TK Creative)
 
-## 6. Photography matters most
+We never take TK Creative's:
+- font (Sectra)
+- grey `#f0f0f0` / gold `#b89b62` / charcoal `#232e2e` palette
+- gold-tint image hover
+- giant name pinned bottom-left over scrolling photos
+- single-dot colour cycler (our theme switch is a named menu)
+- wording
 
-The look only works if every product is shot the way the candleholders were:
-- one seamless coloured backdrop
-- flash
-- grain
-- candles lit
-
-The site design is a frame; the photos carry the brand.
-
-## Legal distance
-
-- **What we take from TK** is only general principles: restraint, one serif font, photos first, empty space. Those can't be owned.
-- **What we never take from TK:**
-  - their font (Sectra)
-  - their grey `#f0f0f0` / gold `#b89b62` / charcoal `#232e2e` palette
-  - the gold-tint image hover
-  - the giant name pinned bottom-left over scrolling photos
-  - the colour-dot theme switcher
-  - any of their wording
-- **The Pinterest photos** belong to other photographers. Use them only as mood references, never on the site.
-
-## Order of work
-
-1. Colours and type (`src/app/globals.css`, `tailwind.config.ts`), which restyles the whole site at once.
-2. Remove the rounded corners, shadows and pill buttons across components.
-3. Shop grid and `ProductCard` (with the lit-candle hover).
-4. Product page.
-5. Home layout.
-6. Evening mode.
-7. About page.
+The Pinterest photos are mood references only, never site content.
