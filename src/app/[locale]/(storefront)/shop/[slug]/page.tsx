@@ -4,12 +4,11 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { ProductGallery } from "@/components/storefront/ProductGallery";
-import { AddToCartButton } from "@/components/storefront/AddToCartButton";
+import { getSiteContent } from "@/lib/content";
+import { ProductStage } from "@/components/storefront/ProductStage";
+import { StampBuyButton } from "@/components/storefront/StampBuyButton";
 import { ProductCard } from "@/components/storefront/ProductCard";
-import { FadeIn } from "@/components/ui/FadeIn";
-import { Badge } from "@/components/ui/Badge";
-import { formatPrice, renderMarkdown, localize } from "@/lib/utils";
+import { renderMarkdown, localize, whatsappUrl } from "@/lib/utils";
 import type { ProductWithImages } from "@/types";
 import { PUBLIC_STATUSES, STORE_STATUSES, isSoldOut, displayName } from "@/lib/product-status";
 import { alternatesFor, localePath } from "@/lib/seo";
@@ -72,30 +71,39 @@ export default async function ProductPage({
   ]);
   if (!product) notFound();
 
-  const related = (await prisma.product.findMany({
-    where: {
-      status: { in: STORE_STATUSES },
-      categoryId: product.categoryId,
-      id: { not: product.id },
-    },
-    include: { images: { orderBy: { order: "asc" } } },
-    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-    take: 3,
-  })) as ProductWithImages[];
+  const [content, related] = await Promise.all([
+    getSiteContent({ locale }),
+    prisma.product.findMany({
+      where: {
+        status: { in: STORE_STATUSES },
+        categoryId: product.categoryId,
+        id: { not: product.id },
+      },
+      include: { images: { orderBy: { order: "asc" } } },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+      take: 3,
+    }) as Promise<ProductWithImages[]>,
+  ]);
 
   const name = displayName(product, locale);
   const description = localize(product, "description", locale);
   const materials = localize(product, "materials", locale);
-  const onSale = product.comparePrice != null && product.comparePrice > product.price;
   const soldOut = isSoldOut(product);
-  const lowStock = !soldOut && product.stockCount <= 5;
-  const tags = product.tags.map((l) => localize(l.tag, "name", locale));
-  const dimensions = [product.width, product.height, product.depth]
+  const dimensions = [product.height, product.width, product.depth]
     .filter((d): d is number => d != null)
     .join(" × ");
 
-  const category = product.category;
-  const catLabel = category ? localize(category, "name", locale) : "";
+  // "פריט יחיד · אריח טרצו עתיק, ברזל חלוד · 20 × 12 ס״מ · 2026"
+  const spec = [
+    product.isUnique ? t("oneOfAKind") : null,
+    materials || null,
+    dimensions ? `${dimensions} ${t("cm")}` : null,
+    product.year ? String(product.year) : null,
+  ].filter(Boolean) as string[];
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lights-and-vessels.vercel.app";
+  const pageUrl = `${siteUrl}${localePath(locale, `/shop/${product.slug}`)}`;
+  const askHref = whatsappUrl(content.whatsapp_number, t("askMessage", { name, url: pageUrl }));
 
   const productJsonLd = {
     "@context": "https://schema.org",
@@ -108,139 +116,90 @@ export default async function ProductPage({
       "@type": "Offer",
       price: product.price,
       priceCurrency: "ILS",
-      availability: soldOut
-        ? "https://schema.org/OutOfStock"
-        : "https://schema.org/InStock",
-      url: `/shop/${product.slug}`,
+      availability: soldOut ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+      url: pageUrl,
     },
   };
 
+  const stampLink =
+    "ink flex min-h-[44px] flex-1 items-center justify-center border-[1.5px] border-stamp text-[0.8rem] font-bold text-stamp transition-opacity hover:opacity-70";
+
   return (
-    <div className="mx-auto max-w-editorial px-5 pb-10 pt-28 md:px-8 md:pt-32">
+    <div className="paper-grain px-5 pb-10 pt-8 sm:px-[5vw]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
       />
-      {/* Breadcrumb */}
-      <nav className="mb-8 flex items-center gap-2 text-xs text-charcoal/50">
-        <Link href="/" className="hover:text-charcoal">
-          {t("breadcrumbHome")}
-        </Link>
-        <span>/</span>
-        <Link href="/shop" className="hover:text-charcoal">
-          {t("breadcrumbShop")}
-        </Link>
-        <span>/</span>
-        {category && (
-          <Link
-            href={`/shop?category=${category.slug}`}
-            className="hover:text-charcoal"
-          >
-            {catLabel}
+
+      <div className="mx-auto flex w-[min(480px,100%)] flex-col gap-3">
+        <ProductStage images={product.images} name={name} />
+
+        <div className="flex flex-col items-center gap-1.5 pb-0.5 pt-1.5 text-center">
+          <h1 className="font-serif text-5xl font-medium leading-none tracking-[0.04em] text-ink md:text-[52px]">
+            {name}
+          </h1>
+          {spec.length > 0 && (
+            <p className="text-[0.72rem] leading-relaxed tracking-[0.06em] text-ink-2">
+              {spec.join(" · ")}
+            </p>
+          )}
+        </div>
+
+        <StampBuyButton product={product} />
+
+        <div className="flex gap-2.5">
+          <Link href="/shop" className={stampLink}>
+            {t("backToStore")}
           </Link>
+          {content.whatsapp_number && (
+            <a href={askHref} target="_blank" rel="noopener noreferrer" className={stampLink}>
+              {t("askAbout")}
+            </a>
+          )}
+        </div>
+
+        {/* Description + details, below the fold */}
+        {description && (
+          <div
+            className="prose-art mt-10 text-[0.95rem] font-light text-ink-2"
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(description) }}
+          />
         )}
-      </nav>
-
-      <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-        <FadeIn>
-          <ProductGallery images={product.images} name={name} />
-        </FadeIn>
-
-        <FadeIn delay={0.1}>
-          <div className="lg:sticky lg:top-28">
-            <div className="flex flex-wrap items-center gap-3">
-              {category && (
-                <span className="text-sm text-charcoal/60">{catLabel}</span>
-              )}
-              {soldOut && <Badge tone="soldout">{t("soldOut")}</Badge>}
-              {onSale && !soldOut && <Badge tone="sale">{t("sale")}</Badge>}
-            </div>
-
-            <h1 className="mt-3 font-serif text-4xl leading-tight text-ink md:text-5xl">
-              {name}
-            </h1>
-
-            <div className="mt-4 flex items-baseline gap-3">
-              <span className="font-serif text-3xl text-ink">
-                {formatPrice(product.price)}
-              </span>
-              {onSale && (
-                <span className="text-lg text-charcoal/40 line-through">
-                  {formatPrice(product.comparePrice!)}
-                </span>
-              )}
-            </div>
-
-            <div className="mt-2 text-sm">
-              {soldOut ? (
-                <span className="text-terracotta">{t("outOfStockNow")}</span>
-              ) : lowStock ? (
-                <span className="text-copper">
-                  {t("unitsLeft", { count: product.stockCount })}
-                </span>
-              ) : (
-                <span className="text-olive">{t("inStock")}</span>
-              )}
-            </div>
-
-            <div
-              className="prose-art mt-6 text-[0.95rem] text-charcoal/85"
-              dangerouslySetInnerHTML={{ __html: renderMarkdown(description) }}
-            />
-
-            {tags.length > 0 && (
-              <p className="mt-5 text-sm text-charcoal/60">{tags.join(" · ")}</p>
-            )}
-
-            <div className="mt-8">
-              <AddToCartButton product={product} withQuantity />
-            </div>
-
-            {/* Details — native <details> so it works without JS */}
-            <div className="mt-10 border-b border-charcoal/20">
-              {materials && (
-                <DetailRow title={t("materials")} open>
-                  <p>{materials}</p>
-                  <p className="mt-1 text-charcoal/60">{t("handcrafted")}</p>
-                </DetailRow>
-              )}
-              {dimensions && (
-                <DetailRow title={t("dimensions")}>
-                  <p>
-                    <bdi dir="ltr">{dimensions}</bdi> {t("cm")}
-                  </p>
-                </DetailRow>
-              )}
-              <DetailRow title={t("shippingReturns")}>
-                <p>{t("shippingDetail")}</p>
-                <p className="mt-1">{t("giftNote")}</p>
-                <p className="mt-3 flex gap-4">
-                  <Link href="/legal/shipping" className="underline underline-offset-4 hover:text-copper">
-                    {t("shippingPolicyLink")}
-                  </Link>
-                  <Link href="/legal/returns" className="underline underline-offset-4 hover:text-copper">
-                    {t("returnsPolicyLink")}
-                  </Link>
-                </p>
-              </DetailRow>
-            </div>
-          </div>
-        </FadeIn>
+        <div className="mt-6 border-b border-stone">
+          {materials && (
+            <DetailRow title={t("materials")}>
+              <p>{materials}</p>
+              <p className="mt-1 text-charcoal/60">{t("handcrafted")}</p>
+            </DetailRow>
+          )}
+          {dimensions && (
+            <DetailRow title={t("dimensions")}>
+              <p>
+                <bdi dir="ltr">{dimensions}</bdi> {t("cm")}
+              </p>
+            </DetailRow>
+          )}
+          <DetailRow title={t("shippingReturns")}>
+            <p>{t("shippingDetail")}</p>
+            <p className="mt-1">{t("giftNote")}</p>
+            <p className="mt-3 flex gap-4">
+              <Link href="/legal/shipping" className="underline underline-offset-4 hover:text-accent">
+                {t("shippingPolicyLink")}
+              </Link>
+              <Link href="/legal/returns" className="underline underline-offset-4 hover:text-accent">
+                {t("returnsPolicyLink")}
+              </Link>
+            </p>
+          </DetailRow>
+        </div>
       </div>
 
-      {/* Related */}
       {related.length > 0 && (
-        <section className="mt-24">
-          <FadeIn className="mb-8">
-            <h2 className="font-serif text-2xl text-ink md:text-3xl">
-              {t("related")}
-            </h2>
-          </FadeIn>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-12 sm:gap-x-6 md:grid-cols-3 md:gap-y-20">
-            {related.map((p, i) => (
-              <FadeIn key={p.id} delay={i * 0.06}>
-                <ProductCard product={p} />
-              </FadeIn>
+        <section className="mt-28">
+          <h2 className="mb-8 font-serif text-2xl text-ink md:text-3xl">{t("related")}</h2>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-x-8 gap-y-16">
+            {related.map((p) => (
+              <ProductCard key={p.id} product={p} />
             ))}
           </div>
         </section>
@@ -259,7 +218,7 @@ function DetailRow({
   children: React.ReactNode;
 }) {
   return (
-    <details open={open} className="group border-t border-charcoal/20">
+    <details open={open} className="group border-t border-stone">
       <summary className="flex cursor-pointer list-none items-center justify-between py-4 text-base text-ink [&::-webkit-details-marker]:hidden">
         {title}
         <span

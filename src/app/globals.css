@@ -124,6 +124,13 @@ html.a11y-contrast .brand-logo {
 .ink {
   filter: url(#ink-edge);
 }
+/* The logo, painted in the current text colour (stamp red on the buy button) */
+.stamp-logo {
+  display: block;
+  background-color: currentColor;
+  -webkit-mask: url("/logo-2169x1282-black.png") center / contain no-repeat;
+  mask: url("/logo-2169x1282-black.png") center / contain no-repeat;
+}
 
 * {
   -webkit-font-smoothing: antialiased;
