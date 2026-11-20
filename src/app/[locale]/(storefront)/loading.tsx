@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function StorefrontLoading() {
   return (
-    <div className="mx-auto max-w-editorial px-5 pb-20 pt-28 md:px-8 md:pt-32">
+    <div className="mx-auto max-w-editorial px-5 pb-20 pt-12 md:px-8 md:pt-16">
       <Skeleton className="aspect-[16/9] w-full md:aspect-[21/9]" />
 
       <div className="mt-16 space-y-6">

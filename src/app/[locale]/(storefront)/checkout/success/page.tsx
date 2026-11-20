@@ -42,7 +42,7 @@ export default async function CheckoutSuccessPage({
   } catch {}
 
   return (
-    <div className="mx-auto max-w-editorial px-5 pb-20 pt-28 md:px-8 md:pt-32">
+    <div className="mx-auto max-w-editorial px-5 pb-20 pt-12 md:px-8 md:pt-16">
       <ClearCartOnMount />
       <div className="border border-charcoal/15 bg-linen p-8 md:p-10">
         <p className="text-sm text-copper">{isPaid ? t("confirmed") : t("received")}</p>

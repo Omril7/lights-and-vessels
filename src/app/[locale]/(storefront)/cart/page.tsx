@@ -46,7 +46,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="mx-auto max-w-editorial px-5 pb-16 pt-28 md:px-8 md:pt-32">
+    <div className="mx-auto max-w-editorial px-5 pb-16 pt-12 md:px-8 md:pt-16">
       <h1 className="mb-10 font-serif text-4xl text-ink md:text-5xl">
         {t("heading")}
       </h1>

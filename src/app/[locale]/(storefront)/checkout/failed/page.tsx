@@ -17,7 +17,7 @@ export default async function CheckoutFailedPage({
     : null;
 
   return (
-    <div className="mx-auto max-w-editorial px-5 pb-20 pt-28 md:px-8 md:pt-32">
+    <div className="mx-auto max-w-editorial px-5 pb-20 pt-12 md:px-8 md:pt-16">
       <div className="border border-terracotta/30 bg-linen p-8 md:p-10">
         <p className="text-sm text-terracotta">{t("notCompleted")}</p>
         <h1 className="mt-2 font-serif text-4xl text-ink">{t("heading")}</h1>

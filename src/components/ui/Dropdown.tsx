@@ -34,7 +34,7 @@ export function Dropdown({
 
   const triggerClass =
     variant === "field"
-      ? "flex w-full items-center justify-between gap-2 border border-charcoal/20 bg-cream px-4 py-3 text-sm text-charcoal transition hover:border-charcoal/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
+      ? "flex w-full items-center justify-between gap-2 border border-charcoal/35 bg-cream px-4 py-3 text-sm text-charcoal transition hover:border-charcoal/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
       : "flex items-center gap-2 border border-charcoal/25 bg-cream px-4 py-1.5 text-sm text-charcoal transition hover:border-charcoal focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40";
 
   const menuClass =

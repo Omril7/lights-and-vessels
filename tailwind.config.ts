@@ -1,5 +1,15 @@
 import type { Config } from "tailwindcss";
 
+/**
+ * A colour backed by a CSS variable (so themes can swap it) that still supports
+ * Tailwind opacity modifiers: Tailwind fills <alpha-value> (1 when there's no
+ * modifier), so `border-charcoal/35` becomes a color-mix with transparent.
+ * A plain "var(--x)" string silently drops the modifier.
+ */
+function themed(name: string): string {
+  return `color-mix(in srgb, var(--${name}) calc(<alpha-value> * 100%), transparent)`;
+}
+
 const config: Config = {
   content: [
     "./src/app/**/*.{ts,tsx}",
@@ -8,27 +18,28 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Brand palette — defined as CSS variables in globals.css (see .claude/STYLE.md)
-        paper: { DEFAULT: "var(--paper)", 2: "var(--paper-2)" },
-        stone: { DEFAULT: "var(--stone)", 2: "var(--stone-2)" },
-        "ink-2": "var(--ink-2)",
-        cobalt: "var(--cobalt)",
-        moss: "var(--moss)",
-        ember: "var(--ember)",
-        beeswax: "var(--beeswax)",
-        accent: "var(--accent)",
-        stamp: "var(--stamp)",
+        // Brand palette — CSS variables in globals.css (see .claude/STYLE.md).
+        // themed() lets opacity modifiers (border-charcoal/35) work on them.
+        paper: { DEFAULT: themed("paper"), 2: themed("paper-2") },
+        stone: { DEFAULT: themed("stone"), 2: themed("stone-2") },
+        "ink-2": themed("ink-2"),
+        cobalt: themed("cobalt"),
+        moss: themed("moss"),
+        ember: themed("ember"),
+        beeswax: themed("beeswax"),
+        accent: themed("accent"),
+        stamp: themed("stamp"),
         // Legacy names — aliases of the brand palette until components migrate
-        clay: "var(--clay)",
-        sand: "var(--sand)",
-        linen: "var(--linen)",
-        terracotta: "var(--terracotta)",
-        olive: "var(--olive)",
-        charcoal: "var(--charcoal)",
-        ink: "var(--ink)",
-        gold: "var(--gold)",
-        copper: "var(--copper)",
-        cream: "var(--cream)",
+        clay: themed("clay"),
+        sand: themed("sand"),
+        linen: themed("linen"),
+        terracotta: themed("terracotta"),
+        olive: themed("olive"),
+        charcoal: themed("charcoal"),
+        ink: themed("ink"),
+        gold: themed("gold"),
+        copper: themed("copper"),
+        cream: themed("cream"),
       },
       fontFamily: {
         serif: ["var(--font-frank)", "Frank Ruhl Libre", "Georgia", "serif"],

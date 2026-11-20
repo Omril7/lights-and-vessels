@@ -17,7 +17,7 @@ export default async function CheckoutPage() {
   const pickupHours = content.shipping_pickup_hours || "";
 
   return (
-    <div className="mx-auto max-w-editorial px-5 pb-20 pt-28 md:px-8 md:pt-32">
+    <div className="mx-auto max-w-editorial px-5 pb-20 pt-12 md:px-8 md:pt-16">
       <h1 className="mb-10 font-serif text-4xl text-ink md:text-5xl">{t("heading")}</h1>
       <CheckoutForm
         shipping={{ postPrice, freeOver, postEta, pickupAddress, pickupHours }}

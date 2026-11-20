@@ -42,7 +42,7 @@ export default async function AboutPage() {
   const process = lines(content.about_process);
 
   return (
-    <div className="pt-28 md:pt-32">
+    <div className="pt-12 md:pt-16">
       {/* Intro — the statement, large, beside the portrait */}
       <section className="mx-auto max-w-editorial px-5 md:px-8">
         <div className={`grid items-end gap-10 md:gap-16 ${content.about_portrait ? "md:grid-cols-[7fr_5fr]" : ""}`}>

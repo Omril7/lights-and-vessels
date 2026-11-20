@@ -19,7 +19,7 @@ export default function StorefrontError({
   }, [error]);
 
   return (
-    <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-5 px-5 pt-28 text-center">
+    <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-5 px-5 pt-12 text-center">
       <p className="font-serif text-6xl text-charcoal/30">!</p>
       <h1 className="font-serif text-3xl text-ink">{t("generic")}</h1>
       <p className="text-sm text-charcoal/70">
