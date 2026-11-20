@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { getSiteContent, parseGallery } from "@/lib/content";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { ContactSection } from "@/components/storefront/ContactSection";
+import { Testimonials } from "@/components/storefront/Testimonials";
 import { renderMarkdown } from "@/lib/utils";
 import { alternatesFor } from "@/lib/seo";
 
@@ -136,6 +137,8 @@ export default async function AboutPage() {
           </div>
         </section>
       )}
+
+      <Testimonials />
 
       <ContactSection
         heading={content.contact_heading}

@@ -20,6 +20,10 @@ const FALLBACKS: Record<string, string> = {
   hero_subtitle: "אוסף סטודיו קטן של תכשיטים וחפצים לבית.",
   hero_image: "https://picsum.photos/seed/hero-studio/1600/1200",
   hero_cta: "לגלות את האוסף",
+  // Entry page: the photo each door crossfades to. Empty = use hero_image.
+  entry_image_store: "",
+  entry_image_gallery: "",
+  entry_image_about: "",
   story_teaser: "הכול כאן מתחיל על שולחן עץ בלוי לצד חלון.",
   story_image: "https://picsum.photos/seed/studio-bench/900/1100",
   about_text: "## הסיפור שלי\n\nתוכן בקרוב.",

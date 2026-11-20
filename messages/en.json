@@ -173,15 +173,8 @@
     "backToCart": "Back to Cart"
   },
   "home": {
-    "viewAll": "View All",
     "testimonialsLabel": "What They Say",
-    "testimonials": "Words from Customers",
-    "categoryLabel": "By Category",
-    "browse": "Browse the Collection",
-    "storyLabel": "Behind the Scenes",
-    "storyHeading": "From the Bench by the Window",
-    "storyLink": "Read the Full Story",
-    "storyImageAlt": "The studio"
+    "testimonials": "Words from Customers"
   },
   "contact": {
     "label": "Contact",
@@ -252,5 +245,13 @@
     "noMotion": "Stop Animations",
     "pauseMedia": "Pause Media",
     "hideImages": "Hide Images"
+  },
+  "entry": {
+    "cart": "Cart ({count})",
+    "logoAlt": "Lights and Vessels",
+    "navLabel": "Main navigation",
+    "store": "Store",
+    "gallery": "Gallery",
+    "about": "About"
   }
 }

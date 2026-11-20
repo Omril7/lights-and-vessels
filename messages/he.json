@@ -173,15 +173,8 @@
     "backToCart": "חזרה לעגלה"
   },
   "home": {
-    "viewAll": "לכל האוסף",
     "testimonialsLabel": "מה אומרים",
-    "testimonials": "מילים מלקוחות",
-    "categoryLabel": "לפי קטגוריה",
-    "browse": "עיון באוסף",
-    "storyLabel": "מאחורי הקלעים",
-    "storyHeading": "מהבנק שליד החלון",
-    "storyLink": "לסיפור המלא",
-    "storyImageAlt": "הסטודיו"
+    "testimonials": "מילים מלקוחות"
   },
   "contact": {
     "label": "צרו קשר",
@@ -252,5 +245,13 @@
     "noMotion": "עצירת אנימציות",
     "pauseMedia": "עצירת מדיה",
     "hideImages": "הסתרת תמונות"
+  },
+  "entry": {
+    "cart": "עגלה ({count})",
+    "logoAlt": "אורות וכלים",
+    "navLabel": "ניווט ראשי",
+    "store": "החנות",
+    "gallery": "הגלריה",
+    "about": "אודות"
   }
 }
