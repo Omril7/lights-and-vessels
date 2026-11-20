@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, LocalizedInput } from "@/components/ui";
-import { IsraelFlag, UsaFlag } from "@/lib/flags";
+import { LangCode } from "@/components/ui/LangCode";
 import { TrashIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -153,11 +153,11 @@ export function TaxonomyManager({
           <ul className="divide-y divide-charcoal/5">
             <li className="hidden grid-cols-[1fr_1fr_5rem_2.5rem] gap-3 bg-linen/60 px-4 py-3 text-xs text-charcoal/60 sm:grid">
               <span className="flex items-center gap-1.5">
-                <IsraelFlag className="h-3 w-[1.1rem] rounded-[2px]" />
+                <LangCode locale="he" />
                 עברית
               </span>
               <span className="flex items-center gap-1.5">
-                <UsaFlag className="h-3 w-[1.1rem] rounded-[2px]" />
+                <LangCode locale="en" />
                 English
               </span>
               <span>מוצרים</span>

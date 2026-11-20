@@ -2,49 +2,29 @@
 
 import { useLocale } from "next-intl";
 import { usePathname, Link } from "@/i18n/navigation";
-import { IsraelFlag, UsaFlag } from "@/lib/flags";
 import { cn } from "@/lib/utils";
 
-const LOCALES = [
-  { code: "he" as const, Flag: IsraelFlag, label: "עברית" },
-  { code: "en" as const, Flag: UsaFlag, label: "English" },
-];
-
+/**
+ * Link to the same page in the other language, shown as its code —
+ * "EN" on the Hebrew site, "עב" on the English one (as on the entry page).
+ */
 export function LanguageSwitcher({ className }: { className?: string }) {
   const locale = useLocale();
   const pathname = usePathname();
+  const other = locale === "he" ? "en" : "he";
 
   return (
-    <div
-      role="group"
-      aria-label="בחירת שפה / Language"
+    <Link
+      href={pathname}
+      locale={other}
+      lang={other}
+      aria-label={other === "en" ? "English" : "עברית"}
       className={cn(
-        "flex items-center gap-0.5 border border-charcoal/15 p-1",
+        "px-1.5 py-1 text-sm font-light text-ink transition-colors hover:text-accent",
         className
       )}
     >
-      {LOCALES.map(({ code, Flag, label }) =>
-        code === locale ? (
-          <span
-            key={code}
-            aria-label={label}
-            aria-current="true"
-            className="p-0.5 opacity-100 ring-1 ring-charcoal/25"
-          >
-            <Flag className="h-3.5 w-5 rounded-[2px]" />
-          </span>
-        ) : (
-          <Link
-            key={code}
-            href={pathname}
-            locale={code}
-            aria-label={label}
-            className="p-0.5 opacity-35 hover:opacity-65 transition-all"
-          >
-            <Flag className="h-3.5 w-5 rounded-[2px]" />
-          </Link>
-        )
-      )}
-    </div>
+      {other === "en" ? "EN" : "עב"}
+    </Link>
   );
 }

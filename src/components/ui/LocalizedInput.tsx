@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { IsraelFlag, UsaFlag } from "@/lib/flags";
+import { LangCode } from "./LangCode";
 
 const fieldBase =
   "w-full bg-cream border border-charcoal/35 px-4 py-3 text-sm text-ink font-sans placeholder:text-charcoal/40 focus:outline-none focus:border-charcoal/60 focus:ring-2 focus:ring-gold/30 transition-colors";
@@ -16,12 +16,11 @@ export function LocalizedInput({
   label: string;
   locale: "he" | "en";
 }) {
-  const Flag = locale === "he" ? IsraelFlag : UsaFlag;
   return (
     <div className="flex flex-col gap-1.5" dir={locale === "en" ? "ltr" : undefined}>
       <label htmlFor={id} className={labelBase}>
         <span className="flex items-center gap-1.5">
-          <Flag className="h-3 w-[1.1rem] shrink-0 rounded-[2px] shadow-sm" />
+          <LangCode locale={locale} />
           {label}
         </span>
       </label>
@@ -45,12 +44,11 @@ export function LocalizedTextarea({
   label: string;
   locale: "he" | "en";
 }) {
-  const Flag = locale === "he" ? IsraelFlag : UsaFlag;
   return (
     <div className="flex flex-col gap-1.5" dir={locale === "en" ? "ltr" : undefined}>
       <label htmlFor={id} className={labelBase}>
         <span className="flex items-center gap-1.5">
-          <Flag className="h-3 w-[1.1rem] shrink-0 rounded-[2px] shadow-sm" />
+          <LangCode locale={locale} />
           {label}
         </span>
       </label>

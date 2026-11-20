@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { IsraelFlag, UsaFlag } from "@/lib/flags";
+import { LangCode } from "@/components/ui/LangCode";
 import { Markdown, MarkdownCheatSheet } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +22,6 @@ export function MarkdownEditor({
 }) {
   const [tab, setTab] = useState<"edit" | "preview">("edit");
   const [showHelp, setShowHelp] = useState(false);
-  const Flag = locale === "he" ? IsraelFlag : UsaFlag;
   const isHe = locale === "he";
 
   const inputBase =
@@ -32,7 +31,7 @@ export function MarkdownEditor({
     <div className="space-y-1.5" dir={isHe ? undefined : "ltr"}>
       <div className="flex items-center justify-between">
         <span className="text-[0.7rem] text-charcoal/55 font-medium flex items-center gap-1.5">
-          <Flag className="h-3 w-4 rounded-sm" />
+          <LangCode locale={locale} />
           {label}
         </span>
         <div className="flex items-center gap-1 text-xs">

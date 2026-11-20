@@ -16,7 +16,8 @@ import {
   NewspaperIcon,
   PhotoIcon,
   ChartBarIcon,
-  ArrowRightOnRectangleIcon,
+  ArrowRightStartOnRectangleIcon,
+  ChevronLeftIcon,
   ArrowTopRightOnSquareIcon,
   Bars3Icon,
   XMarkIcon,
@@ -127,7 +128,16 @@ function AdminNav({ email, onNavigate }: { email?: string | null; onNavigate?: (
                       )}
                     >
                       <Icon className="h-5 w-5 shrink-0" aria-hidden />
-                      {item.label}
+                      <span className="flex-1">{item.label}</span>
+                      {item.children && (
+                        <ChevronLeftIcon
+                          aria-hidden
+                          className={cn(
+                            "h-4 w-4 shrink-0 text-charcoal/50 transition-transform duration-200",
+                            within && "-rotate-90"
+                          )}
+                        />
+                      )}
                     </Link>
                     {item.children && within && (
                       <ul className="mb-1 ms-[1.4rem] border-s border-charcoal/15 py-1">
@@ -176,7 +186,7 @@ function AdminNav({ email, onNavigate }: { email?: string | null; onNavigate?: (
           onClick={() => signOut({ callbackUrl: "/admin/login" })}
           className="flex w-full items-center gap-3 px-3 py-2.5 text-sm text-charcoal/80 transition-colors hover:bg-accent/10 hover:text-accent"
         >
-          <ArrowRightOnRectangleIcon className="h-5 w-5 shrink-0" aria-hidden />
+          <ArrowRightStartOnRectangleIcon className="h-5 w-5 shrink-0" aria-hidden />
           התנתקות
         </button>
         {email && (

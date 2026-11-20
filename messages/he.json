@@ -8,7 +8,6 @@
     "cartLabel": "עגלת הקניות",
     "menu": "תפריט",
     "logoAlt": "סטודיו אורות וכלים",
-    "theme": "ערכת צבעים",
     "themes": {
       "paper": "נייר",
       "evening": "ערב",
@@ -16,7 +15,8 @@
     },
     "gallery": "הגלריה",
     "cart": "עגלה ({count})",
-    "backToEntry": "חזרה לכניסה — אורות וכלים"
+    "backToEntry": "חזרה לכניסה — אורות וכלים",
+    "themeCycle": "ערכת צבעים: {current}. לחיצה מעבירה ל{next}"
   },
   "footer": {
     "studioName": "סטודיו · אורות וכלים",
